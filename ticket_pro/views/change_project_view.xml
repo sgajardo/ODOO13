@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+    <record id="view_form_change_project" model="ir.ui.view">
+         <field name="name">view.form.change.project</field>
+         <field name="model">change.project</field>
+         <field name="arch" type="xml">
+            <form string="Listado de Desarrollos">
+              <header>
+                  <button name="exe_autorizar_2" string="Autorizar" class="oe_highlight" type="object" groups="ticket_pro.tiket_pro_manager_group"
+                        attrs="{'invisible': [('state','!=','borrador')]}" />
+
+                  <button name="exe_work_2" string="Trabajando" class="oe_highlight" type="object" groups="ticket_pro.tiket_pro_manager_group"
+                        attrs="{'invisible': [('state','!=','aprobado')]}" />
+
+                  <button name="exe_resuelto_2" string="Resuelto" class="oe_highlight" type="object" groups="ticket_pro.tiket_pro_manager_group"
+                        attrs="{'invisible': [('state','!=','trabajando')]}" />
+
+                  <button name="exe_abrir_2" string="Abrir" type="object"
+                        attrs="{'invisible': [('state','!=','resuelto'),('state','!=','calificado')]}"
+                         confirm="¿Estás seguro de que deseas Abrir el Ticket? Te recomendamos crear otro ticket y relacionarlo."/>
+
+                  <button name="exe_close_2" string="Pasar a Calificado" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state','!=','resuelto')]}" />
+
+
+                  <field name="state" widget="statusbar"/>
+              </header>
+
+                <div class="alert alert-success" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('state','!=','resuelto')]}">
+                    Por favor califique este <bold><a class="alert-link" href="#glosa" role="button">Cambio</a></bold> en el campo calificación y pulse <bold>Pasar a Calificado</bold>,
+                  </div>
+              <sheet>
+
+
+                  <div class="oe_title">
+                           <h1>
+                               <field name="name" readonly="1"/>
+                           </h1>
+                        </div>
+                  <group>
+                      <group>
+                          <field name="title" required="1"/>
+                          <field name="user_error_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="prioridad" required="1" />
+                          <field name="category_id" required="1"  options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="company_id" readonly="1"/>
+                          <field name="ticket_id"/>
+                       </group>
+                      <group>
+                          <field name="comprobante_01_name" invisible="1"/>
+                          <field name="comprobante_01" filename="comprobante_01_name"/>
+                          <field name="entry_date" readonly="1"/>
+                          <field name="end_date" readonly="1"/>
+                          <field name="end_will_end"/>
+                          <field name="user_id" readonly="1"/>
+                          <field name="total_horas"/>
+                          <field name="total_price"/>
+                          <field name="notas"/>
+                          <field name="calificacion" widget="priority" attrs="{'invisible': [('state', '!=', 'resuelto'),('state', '!=', 'calificado')]}"/>
+                          <field name="obs_calificacion" attrs="{'invisible': [('state', '!=', 'resuelto'),('state', '!=', 'calificado')]}"/>
+                       </group>
+                  </group>
+                  <field name="obs" required="1"/>
+                  <field name="obs_solucion" attrs="{'invisible': [('state', '==', 'borrador')],
+                                                                            'required': [('state','==','trabajando')]}"/>
+
+                  <notebook>
+                   <page name="horas" string="Horas">
+                     <field name="hours_ids">
+                           <tree string="Horas" editable="bottom">
+                                <field name="cant_horas" required="1" sum="Total"/>
+                                <field name="calificacion" required="1"/>
+                                <field name="entry_date" required="1"/>
+                                <field name="user_id" required="1"/>
+                                <field name="unit_price"/>
+                                <field name="total_price" sum="Total"/>
+                           </tree>
+                     </field>
+                    </page>
+                </notebook>
+
+               </sheet>
+                <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_change_project" model="ir.ui.view">
+         <field name="name">view.tree.change.project</field>
+         <field name="model">change.project</field>
+         <field name="arch" type="xml">
+            <tree decoration-danger="state == 'borrador'" decoration-primary="state=='aprobado'" decoration-success="state=='trabajando'">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="prioridad"/>
+                <field name="user_id"/>
+                <field name="user_error_id"/>
+                <field name="entry_date"/>
+                <field name="end_will_end"/>
+                <field name="end_date"/>
+                <field name="category_id"/>
+                <field name="ticket_id"/>
+                <field name="calificacion" widget="priority"/>
+                <field name="notas"/>
+                <field name="total_horas" sum="Total"/>
+                <field name="total_price" sum="Total"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_change_project" model="ir.actions.act_window">
+        <field name="name">Desarrollos</field>
+        <field name="res_model">change.project</field>
+        <field name="view_id" ref="view_tree_change_project"/>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Presione para crear nuevo Registro</p>
+       </field>
+    </record>
+
+
+    <!-- Menú Secundario: Hereda del menú principal -->
+    <menuitem id="menu_change_project" name="Desarrollos" parent="ticket_menu_main" sequence="20"/>
+
+
+    <menuitem id="menu_change_project_2"
+        name="Desarrollos"
+        parent="menu_change_project"
+        sequence="10"
+        action="action_change_project" />
+     </data>
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="email_change_project" model="mail.template">
+            <field name="name">Cambio Odoo</field>
+            <field name="model_id" ref="ticket_pro.model_change_project"/>
+            <field name="email_from">${(object.user_id.email)}</field>
+            <field name="email_to">${(object.category_id.email)}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="lang">${object.lang}</field>
+            <field name="subject">Cambios ${(object.company_id.name)} | ${(object.name)} | ${(object.title)}</field>
+            <field name="body_html"><![CDATA[
+                <table width="100%" cellpadding="4" cellspacing="0">
+	<colgroup><col width="128*"><col width="128*"></colgroup>
+	<tbody><tr valign="top"><td width="50%" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p><b><font style="font-size: 14px;">Prioridad:&nbsp;</font></b><span style="background-color: transparent; font-family: inherit; font-size: 14px; font-style: initial; font-variant-caps: initial; font-variant-ligatures: initial; font-weight: initial;">${object.prioridad}</span></p></td><td width="50%" style="border: 1px solid #000000; padding: 0.1cm"><p><b><font style="font-size: 14px;">Fecha:&nbsp;</font></b><span style="background-color: transparent; font-family: inherit; font-size: 14px; font-style: initial; font-variant-caps: initial; font-variant-ligatures: initial; font-weight: initial;">${object.entry_date}</span></p></td></tr><tr valign="top"><td width="50%" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm"><p><b><font style="font-size: 14px;">Usuario:&nbsp;</font></b><span style="background-color: transparent; font-family: inherit; font-size: 14px; font-style: initial; font-variant-caps: initial; font-variant-ligatures: initial; font-weight: initial;">${object.user_id.name}</span></p></td><td width="50%" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p><b><font style="font-size: 14px;">Categoria:&nbsp;</font></b><span style="background-color: transparent; font-family: inherit; font-size: 14px; font-style: initial; font-variant-caps: initial; font-variant-ligatures: initial; font-weight: initial;">${object.category_id.name}</span></p></td></tr><tr><td colspan="2" width="100%" valign="top" style="border-top: none; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm"><p><b><font style="font-size: 14px;">Observación:&nbsp;</font></b><span style="background-color: transparent; font-family: inherit; font-size: 14px; font-style: initial; font-variant-caps: initial; font-variant-ligatures: initial; font-weight: initial;">${object.obs}</span></p></td></tr>
+	</tbody>
+</table>
+            ]]>
+            </field>
+        </record>
+  </data>
+</odoo>
