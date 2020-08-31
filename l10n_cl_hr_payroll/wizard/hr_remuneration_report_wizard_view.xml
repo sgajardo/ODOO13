@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_remuneration_report_wizard_view" model="ir.ui.view">
+            <field name="name">hr.remuneration.report.wizard.view</field>
+            <field name="model">hr.remuneration.report.wizard</field>
+            <field name="arch" type="xml">
+            <form string="Libro Remuneraciones">
+                <label string="Seleccione la fecha de inicio y fin para descargar el Libro de Remuneración"/>
+                <footer>
+                    <button name="print_txt" string="Descargar Libro" type="object" class="oe_highlight" icon='fa-save'/> o
+                    <button string="Cerrar" class="oe_link" special="cancel" icon='fa-times'/>
+                </footer>
+                <group>
+                  <group>
+                    <field name="start_date" required="1" class="oe_inline"/>
+                    <field name="end_date" required="1" class="oe_inline"/>
+                  </group>
+                  <group>
+                    <field name="type_delimitador" required="1" class="oe_inline"/>
+                  </group>
+                </group>
+            </form>
+            </field>
+        </record>
+
+        <record id="hr_remuneration_report_wizard_action" model="ir.actions.act_window">
+            <field name="name">Libro de Remuneraciones (CSV)</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">hr.remuneration.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem
+            parent="l10n_cl_hr_payroll.menu_cl_hr_payroll_reports"
+            sequence="20" icon="STOCK_PRINT"
+            action="hr_remuneration_report_wizard_action"
+            id="hr_remuneration_report_wizard_menu"
+           />
+    </data>
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="vacation_assigment_cron" model="ir.cron">
+        <field name="name">Asignación de Vacaciones</field>
+        <field name="active" eval="False" />
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doal">0</field>
+        <field name="model" eval="'holidays.settings'" />
+        <field name="function" eval="'cron_asign_vacation_days'" />
+    </record>
+
+    <record id="indicadores_previred_cron" model="ir.cron">
+        <field name="name">Actualizar Indicadores Previred</field>
+        <field name="active" eval="True" />
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doal">0</field>
+        <field name="model" eval="'hr.stats'" />
+        <field name="function" eval="'cron_act_indicadores_previred'" />
+    </record>
+
+    <record id="hr_hd_cron" model="ir.cron">
+        <field name="name">Actualizar Haberes y Descuentos activos</field>
+        <field name="active" eval="True" />
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doal">0</field>
+        <field name="model" eval="'hr.hd'" />
+        <field name="function" eval="'cron_hr_hd'" />
+    </record>
+</odoo>

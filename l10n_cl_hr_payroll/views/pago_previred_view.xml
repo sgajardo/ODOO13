@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+
+    <record id="view_form_pago_previred" model="ir.ui.view">
+         <field name="name">view.form.pago.previred</field>
+         <field name="model">pago.previred</field>
+         <field name="arch" type="xml">
+            <form string="Tratamiento" delete="0" >
+                <header>
+
+
+                  <button name="exe_next"
+                           confirm="¿Estás seguro de que quieres Adelantar?"
+                          string="Pagar"
+                          class="oe_highlight"
+                          type="object"
+                          attrs="{'invisible': [('state','in',['asentado','cancelado'])]}" />
+
+                  <button name="exe_cancelar" string="Cancelar"
+                          confirm="¿Estás seguro de que quieres Cancelar?"
+                          type="object"
+                          attrs="{'invisible': [('state','in',['cancelado','asentado'])]}" />
+
+
+                    <button name="exe_borrador" string="Borrador"
+                          confirm="¿Estás seguro de que quieres enviar a Borrador?"
+                          type="object"
+                          attrs="{'invisible': [('state','!=','cancelado')]}" />
+
+
+                  <field name="state" widget="statusbar"/>
+
+
+
+              </header>
+
+              <sheet>
+                  <div class="oe_title">
+                           <h1>
+                               <field name="name" readonly="1"/>
+                           </h1>
+                        </div>
+
+                  <group>
+                      <group>
+                          <field name="pago_afp"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="pago_seguro_cesantia"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="total_afp"/>
+
+                          <field name="pago_isapre"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="pago_fonasa"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="pago_mutual"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="pago_ccaf"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+
+                          <field name="total_pagar"/>
+                    </group>
+                      <group>
+                          <field name="journal_imposiciones_id"  required="1" attrs="{'readonly': [('state','=','asentado')]}"/>
+                          <field name="entry_date"
+                                 attrs="{'readonly': [('state','=','asentado')]}" required="1"/>
+                          <field name="move_id" readonly="1"/>
+                          <field name="origen" readonly="1"/>
+                    </group>
+                  </group>
+
+
+
+
+
+
+               </sheet>
+                <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_tree_pago_previred" model="ir.ui.view">
+         <field name="name">view.tree.pago.previred</field>
+         <field name="model">pago.previred</field>
+         <field name="arch" type="xml">
+             <tree delete="0"  decoration-info="state=='borrador'" decoration-muted="state=='cancelado'">
+                 <field name="name"/>
+                 <field name="pago_afp"/>
+                 <field name="pago_seguro_cesantia"/>
+                 <field name="pago_isapre"/>
+                 <field name="pago_fonasa"/>
+                 <field name="pago_mutual"/>
+                 <field name="pago_ccaf"/>
+                 <field name="total_pagar"/>
+                 <field name="entry_date"/>
+                 <field name="origen"/>
+                 <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_pago_previred" model="ir.actions.act_window">
+        <field name="name">Pago Previred</field>
+        <field name="res_model">pago.previred</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Press to create a New</p>
+       </field>
+    </record>
+
+    
+
+    <menuitem id="menu_cl_pago_previred" name="Pago Previred" parent="hr_payroll.menu_hr_payroll_root" sequence="80"/>
+
+    <menuitem id="menu_pago_previred"
+        name="Pago Previred"
+        parent="menu_cl_pago_previred"
+        sequence="20"
+        action="action_pago_previred" />
+     </data>
+</odoo>

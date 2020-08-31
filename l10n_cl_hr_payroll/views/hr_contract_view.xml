@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_chile_view" model="ir.ui.view">
+        <field name="name">hr.contract.chile.view</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="after">
+                    <field name="rut" readonly="1" string="RUT"/>
+            </field>
+            <field name="job_id" position="attributes">
+                <attribute name="string">Cargo de trabajo</attribute>
+            </field>
+            <field name="job_id" position="after">
+                <field name="working_hours"/>
+                <field name="type_id"/>
+                <field name="parent_id" options="{'no_create': 1}"
+                    domain="[('employee_id', '=', employee_id), ('id', '!=', id)]"/>
+            </field>
+            <field name="job_id" position="attributes">
+                <attribute name="required">1</attribute>
+            </field>
+            <notebook position="inside">
+                <page name="vacations" string="Vacaciones">
+                    <group>
+                        <group name="left" string="Vacaciones comunes">
+                            <field name="vacation_date_start" />
+                        </group>
+                        <group name="right" string="Vacaciones progresivas">
+                            <field name="progressive_days" />
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="hr_contract_view_tree_inherit_l10n_lv_hr" model="ir.ui.view">
+        <field name="name">hr.contract.view.tree.inherit.l10n</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="replace">
+                <field name="complete_name"/>
+                    <field name="rut" string="RUT"/>
+            </field>
+            <field name="date_end" position="after">
+                <field name="parent_id"/>
+                <!-- <field name="date_exp"/> -->
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_contract_search_view" model="ir.ui.view">
+        <field name="name">hr.contract.inherit.search.view</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_search"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="after">
+                <field name="rut" string="RUT"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_contract_type_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.type.inherit.view.form</field>
+        <field name="model">hr.contract.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de contrato">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="fijo"/>
+                        <field name="codigo"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_hr_balance" model="ir.sequence">
+        <field name="name">Haberes y Descuentos</field>
+        <field name="code">hr.balance</field>
+        <field name="prefix">HD</field>
+        <field name="padding">5</field>
+        <field name="number_next_actual" eval="40"/>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_hr_move" model="ir.sequence">
+        <field name="name">Movimientos</field>
+        <field name="code">hr.move</field>
+        <field name="prefix">MV</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_hr_borrow" model="ir.sequence">
+        <field name="name">Prestamos</field>
+        <field name="code">hr.borrow</field>
+        <field name="prefix">PS</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_pago_previred" model="ir.sequence">
+        <field name="name">Pago Previred</field>
+        <field name="code">pago.previred</field>
+        <field name="prefix">PPR</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_hr_bonus_sheet" model="ir.sequence">
+        <field name="name">Hojas de Bonos RRHH</field>
+        <field name="code">hr.bonus.sheet</field>
+        <field name="prefix">HB/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

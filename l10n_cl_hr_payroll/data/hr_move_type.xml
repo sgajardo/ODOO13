@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="hr_move_type_0" model="hr.move.type">
+        <field name="name">Sin Movimiento en el Mes</field>
+        <field name="code">0</field>
+    </record>
+
+    <record id="hr_move_type_1" model="hr.move.type">
+        <field name="name">Contratación a plazo indefinido</field>
+        <field name="code">1</field>
+    </record>
+
+    <record id="hr_move_type_2" model="hr.move.type">
+        <field name="name">Retiro</field>
+        <field name="code">2</field>
+    </record>
+
+    <record id="hr_move_type_3" model="hr.move.type">
+        <field name="name">Subsidios</field>
+        <field name="code">3</field>
+    </record>
+
+    <record id="hr_move_type_4" model="hr.move.type">
+        <field name="name">Permiso Sin Goce de Sueldos</field>
+        <field name="code">4</field>
+    </record>
+
+    <record id="hr_move_type_5" model="hr.move.type">
+        <field name="name">Incorporación en el Lugar de Trabajo</field>
+        <field name="code">5</field>
+    </record>
+
+    <record id="hr_move_type_6" model="hr.move.type">
+        <field name="name">Accidentes del Trabajo</field>
+        <field name="code">6</field>
+    </record>
+
+    <record id="hr_move_type_7" model="hr.move.type">
+        <field name="name">Contratación a plazo fijo</field>
+        <field name="code">7</field>
+    </record>
+
+    <record id="hr_move_type_8" model="hr.move.type">
+        <field name="name">Cambio Contrato plazo fijo a plazo indefinido</field>
+        <field name="code">8</field>
+    </record>
+
+    <record id="hr_move_type_9" model="hr.move.type">
+        <field name="name">Otros Movimientos (Ausentismos)</field>
+        <field name="code">11</field>
+    </record>
+
+    <record id="hr_move_type_10" model="hr.move.type">
+        <field name="name">Reliquidación, Premio, Bono</field>
+        <field name="code">12</field>
+    </record>
+</odoo>

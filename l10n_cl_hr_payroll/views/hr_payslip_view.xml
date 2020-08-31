@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record model="ir.ui.view" id="view_hr_payslip_inherit_form4">
+    <field name="name">hr.payslip.inherit.form4</field>
+    <field name="model">hr.payslip</field>
+    <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page name="notas" string="Notas">
+          <field name="notas"/>
+        </page>
+        <page name="history" string="Histórico">
+            <group>
+                <group>
+                    <button name="exe_historic" string="Cargar Histórico" class="oe_highlight" type="object"
+                          confirm="¿Estás seguro que quieres Guardar el Dato Histórico?"/>
+                </group>
+                <group string="Datos">
+                    <field name="afp_id"/>
+                    <field name="isapre_id"/>
+                    <field name="isapre_cotizacion_uf"/>
+                </group>
+            </group>
+
+        </page>
+      </notebook>
+      <button name="action_payslip_draft" position="attributes">
+        <attribute name="states">cancel,done</attribute>
+      </button>
+
+        <xpath expr="//form" position="attributes">
+            <attribute name="create">0</attribute>
+         </xpath>
+
+      <button name="refund_sheet" position="replace"></button>
+
+      <field name="paid" position="after">
+        <field name="stats_id"/>
+      </field>
+
+      <xpath expr="//header" position="inside">
+        <button name="%(hr_payroll.action_report_payslip)d"
+                type="action" string="Imprimir"
+                class="btn-primary"
+                icon="fa-print"/>
+      </xpath>
+
+      <sheet position="after">
+        <div class="oe_chatter">
+          <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+          <field name="message_ids" widget="mail_thread"/>
+        </div>
+      </sheet>
+    </field>
+  </record>
+
+  <record model="ir.ui.view" id="hr_payslip_inherit">
+            <field name="name">hr.payslip.inherit</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree"/>
+            <field name="arch" type="xml">
+              <field name="number" position="before">
+                 <field name="payslip_run_id"/>
+              </field>
+
+              <field name="state" position="after">
+                 <field name="contract_id"/>
+                <field name="stats_id"/>
+                <field name="notas"/>
+              </field>
+
+               <xpath expr="//tree" position="attributes">
+                   <attribute name="decoration-info">state == 'draft'</attribute>
+                   <attribute name="create">0</attribute>
+               </xpath>
+            </field>
+        </record>
+
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_holidays_chile_form" model="ir.ui.view">
+        <field name="name">hr.holidays.chile.form</field>
+        <field name="model">hr.holidays.chile</field>
+        <field name="arch" type="xml">
+            <form string="Feariados">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="date" />
+                        </group>
+                        <group>
+                            <field name="constant"/>
+                            <field name="region_ids" widget="many2many_tags" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_chile_tree_hr_holidays" model="ir.ui.view">
+        <field name="name">view.tree.hr.holidays.chile</field>
+        <field name="model">hr.holidays.chile</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="date" />
+                <field name="constant"/>
+                <field name="region_ids" />
+            </tree>
+        </field>
+    </record>
+
+
+    <act_window id="hr_holidays_action"
+        name="Feriados"
+        res_model="hr.holidays.chile"
+        view_mode="tree,form"
+        />
+
+    <menuitem id="hr_holidays_chile_menu"
+        parent="menu_cl_hr_payroll_configuration"
+        action="hr_holidays_action"
+        sequence="22"
+        />
+</odoo>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Horario Mensual completo -->
+    <record id="hr_resource_monthly" model="resource.calendar">
+        <field name="name">Mensual</field>
+    </record>
+    <record id="hr_resource_calendar_attendance_mon" model="resource.calendar.attendance">
+        <field name="name">Todo el dia</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="dayofweek">0</field>
+        <field name="calendar_id" ref="hr_resource_monthly"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_tue" model="resource.calendar.attendance">
+        <field name="name">Todo el dia</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="dayofweek">1</field>
+        <field name="calendar_id" ref="hr_resource_monthly"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_wed" model="resource.calendar.attendance">
+        <field name="name">Todo el dia</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="dayofweek">2</field>
+        <field name="calendar_id" ref="hr_resource_monthly"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_thu" model="resource.calendar.attendance">
+        <field name="name">Todo el dia</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="dayofweek">3</field>
+        <field name="calendar_id" ref="hr_resource_monthly"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_fri" model="resource.calendar.attendance">
+        <field name="name">Todo el dia</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="dayofweek">4</field>
+        <field name="calendar_id" ref="hr_resource_monthly"/>
+    </record>
+
+    <!-- Horario part time 30 horas semanales -->
+    <record id="hr_resource_parttime_30" model="resource.calendar">
+        <field name="name">Part time 30h</field>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_30_mon" model="resource.calendar.attendance">
+        <field name="name">Part time 30h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">14.5</field>
+        <field name="dayofweek">0</field>
+        <field name="calendar_id" ref="hr_resource_parttime_30"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_30_tue" model="resource.calendar.attendance">
+        <field name="name">Part time 30h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">14.5</field>
+        <field name="dayofweek">1</field>
+        <field name="calendar_id" ref="hr_resource_parttime_30"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_30_wed" model="resource.calendar.attendance">
+        <field name="name">Part time 30h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">14.5</field>
+        <field name="dayofweek">2</field>
+        <field name="calendar_id" ref="hr_resource_parttime_30"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_30_thu" model="resource.calendar.attendance">
+        <field name="name">Part time 30h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">14.5</field>
+        <field name="dayofweek">3</field>
+        <field name="calendar_id" ref="hr_resource_parttime_30"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_30_fri" model="resource.calendar.attendance">
+        <field name="name">Part time 30h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">14.5</field>
+        <field name="dayofweek">4</field>
+        <field name="calendar_id" ref="hr_resource_parttime_30"/>
+    </record>
+
+    <!-- Horario part time 20 horas semanales -->
+    <record id="hr_resource_parttime_20" model="resource.calendar">
+        <field name="name">Part time 20h</field>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_20_mon" model="resource.calendar.attendance">
+        <field name="name">Part time 20h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">12.5</field>
+        <field name="dayofweek">0</field>
+        <field name="calendar_id" ref="hr_resource_parttime_20"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_20_tue" model="resource.calendar.attendance">
+        <field name="name">Part time 20h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">12.5</field>
+        <field name="dayofweek">1</field>
+        <field name="calendar_id" ref="hr_resource_parttime_20"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_20_wed" model="resource.calendar.attendance">
+        <field name="name">Part time 20h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">12.5</field>
+        <field name="dayofweek">2</field>
+        <field name="calendar_id" ref="hr_resource_parttime_20"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_20_thu" model="resource.calendar.attendance">
+        <field name="name">Part time 20h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">12.5</field>
+        <field name="dayofweek">3</field>
+        <field name="calendar_id" ref="hr_resource_parttime_20"/>
+    </record>
+    <record id="hr_resource_calendar_attendance_pt_20_fri" model="resource.calendar.attendance">
+        <field name="name">Part time 20h</field>
+        <field name="hour_from">8.5</field>
+        <field name="hour_to">12.5</field>
+        <field name="dayofweek">4</field>
+        <field name="calendar_id" ref="hr_resource_parttime_20"/>
+    </record>
+</odoo>

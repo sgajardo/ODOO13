@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="class">oe_read_only</attribute>
+            </xpath>
+            <h1 position="after">
+                <group name="names" class="oe_edit_only">
+                    <field name="first_name" string="Nombre" required="1"/>
+                    <field name="middle_name"/>
+                    <field name="last_name" attrs="{'required': [('calculate_payroll', '!=', False)]}"/>
+                    <field name="mothers_name"/>
+                </group>
+            </h1>
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <label for="calculate_payroll"/><field name="calculate_payroll"/>
+            </xpath>
+
+            <field name="identification_id" position="attributes">
+                <attribute name="string">RUT</attribute>
+                <attribute name="placeholder">00000000-0</attribute>
+            </field>
+
+            <field name="gender" position="attributes">
+                <attribute name="attrs">{'required': [('calculate_payroll', '!=', False)]}</attribute>
+            </field>
+
+            <field name="user_id" position="attributes">
+                <attribute name="string">Usuario Odoo</attribute>
+            </field>
+
+            <field name="user_id" position="after">
+                <field name="private_role" groups="hr.group_hr_manager"/>
+                <field name="resource_calendar_id" options="{'no_create': 1}"/>
+            </field>
+
+            <field name="country_id" position="attributes">
+                <attribute name="attrs">{'required': [('calculate_payroll', '!=', False)]}</attribute>
+            </field>
+
+            <field name="address_home_id" position="after">
+                <field name="region_id"/>
+                <field name="city_id" attrs="{'readonly': [('region_id', '=', False)]}"/>
+                <field name="address"/>
+            </field>
+
+            <page name="public" position="after">
+                <page name="public2" string="Recursos Humanos Chile">
+                    <group>
+                        <group string="Previsión">
+                            <field name="afp_id" options="{'no_create': 1, 'no_open': 1}"
+                                attrs="{'required': [('calculate_payroll','==',True)]}"/>
+                            <field name="no_afp"/>
+                            <field name="file_afp_name" invisible="1"/>
+                            <field name="file_afp" filename="file_afp_name"
+                                attrs="{'invisible':[('no_afp','==',False)]}"/>
+                        </group>
+                        <group string="Salud">
+                            <field name="no_salud" string="No Paga Salud"/>
+                            <field name="isapre_id" options="{'no_create': 1, 'no_open': 1}"
+                                attrs="{'required': [('calculate_payroll', '!=', False)]}"/>
+                            <field name="isapre_cotizacion_uf" attrs="{'invisible': [('isapre_id', '=', 1)]}"/>
+                            <field name="isapre_fun" string="Contrato Isapre FUN" attrs="{'invisible': [('isapre_id', '=', 1)]}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Complementos">
+                            <field name="gratificacion_legal" string="Gratificación Legal Anual"/>
+                        </group>
+                        <group string="Complementos">
+                            <field name="gratificacion_legal_fija" string="Gratificación Fija"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Descuentos">
+                            <field name="pension"/>
+                            <field name="seguro_complementario" string="Seguro Complementario"/>
+                            <field name="seguro_complementario_moneda" nolabel="1"/>
+                            <field name="aporte_voluntario" string="Aporte Voluntario"/>
+                            <field name="aporte_voluntario_moneda" nolabel="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Otros">
+                            <field name="tipo_trabajador" attrs="{'required': [('calculate_payroll','==',True)]}"/>
+                            <field name="trabajo_pesado" attrs="{'required': [('calculate_payroll', '!=', False)]}"/>
+                            <field name="tiene_centro_costo" string="Centro Costo Previred"/>
+                            <field name="centro_costo_id" attrs="{'invisible': [('tiene_centro_costo','=',False)]}" options='{"no_create": 1, "no_open": 1}' string="Centro Costo Previred"/>
+                        </group>
+                        <group string="Otros">
+                            <field name="tramo_asig" attrs="{'required': [('calculate_payroll', '!=', False)]}"/>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                </page>
+
+                <page name="haberes" string="Haberes y Descuentos">
+                    <button name="mostrar_todos_hd" type="object" string="Mostrar todos" class="btn-primary"/>
+                    <field name="haberes_descuentos_ids">
+                        <tree string="Haberes y Descuentos" editable="bottom" colors="blue:del_mes;">
+                            <field name="haberesydesc_id" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="moneda" readonly="1"/>
+                            <field name="um" readonly="1"/>
+                            <field name="amount" required="1"/>
+                            <field name="date_from" required="1"/>
+                            <field name="date_to"/>
+                            <field name="del_mes" invisible="1"/>
+                            <field name="origen" readonly="1"/>
+                        </tree>
+                    </field>
+                </page>
+
+                <page name="horas_extras" string="Horas Extras">
+                    <field name="horas_extras_ids">
+                        <tree string="Horas Extras" editable="bottom">
+                            <field name="name"
+                                domain="[('um', '=', 'u')]"
+                                options='{"no_create": 1, "no_open": 1}'
+                                required="1"/>
+                            <field name="monto" required="1"/>
+                            <field name="date" required="1"/>
+                        </tree>
+                    </field>
+                </page>
+
+                <page name="cargas" string="Cargas">
+                    <group>
+                        <field name="cantidad_de_carga"/>
+                    </group>
+                    <field name="rh_cargas_ids">
+                        <tree string="Cargas" editable="bottom">
+                            <field name="identification_id"/>
+                            <field name="list_name"/>
+                            <field name="list_nacimiento"/>
+                            <field name="list_edad_limite"/>
+                            <field name="list_tipo"/>
+                            <field name="list_obs"/>
+                        </tree>
+                    </field>
+                </page>
+
+                <!-- <page name="leaves" string="Ausencias">
+                    <group name="leaves_group">
+                        <label for="leaves_on_month"/>
+                        <div>
+                            <field name="leaves_on_month" nolabel="1"/>
+                            <span class="oe_inline">días</span>
+                        </div>
+                        <separator string="Listado de Ausencias" colspan="2"/>
+                        <field name="leave_ids" context="{'default_employee_id': id, 'default_type': 'remove'}" nolabel="1" colspan="2">
+                            <tree editable="botton" decoration-bf="state=='validate' and type=='remove'" decoration-info="state=='draft'" decoration-it="type=='add'">
+                                <field name="employee_id" invisible="1"/>
+                                <field name="type" invisible="1"/>
+                                <field name="holiday_status_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                                <field name="number_of_days_temp"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page> -->
+                <page name="prestamos" string="Préstamos">
+                    <field name="borrow_ids">
+                        <tree>
+                            <field name="name"/>
+                            <field name="date_due"/>
+                            <field name="amount" sum="Total"/>
+                            <field name="cobrado"/>
+                        </tree>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="view_hr_employee_cl_tree_view">
+        <field name="name">hr.employee.in</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="identification_id" string="R.U.T"/>
+                <field name="calculate_payroll"/>
+                <field name="mobile_phone"/>
+                <field name="country_id"/>
+                <field name="acc_number"/>
+                <field name="bank_id"/>
+                <field name="hired"/>
+                <field name="contracts"/>
+                <field name="vacations_count"/>
+                <field name="afp_id"/>
+                <field name="isapre_id"/>
+                <field name="last_payroll"/>
+            </field>
+
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-danger">vacations_count > 15 or not calculate_payroll</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_hr_employee_cl_kanvas_view">
+        <field name="name">inh.employee.kanban.view</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="identification_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_filter" model="ir.ui.view">
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <field name="identification_id"/>
+                <filter name="hired" string="Contratado" domain="[('hired', '=', True)]"/>
+                <filter name="not_hired" string="No Contratado" domain="[('hired', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr.menu_hr_root" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0,[ref('hr.group_hr_user')])]"/>
+    </record>
+
+    <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
+        <field name="context">{'search_default_hired': 1}</field>
+    </record>
+</odoo>

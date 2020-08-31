@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report id="certificado_sueldo_report"
+        model="hr.employee"
+        string="Certificado de Sueldo"
+        report_type="qweb-pdf"
+        paperformat="l10n_cl_hr_payroll.payslip_format"
+        name="l10n_cl_hr_payroll.certificado_sueldo_template"
+        file="l10n_cl_hr_payroll.certificado_sueldo_template"/>
+
+    <template id="l10n_cl_hr_payroll.certificado_sueldo_template">
+        <t t-set="meses" t-value="['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']"/>
+        <t t-set="hoy" t-value="datetime.date.today()"/>
+        <t t-set="ciudad" t-value="res_company.city or res_company.city_id and res_company.city_id.name or 'Santiago'"/>
+        <t t-set="format_rut" t-value="lambda s: '%s-%s' % (s[:-1], s[-1])"/>
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="report.layout">
+                    <div class="page" style="font-size: 18px !important; line-height: 1.5; padding: 0 50px;">
+                        <div class="media">
+                            <div class="media-left">
+                                <img t-if="res_company.logo" style="height: 65px; width: auto;" class="media-object"
+                                    t-att-src="'data:image/png;base64,%s' % res_company.logo"/>
+                            </div>
+                            <div class="media-body">
+                                <p style="font-size: 12px;">
+                                    <strong>RAZON SOCIAL</strong>: <span t-field="res_company.name" /><br/>
+                                    <strong>RUT EMPRESA</strong>: <span t-esc="format_rut(res_company.vat.replace('CL',''))" /><br/>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row mt32">
+                            <h3 align="center"><strong>CERTIFICADO DE SUELDO</strong></h3>
+                        </div>
+                        <div class="row mt64">
+                            <p>
+                                El suscrito, certifica que El Sr. <span t-esc="o.full_name.upper()"/>,
+                                <span t-if="o.identification_id" t-esc="'Rut. %s, ' % o.identification_id"/>
+                                es funcionario de <span t-esc="res_company.name"/>
+                                <span t-if="o.contract_ids">
+                                <t t-set="primer_contrato" t-value="o.contract_ids.sorted('date_start')[0]"/>
+                                <t t-set="desde" t-value="map(int, primer_contrato.date_start.split('-'))"/>
+                                desde el <span t-esc="'%.2d de %s de %d' % (desde[2], meses[desde[1] - 1], desde[0])"/>
+                                <span t-if="o.contract_id.job_id">ocupando el cargo de <span t-esc="o.contract_id.job_id.name"/></span>
+                                </span>.
+                            </p>
+                            <p t-if="o.contract_id and o.contract_id.type_id" class="mt16">
+                                Su contrato es de carácter <span t-esc="o.contract_id.type_id.name"/>
+                            </p>
+                            <t t-set="nominas" t-value="o.env['hr.payslip'].search([('employee_id', '=', o.id), ('state', 'not in', ['draft', 'cancel'])], order='date_from desc', limit=3)"/>
+                            <p class="mt16" t-if="nominas">
+                                <t t-set="tot_imp" t-value="sum(nominas.mapped('line_ids').filtered(lambda l: l.code == 'TOTIM').mapped('total'))"/>
+                                <t t-set="descuentos" t-value="sum(nominas.mapped('line_ids').filtered(lambda l: l.code == 'DDNT').mapped('total'))"/>
+                                <t t-set="horas_extras" t-value="sum(nominas.mapped('line_ids').filtered(lambda l: l.code in ['HEX', 'HEX100', 'HXD']).mapped('total'))"/>
+                                <t t-set="imponible" t-value="(tot_imp - descuentos - horas_extras) / float(len(nominas))"/>
+                                Tiene una renta Bruta mensual de <span t-esc="imponible" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/>
+                            </p>
+                            <p class="mt16">
+                                Se otorga el presente certificado a pedido del interesado para los fines que estime conveniente.
+                            </p>
+                        </div>
+                        <div class="row mt32">
+                            <span t-esc="'%s, %.2d de %s de %d' % (ciudad, hoy.day, meses[hoy.month - 1], hoy.year)"/>
+                        </div>
+                        <div class="row" style="margin-top: 180px;">
+                            <center>
+                                <strong style="border-top: 1px solid black;">Recursos Humanos</strong><br/>
+                                <span t-esc="res_company.name"/>
+                            </center>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

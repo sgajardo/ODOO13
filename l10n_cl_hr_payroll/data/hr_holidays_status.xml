@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="LC01" model="hr.holidays.status">
+        <field name="name">Ausentismo</field>
+        <field name="affects_payslip">True</field>
+        <field name="limit">True</field>
+        <field name="move_type_id" ref="l10n_cl_hr_payroll.hr_move_type_9"/>
+    </record>
+    <record id="LC02" model="hr.holidays.status">
+        <field name="name">Licencia Médica</field>
+        <field name="affects_payslip">True</field>
+        <field name="limit">True</field>
+        <field name="move_type_id" ref="l10n_cl_hr_payroll.hr_move_type_3"/>
+    </record>
+    <record id="LC03" model="hr.holidays.status">
+        <field name="name">Permiso con Goce de Sueldo</field>
+        <field name="affects_payslip">False</field>
+        <field name="limit">True</field>
+    </record>
+    <record id="LC04" model="hr.holidays.status">
+        <field name="name">Permiso sin Goce de Sueldo</field>
+        <field name="affects_payslip">True</field>
+        <field name="limit">True</field>
+        <field name="move_type_id" ref="l10n_cl_hr_payroll.hr_move_type_4"/>
+    </record>
+    <record id="LC05" model="hr.holidays.status">
+        <field name="name">Vacaciones</field>
+        <field name="affects_payslip">False</field>
+        <field name="limit">True</field>
+    </record>
+    <record id="LC06" model="hr.holidays.status">
+        <field name="name">Vacaciones (Progresivas)</field>
+        <field name="affects_payslip">False</field>
+        <field name="limit">False</field>
+    </record>
+    <function model="hr.holidays.status" name="update_hr_holidays_status" />
+</odoo>
