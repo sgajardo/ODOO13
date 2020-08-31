@@ -1,11 +1,10 @@
-# coding: utf-8
 from odoo import fields, models
 
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    hr_period = fields.Char(u'Periodo de Recursos Humanos')
+    hr_period = fields.Char('Periodo de Recursos Humanos')
 
     """Mutual de Seguridad"""
     mutualidad_id = fields.Many2one('hr.mutual', 'MUTUAL')

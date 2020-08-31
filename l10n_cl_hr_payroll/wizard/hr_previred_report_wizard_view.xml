@@ -5,23 +5,22 @@
         <field name="model">hr.previred.report.wizard</field>
         <field name="arch" type="xml">
             <form string="Informe Previred">
-                <label string="Seleccione la fecha de inicio y fin para descargar el txt Previred, Campos por Separador"/>
+                <p>Seleccione la fecha de inicio y fin para descargar el txt Previred, Campos por Separador</p>
                 <group>
                     <group>
-                        <field name="start_date" required="1" class="oe_inline"/>
-                        <field name="end_date" required="1" class="oe_inline"/>
+                        <field name="start_date" required="1"/>
+                        <field name="end_date" required="1"/>
                     </group>
                     <group>
                         <field name="correcciones"/>
                         <field name="encabezado"/>
-                        <field name="muestra_nombres" attrs="{'invisible':[('encabezado','==', False)]}"/>
+                        <field name="muestra_nombres" attrs="{'invisible':[('encabezado','=', False)]}"/>
                         <field name="centro_costo_id" options='{"no_create": 1, "no_open": 1}' string="Centro Costo Previred"/>
                     </group>
                 </group>
                 <footer>
-                    <button name="print_txt" string="Descargar" type="object" class="oe_highlight" icon='fa-save'/>
-                    o
-                    <button string="Cerrar" class="oe_link" special="cancel" icon='fa-times'/>
+                    <button name="print_txt" string="Descargar" type="object" class="btn-primary" icon='fa-save'/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel" icon='fa-times'/>
                 </footer>
             </form>
         </field>
@@ -35,12 +34,9 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem
-        parent="l10n_cl_hr_payroll.menu_cl_hr_payroll_reports"
-        sequence="30" icon="STOCK_PRINT"
-        action="hr_previred_report_wizard_action"
-        id="hr_previred_report_wizard_menu"
-        />
+    <menuitem id="hr_previred_report_wizard_menu"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="30" action="hr_previred_report_wizard_action"/>
     <record id="hr_payslip_run_form_inherit6" model="ir.ui.view">
         <field name="name">hr.payslip.run.form.inherit6</field>
         <field name="model">hr.payslip.run</field>
@@ -48,8 +44,7 @@
         <field name="arch" type="xml">
             <header position="inside">
                 <field name="all_validate" invisible="1"/>
-                <button name="%(hr_previred_report_wizard_action)d" type="action" string="Formato Previred 105"
-                    style="background-color:#ec971f;border-color:#d58512;" class="btn-primary"
+                <button name="%(hr_previred_report_wizard_action)d" type="action" string="Formato Previred 105" class="btn-warning"
                     context="{'default_start_date': date_start, 'default_end_date': date_end, 'payslip_run_id': id}"
                     attrs="{'invisible': [('all_validate', '=', False)]}"/>
             </header>

@@ -1,42 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="hr_remuneration_report_wizard_view" model="ir.ui.view">
-            <field name="name">hr.remuneration.report.wizard.view</field>
-            <field name="model">hr.remuneration.report.wizard</field>
-            <field name="arch" type="xml">
+    <record id="hr_remuneration_report_wizard_view" model="ir.ui.view">
+        <field name="name">hr.remuneration.report.wizard.view</field>
+        <field name="model">hr.remuneration.report.wizard</field>
+        <field name="arch" type="xml">
             <form string="Libro Remuneraciones">
-                <label string="Seleccione la fecha de inicio y fin para descargar el Libro de Remuneración"/>
-                <footer>
-                    <button name="print_txt" string="Descargar Libro" type="object" class="oe_highlight" icon='fa-save'/> o
-                    <button string="Cerrar" class="oe_link" special="cancel" icon='fa-times'/>
-                </footer>
+                <p>Seleccione la fecha de inicio y fin para descargar el Libro de Remuneración</p>
                 <group>
-                  <group>
-                    <field name="start_date" required="1" class="oe_inline"/>
-                    <field name="end_date" required="1" class="oe_inline"/>
-                  </group>
-                  <group>
-                    <field name="type_delimitador" required="1" class="oe_inline"/>
-                  </group>
+                    <group>
+                        <field name="start_date" required="1"/>
+                        <field name="end_date" required="1"/>
+                    </group>
+                    <group>
+                        <field name="type_delimitador" required="1"/>
+                        <field name="account_analytic_account_id"
+                            options="{'no_create': 1, 'no_open': 1}"
+                            groups="analytic.group_analytic_accounting"/>
+                    </group>
                 </group>
+                <footer>
+                    <button name="print_txt" string="Descargar Libro" type="object" class="btn-primary" icon='fa-save'/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel" icon='fa-times'/>
+                </footer>
             </form>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <record id="hr_remuneration_report_wizard_action" model="ir.actions.act_window">
-            <field name="name">Libro de Remuneraciones (CSV)</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">hr.remuneration.report.wizard</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
+    <record id="hr_remuneration_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Libro de Remuneraciones (CSV)</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.remuneration.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
 
-        <menuitem
-            parent="l10n_cl_hr_payroll.menu_cl_hr_payroll_reports"
-            sequence="20" icon="STOCK_PRINT"
-            action="hr_remuneration_report_wizard_action"
-            id="hr_remuneration_report_wizard_menu"
-           />
-    </data>
+    <menuitem id="hr_remuneration_report_wizard_menu"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="20"
+        action="hr_remuneration_report_wizard_action"/>
 </odoo>

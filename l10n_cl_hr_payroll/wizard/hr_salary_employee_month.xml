@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_salary_books" model="ir.actions.act_window">
+        <field name="name">Libro de Remuneraciones Haberes</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.salary.employee.month</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem
+        name="Libro de Remuneraciones"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="10"
+        action="action_salary_books"
+        id="menu_salary_books"
+        />
+
+    <record id="view_salary_employee_month" model="ir.ui.view">
+        <field name="name">Libro de Remuneraciones</field>
+        <field name="model">hr.salary.employee.month</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Remuneraciones">
+                <footer>
+                    <button name="print_report" string="Print" type="object" class="btn-primary"/>
+                    or
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+                <group>
+                    <field name="end_date"/>
+                    <field name="no_header"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="report_paper_format_nuevo" model="report.paperformat">
+        <field name="name">A4 Horizontal</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">40</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_right">4</field>
+        <field name="margin_left">4</field>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+    <report
+        id="hr_salary_books"
+        string="Libro de Remuneraciones"
+        model="hr.salary.employee.month"
+        report_type="qweb-pdf"
+        paperformat="report_paper_format_nuevo"
+        file="l10n_cl_hr_payroll.report_hrsalarybymonth"
+        name="l10n_cl_hr_payroll.report_hrsalarybymonth"/>
+</odoo>

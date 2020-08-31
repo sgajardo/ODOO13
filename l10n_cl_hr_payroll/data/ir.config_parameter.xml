@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <record id="horas_extras_inicio_config_parameter" model="ir.config_parameter">
-        <field name="key">horas.extras.inicio</field>
+    <record id="extra_hours_start_config_parameter" model="ir.config_parameter">
+        <field name="key">extra.hours.start</field>
         <field name="value">0</field>
     </record>
 
-    <record id="meses_haberes_descuentos_config_parameter" model="ir.config_parameter">
-        <field name="key">meses.haberes.descuentos</field>
+    <record id="hr_balance_months_config_parameter" model="ir.config_parameter">
+        <field name="key">hr.balance.months</field>
         <field name="value">3</field>
     </record>
 

@@ -30,7 +30,7 @@
                                 </thead>
                                 <tbody>
                                     <tr t-foreach="o.line_ids" t-as="l">
-                                        <td><span t-field="l.haberesydesc_id"/></td>
+                                        <td><span t-field="l.balance_id"/></td>
                                         <td><span t-field="l.employee_id"/></td>
                                         <td align="center"><span t-field="l.date_from"/></td>
                                         <td align="center"><span t-field="l.date_to"/></td>

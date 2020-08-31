@@ -11,10 +11,10 @@
 					<button string="Actualizar"
 						type="object" name="upate_indicators_previred"
 						confirm="¿Estás que quieres actualizar los indicadores?"
-						class="oe_highlight or_right"
+						class="btn-primary or_right"
 						icon='fa-cloud-upload'/>
 
-					<button string="Ver Página de Indicadores Previred" type="object" name="go_to_link" class="oe_link"/>
+					<button string="Ver Página de Indicadores Previred" type="object" name="go_to_link" class="btn-secondary"/>
 				</header>
 
 				<sheet>
@@ -397,12 +397,13 @@
 
 
 	<!-- Menu View -->
-	<menuitem id="menu_cl_hr_payroll_indicators" name="Previred" parent="hr_payroll.menu_hr_payroll_root" sequence="10"/>
-	<menuitem id="menu_cl_hr_payroll_reports" name="Reports" parent="hr_payroll.menu_hr_payroll_root" sequence="11"/>
-
+	<menuitem id="menu_cl_hr_payroll_indicators" name="Indicadores Previsionales" parent="hr_payroll.menu_hr_payroll_root" sequence="10"/>
+	<record id="hr_payroll.menu_hr_payroll_report" model="ir.ui.menu">
+		<field name="sequence">11</field>
+	</record>
 
 	<act_window id="hr_stats_previsionales_action"
-		name="Indicadores Previred"
+		name="Indicadores"
 		res_model="hr.stats"
 		view_mode="tree,form"
 		/>

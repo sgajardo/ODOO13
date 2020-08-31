@@ -1,11 +1,10 @@
-# coding: utf-8
 import base64
 import csv
-from calendar import monthrange
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
-import unicodedata
+import io
 import random
+import unicodedata
+
+from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -20,16 +19,11 @@ class HrPreviredReportWizard(models.TransientModel):
 
     @api.model
     def _get_default_start_date(self):
-        date = fields.Date.from_string(fields.Date.today())
-        start = '%s-%s-01' % (date.year, str(date.month).zfill(2))
-        return start
+        return fields.Date.today() + relativedelta(day=1)
 
     @api.model
     def _get_default_end_date(self):
-        date = fields.Date.from_string(fields.Date.today())
-        end_of_month = monthrange(date.year, date.month)[1]
-        end = '%s-%s-%s' % (date.year, str(date.month).zfill(2), end_of_month)
-        return end
+        return fields.Date.today() + relativedelta(months=1, day=1, days=-1)
 
     start_date = fields.Date('Fecha Inicio', default=_get_default_start_date, help='Ingrese la fecha inicio del periodo')
     end_date = fields.Date('Fecha Fin', default=_get_default_end_date, help='Ingrese la fecha fin del periodo')
@@ -43,12 +37,12 @@ class HrPreviredReportWizard(models.TransientModel):
     @api.onchange('start_date')
     def _onchange_dates(self):
         if self.start_date:
-            year, month = map(int, self.start_date.split('-')[:2])
-            self.end_date = '%d-%.2d-%.2d' % (year, month, monthrange(year, month)[-1])
+            self.end_date = self.start_date + relativedelta(months=1, day=1, days=-1)
 
     def get_worked_days(self, code=None, payslip_id=None, emp_id=None, date_from=None, date_to=None):
         sql = """select coalesce(sum(number_of_days),0) from hr_payslip_worked_days as p
                  left join hr_payslip as r on r.id = p.payslip_id
+                 left join hr_work_entry_type as w on w.id = p.work_entry_type_id
                  where 1 = 1"""
 
         if payslip_id:
@@ -64,7 +58,7 @@ class HrPreviredReportWizard(models.TransientModel):
             sql += ' and r.date_to <= %s' % date_to
 
         if code:
-            sql += " and p.code = '%s'" % code
+            sql += " and w.code = '%s'" % code
 
         self.env.cr.execute(sql)
 
@@ -145,13 +139,9 @@ class HrPreviredReportWizard(models.TransientModel):
             return 0
 
     def print_txt(self):
-        def formatea_fecha(fecha):
-            return fecha[5:7] + fecha[:4]
-        holidays = self.env['hr.holidays'].search([('type', '=', 'remove'),  # Queremos las asuencias que restan
-                                                   ('holiday_status_id.move_type_id', '!=', False),  # y sólo las que tengan movimientos involucrados
-                                                   ('date_from', '<=', self.end_date),  # dentro del periodo
-                                                   ('date_to', '>=', self.start_date)])
-        contracts = self.env['hr.contract'].search(['&', '|', ('date_end', '>=', self.start_date), ('date_end', '=', False), ('date_start', '<=', self.end_date)])
+        holidays = self.env['hr.leave'].search([('holiday_status_id.move_type_id', '!=', False),  # y sólo las que tengan movimientos involucrados
+                                                ('date_from', '<=', self.end_date),  # dentro del periodo
+                                                ('date_to', '>=', self.start_date)])
         res = {}
         gender_map = {'male': 'M', 'female': 'F', 'other': 'O'}
         payslips = self.env['hr.payslip'].search([
@@ -174,8 +164,7 @@ class HrPreviredReportWizard(models.TransientModel):
         if self.encabezado:
             fname = 'odoo_prueba_previred_%s_%s.csv' % (self.end_date, ran)
 
-        path = '/tmp/' + fname
-        txt_file = open(path, 'wb')
+        txt_file = io.StringIO()
 
         fonasa_sum = 0
         mutual_sum = 0
@@ -191,17 +180,7 @@ class HrPreviredReportWizard(models.TransientModel):
 
         asignacion_familiar = 0
 
-        row1 = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-                '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-                '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
-                '41', '42', '43', '44', '45', '46', '47', '48', '49', '50',
-                '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
-                '61', '62', '63', '64', '65', '66', '67', '68', '69', '70',
-                '71', '72', '73', '74', '75', '76', '77', '78', '79', '80',
-                '81', '82', '83', '84', '85', '86', '87', '88', '89', '90',
-                '91', '92', '93', '94', '95', '96', '97', '98', '99', '100',
-                '101', '102', '103', '104', '105']
+        row1 = [str(i) for i in range(1, 106)]
 
         row2 = ['RUT', 'DV', 'Apellido Paterno', 'Apellido Materno', 'Nombres', 'Sexo', 'Nacionalidad',
                 'tipo pago', 'periodo rem Desde', 'periodo rem Hasta', 'Régimen Previsional', 'Tipo de Trabajador',
@@ -236,12 +215,12 @@ class HrPreviredReportWizard(models.TransientModel):
             nac = emp.country_id and emp.country_id.code != 'CL' and 1 or 0
             complete_name = '%s %s' % (emp.first_name or '', emp.middle_name or '')
             if not emp.identification_id:
-                raise ValidationError(_(u'El empleado %s no tiene número de RUT.') % emp.full_name)
+                raise ValidationError(_('El empleado %s no tiene número de RUT.') % emp.display_name)
             rut_split = emp.identification_id.split('-')
             tope_afp = round(p.stats_id.tope_imponible_afp * p.stats_id.uf)
             total_imponible = self.get_rule_value('TOTIM', p.id)
             if len(rut_split) < 2:
-                raise ValidationError(_('RUT de empleado %s mal formateado: %s') % (emp.full_name, emp.identification_id))
+                raise ValidationError(_('RUT de empleado %s mal formateado: %s') % (emp.display_name, emp.identification_id))
 
             centro_costo = 0
 
@@ -251,8 +230,8 @@ class HrPreviredReportWizard(models.TransientModel):
             # Calculamos todos los movimientos de tipo ausencia
             movimientos = [{
                 'mov': h.holiday_status_id.move_type_id.code,
-                'inicio': h.date_from if h.date_from and h.date_from > self.start_date else self.start_date,
-                'fin': h.date_to if h.date_to and h.date_to < self.end_date else self.end_date
+                'inicio': h.date_from if h.date_from and h.date_from.date() > self.start_date else self.start_date,
+                'fin': h.date_to if h.date_to and h.date_to.date() < self.end_date else self.end_date
             } for h in holidays.filtered(lambda s: s.employee_id == emp)]
             # Calculamos todos los movimientos referente a contratos
             # for contract in contracts.filtered(lambda c: c.employee_id == emp).sorted('date_start'):
@@ -279,7 +258,7 @@ class HrPreviredReportWizard(models.TransientModel):
                         fixed_movs.append({
                             'mov': 0,
                             'inicio': fields.Date.to_string(dt_start),
-                            'fin': fields.Date.to_string(dt_start_mov - timedelta(days=1))
+                            'fin': fields.Date.to_string(dt_start_mov - relativedelta(days=1))
                         })
                 else:
                     fixed_movs.append(mov)
@@ -287,12 +266,12 @@ class HrPreviredReportWizard(models.TransientModel):
                 # Agregamos el movimiento
                 fixed_movs.append(mov)
                 # Dejamos la fecha un día después del final del último movimiento que tocamos
-                dt_start = fields.Date.from_string(mov['fin']) + timedelta(days=1)
+                dt_start = fields.Date.from_string(mov['fin']) + relativedelta(days=1)
             # Debemos verificar que el último movimiento llegue hasta el final del periodo, sino, agregamos un movimiento 0 para finalizar el periodo
-            if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'] < self.end_date:
+            if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'].date() < self.end_date:
                 fixed_movs.append({
                     'mov': 0,
-                    'inicio': fields.Date.to_string(fields.Date.from_string(fixed_movs[-1]['fin']) + timedelta(days=1)),
+                    'inicio': fields.Date.to_string(fields.Date.from_string(fixed_movs[-1]['fin']) + relativedelta(days=1)),
                     'fin': self.end_date
                 })
             # Sustituimos los movimientos:
@@ -319,12 +298,7 @@ class HrPreviredReportWizard(models.TransientModel):
                 else:
                     renta_impobible_seguro_cesantia = tope_imponible_sc
 
-
-
-
                 cotizacion_ccaf = int(self.get_rule_value('CAJACOMP', p.id))
-
-
 
                 # Buscamos la AFP
                 if p.afp_id:
@@ -332,18 +306,16 @@ class HrPreviredReportWizard(models.TransientModel):
                 else:
                     afp_codigo = emp.afp_id.codigo if not self.muestra_nombres else emp.afp_id.name
 
-
                 # Buscamos la ISAPRE
                 if p.isapre_id:
                     isapre_codigo = int(p.isapre_id.codigo) if not self.muestra_nombres else p.isapre_id.name
                 else:
                     isapre_codigo = int(emp.isapre_id.codigo) if not self.muestra_nombres else emp.isapre_id.name
 
-
                 row = [rut_split[0].replace(".", ''), rut_split[1], elimina_tildes(last_name.replace(" ", '') and last_name.replace(" ", '') or ''), elimina_tildes(mothers_name.replace(" ", '') and mothers_name.replace(" ", '') or ''),
                        elimina_tildes(complete_name), gender_map[emp.gender], nac, 1,
                        # 9,10  periodo rem Desde, periodo rem Desde
-                       formatea_fecha(p.date_from), formatea_fecha(p.date_to),
+                       p.date_from.strftime('%m%Y'), p.date_to.strftime('%m%Y'),
                        # 11 - Todos los trabajadores tienen AFP
                        'AFP',
                        # 12 - Tipo de Trabajador
@@ -654,13 +626,15 @@ class HrPreviredReportWizard(models.TransientModel):
         #     txt_file.write('\n')
         #     txt_file.write("Asignación Familiar (IPS)"  +  "," + str(asignacion_familiar) + '\n')
 
+        data = base64.b64encode(txt_file.getvalue().encode('utf-8'))
         txt_file.close()
-        data = base64.encodestring(open(path, 'r').read())
-        attach_vals = {'name': fname, 'datas': data, 'datas_fname': fname}
-        doc_id = self.env['ir.attachment'].create(attach_vals)
-        res['type'] = 'ir.actions.act_url'
-        res['target'] = 'new'
-        res['url'] = "web/content/?model=ir.attachment&id=" + str(doc_id.id) + "&filename_field=datas_fname&field=datas&download=true&filename=" + str(doc_id.name)
+        attach_vals = {'name': fname, 'datas': data, 'store_fname': fname}
+        attachment = self.env['ir.attachment'].create(attach_vals)
+        res = {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'new'
+        }
         if self.env.context.get('payslip_run_id'):
             # Guardamos mensaje en procesamiento de nómina (si se llamó el wizard desde ahí)
             payslip_run = self.env['hr.payslip.run'].browse(self.env.context['payslip_run_id'])
@@ -697,10 +671,8 @@ class HrPreviredReportWizard(models.TransientModel):
             # Recalculamos listado Préstamos Empresa
             payslip_run.pres_emp_ids.unlink()
             payslip_run.pres_emp_ids = prestamo_list
-
         return res
 
 
 def elimina_tildes(cadena):
-    string = ''.join((c for c in unicodedata.normalize('NFD', unicode(cadena)) if unicodedata.category(c) != 'Mn'))
-    return string.decode()
+    return ''.join((c for c in unicodedata.normalize('NFD', cadena) if unicodedata.category(c) != 'Mn'))

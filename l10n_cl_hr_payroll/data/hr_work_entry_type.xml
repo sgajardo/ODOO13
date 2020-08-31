@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+    <record id="hr_work_entry_type_01" model="hr.work.entry.type">
+        <field name="name">Ausentismo</field>
+        <field name="is_leave">True</field>
+        <field name="code">AUSENTISMO</field>
+        <field name="color">3</field>
+    </record>
+    <record id="hr_work_entry_type_02" model="hr.work.entry.type">
+        <field name="name">Licencia Médica</field>
+        <field name="is_leave">True</field>
+        <field name="code">LICENCIA</field>
+        <field name="color">3</field>
+    </record>
+    <record id="hr_work_entry_type_03" model="hr.work.entry.type">
+        <field name="name">Permiso con Goce de Sueldo</field>
+        <field name="is_leave">False</field>
+        <field name="code">PERMISO_CON_GOCE</field>
+        <field name="color">3</field>
+    </record>
+    <record id="hr_work_entry_type_04" model="hr.work.entry.type">
+        <field name="name">Permiso sin Goce de Sueldo</field>
+        <field name="is_leave">True</field>
+        <field name="code">PERMISO_SIN_GOCE</field>
+        <field name="color">3</field>
+    </record>
+    <record id="hr_work_entry_type_05" model="hr.work.entry.type">
+        <field name="name">Vacaciones</field>
+        <field name="is_leave">False</field>
+        <field name="code">VACACIONES</field>
+        <field name="color">3</field>
+    </record>
+    <record id="hr_work_entry_type_06" model="hr.work.entry.type">
+        <field name="name">Vacaciones (Progresivas)</field>
+        <field name="is_leave">False</field>
+        <field name="code">VACACIONES_PROG</field>
+        <field name="color">3</field>
+    </record>
+</odoo>

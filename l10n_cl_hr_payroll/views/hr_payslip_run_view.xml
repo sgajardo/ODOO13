@@ -8,9 +8,8 @@
 
             <header position="inside">
                 <button name="calcular_masivo" type="object" string="Calculo Masivo"
-                    style="background-color:#dc3545;border-color:#dc3545;"
                     confirm="¿Estás seguro que quieres recalcular todas las nóminas?"
-                    class="btn-primary"/>
+                    class="btn-danger"/>
 
                 <button name="crear_pago_previred" type="object" string="Pago Previred"
                         style="background-color:#449d44;border-color:#449d44;"
@@ -36,19 +35,19 @@
                     </button>
                 </div>
             </xpath>
-            <field name="state" position="attributes">
+            <!-- <field name="state" position="attributes">
                 <attribute name="statusbar_visible">draft,validate</attribute>
             </field>
-            <button name="close_payslip_run" position="replace">
-                <button name="validate" string="Validar nóminas" type="object" states="draft" class="btn-primary"/>
-            </button>
             <button name="draft_payslip_run" position="attributes">
                 <attribute name="states">close,validate</attribute>
-            </button>
+            </button> -->
             <field name="credit_note" position="before">
                 <field name="stats_id"/>
+                <field name="account_analytic_account_id"
+                    attrs="{'invisible': [('account_analytic_account_id', '=', False)]}"
+                    groups="analytic.group_analytic_accounting"/>
             </field>
-            <field name="slip_ids" position="replace">
+            <!-- <field name="slip_ids" position="replace">
                 <field name="slip_ids">
                     <tree decoration-info="state in ('confirm','hr_check','accont_check')" decoration-muted="state == 'cancel'" colors="blue:state == 'draft';">
                         <field name="sequence" string="#"/>
@@ -62,8 +61,8 @@
                         <field name="notas"/>
                     </tree>
                 </field>
-            </field>
-            <field name="slip_ids" position="after">
+            </field> -->
+            <sheet>
                 <notebook>
                     <page name="mov_personal" string="Movimientos de Personal">
                         <field name="mov_emp_ids">
@@ -152,13 +151,13 @@
                     <page name="tools" string="Tools">
                         <group>
                             <group>
-                                <button name="exe_historic_all" string="Cargar Histórico" class="oe_highlight" type="object"
+                                <button name="exe_historic_all" string="Cargar Histórico" class="btn-primary" type="object"
                                 confirm="¿Estás seguro que quieres Guardar el Dato Histórico?"/>
                             </group>
                         </group>
                     </page>
                 </notebook>
-            </field>
+            </sheet>
 
             <sheet position="after">
                 <div class="oe_chatter">

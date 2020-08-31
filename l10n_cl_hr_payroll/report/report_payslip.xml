@@ -1,340 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <!-- Paper format -->
-        <record id="l10n_cl_hr_payroll.payslip_format" model="report.paperformat">
-            <field name="name">Payslip Paperformat</field>
-            <field name="default" eval="False"/>
-            <field name="format">Letter</field>
-            <field name="orientation">Portrait</field>
-            <field name="margin_top">20</field>
-            <field name="margin_bottom">20</field>
-            <field name="margin_left">10</field>
-            <field name="margin_right">10</field>
-            <field name="header_spacing">0</field>
-            <field name="dpi">90</field>
-        </record>
-        <!-- Report -->
-        <report
-            id="hr_payroll.action_report_payslip"
-            model="hr.payslip"
-            string="Payslip"
-            report_type="qweb-pdf"
-            name="hr_payroll.report_payslip"
-            file="l10n_cl_hr_payroll.report_payslip"
-            paperformat="l10n_cl_hr_payroll.payslip_format"
-        />
-        <!--
-        <record id="l10n_cl_hr_payroll.report_payslip" model="ir.actions.report.xml">
-            <field name="print_report_name">(object.number) and ('NOMINA_'+object.number+'_'+object.employee_id.full_name+'.pdf') or ('NOMINA_'+object.employee_id.full_name+'.pdf')</field>
-            <field name="attachment_use" eval="False"/>
-        </record>
-        -->
+    <!-- Paper format -->
+    <record id="l10n_cl_hr_payroll.payslip_format" model="report.paperformat">
+        <field name="name">Payslip Paperformat</field>
+        <field name="default" eval="False"/>
+        <field name="format">Letter</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+    <!-- Report -->
+    <report id="hr_payroll.action_report_payslip"
+        model="hr.payslip"
+        string="Payslip"
+        report_type="qweb-pdf"
+        name="hr_payroll.report_payslip"
+        file="l10n_cl_hr_payroll.report_payslip"
+        paperformat="l10n_cl_hr_payroll.payslip_format"/>
 
-        <!-- Template -->
-        <template id="l10n_cl_hr_payroll.report_payslip" inherit_id="hr_payroll.report_payslip">
-            <t t-call="report.html_container" position="replace">
-            <t t-call="report.html_container">
-            <t t-call="report.layout">
-                <t t-foreach="docs" t-as="o">
-                    <div class="page">
-
-                        <div class="media">
-                            <div class="media-left">
-                                <img t-if="o.company_id.logo" style="height: 95px; width: auto;" class="media-object"
-                                    t-att-src="'data:image/png;base64,%s' % o.company_id.logo"/>
-                            </div>
-                            <div class="media-body">
-                                <p style="font-size: 12px;">
-                                    <strong>RAZON SOCIAL</strong>: <span t-field="res_company.name" /><br/>
-                                    <strong>RUT EMPRESA</strong>: <span t-raw="res_company.vat.replace('CL','')[:-1] + '-' + res_company.vat.replace('CL','')[-1:]" /><br/>
-                                    <strong>GIRO</strong>: <span t-field="res_company.giro" /><br/>
-                                    <strong>TELEFONO</strong>: <span t-field="res_company.phone" /><br/>
-                                    <strong>UF</strong>: <span t-field="o.stats_id.uf" /><br/>
-                                    <strong>UTM</strong>: <span t-field="o.stats_id.utm" /><br/>
-                                </p>
-                            </div>
-                        </div>
-
-
-                        <div class="row">
-                            <h3 align="center">LIQUIDACIÓN DE SUELDO</h3>
-                            <h5 align="center">MES: <span t-esc="time.strftime('%B %Y',time.strptime(o.date_to,'%Y-%m-%d')).replace('January', 'ENERO').replace('February', 'FEBRERO').replace('March', 'Marzo').replace('April', 'ABRIL').replace('May', 'MAYO').replace('June', 'JUNIO').replace('July', 'JULIO').replace('August', 'AGOSTO').replace('September', 'SEPTIEMBRE').replace('October', 'OCTUBRE').replace('November', 'NOVIEMBRE').replace('December', 'DICIEMBRE').upper()"/></h5>
-                                <span t-if="o.report_show_referencia">
-                                <h5 align="center" >REFERENCIA:<span t-field="o.number"/></h5>
-                            </span>
-                        </div>
-                        <table class="table table-condensed table-striped"  width="100%">
-                            <thead>
-                                <tr>
-                                    <th>R.U.T</th>
-                                    <th>TRABAJADOR</th>
-                                    <th>TIPO DE CONTRATO.</th>
-                                    <th>CARGO</th>
-                                    <th>FECHA CONTRATO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span t-field="o.employee_id.identification_id"/></td>
-                                    <td><span t-field="o.employee_id.full_name"/></td>
-                                    <td><span t-field="o.contract_id.type_id.name"/></td>
-                                    <td><span t-field="o.contract_id.job_id"/></td>
-                                    <!-- Francisca de "Los Insaciables" pidió que el campo "Fecha contrato" muestre la fecha inicio del contrato mas antiguo -->
-                                    <td><span t-esc="min(o.employee_id.contract_ids.mapped('date_start'))" t-options="{'widget': 'date'}"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table table-condensed table-striped"  width="100%">
-                            <thead>
-                                <tr>
-                                    <th>A.F.P</th>
-                                    <th>SISTEMA DE SALUD</th>
-                                    <th>COTIZACIÓN PACTADA SALUD</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <span t-if="o.afp_id" t-field="o.afp_id"/>
-                                        <span t-if="not o.afp_id" t-field="o.employee_id.afp_id"/>
-                                    </td>
-                                    <td>
-                                        <span t-if="o.isapre_id" t-field="o.isapre_id"/>
-                                        <span t-if="not o.isapre_id" t-field="o.employee_id.isapre_id"/>
-                                    </td>
-                                    <td>
-                                        <span t-if="o.isapre_id" t-field="o.isapre_cotizacion_uf"/>
-                                        <span t-if="not o.isapre_id" t-field="o.employee_id.isapre_cotizacion_uf"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table-condensed table-striped"  width="100%">
-                            <tr>
-                                <th>DIAS NO TRABAJADOS</th>
-                                <td>CON LICENCIA: <span t-esc="o.paid_leaves_count"/></td>
-                                <td>SIN LICENCIA: <span t-esc="o.unpaid_leaves_count"/></td>
-                                <td>VACACIONES: <span t-esc="o.vacations_taken_count"/></td>
-                                <!--  </<span t-esc="o.vacations_pending_count"/> -->
-                            </tr>
-                        </table>
-                        <table class="table-condensed table-striped"  width="100%">
-                            <thead>
-                                <tr>
-                                    <th>DIAS</th>
-                                    <th t-if="o.report_show_50_por">HORAS EXTRA 50%</th>
-                                    <th t-if="o.report_show_100_por">HORAS EXTRA 100%</th>
-                                    <th t-if="o.report_show_dom_por">HORAS DOMINGO</th>
-                                    <th>CARGAS</th>
-                                    <th>IMPONIBLE</th>
-                                    <th>TRIBUTABLE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th class="text-center">
-                                        <t t-set="WORK100" t-value="o.worked_days_line_ids.filtered(lambda w: w.code == 'WORK100')" />
-                                        <span align="center" t-esc="WORK100 and WORK100.number_of_days or 0.0" />
-                                    </th>
-                                    <th  t-if="o.report_show_50_por" class="text-center">
-                                        <t t-foreach="o.input_line_ids" t-as="p">
-                                            <t t-if="('HEX' == p.code)">
-                                                <span align="center" t-raw="p.amount"/>
-                                            </t>
-                                        </t>
-                                    </th>
-                                    <th t-if="o.report_show_100_por"  class="text-center">
-                                        <t t-foreach="o.input_line_ids" t-as="p">
-                                            <t t-if="('HEX100' == p.code)">
-                                                <span align="center" t-raw="p.amount"/>
-                                            </t>
-                                        </t>
-                                    </th>
-                                    <th t-if="o.report_show_dom_por" class="text-center">
-                                        <t t-foreach="o.input_line_ids" t-as="p">
-                                            <t t-if="('HXD' == p.code)">
-                                                <span align="center" t-raw="p.amount"/>
-                                            </t>
-                                        </t>
-                                    </th>
-                                    <th class="text-center">
-                                        <span align="center" t-esc="o.employee_id.cant_carga_familiar + o.employee_id.cant_carga_familiar_maternal + o.employee_id.cant_carga_familiar_invalida"/>
-                                    </th>
-                                    <th class="text-right">
-                                        <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p">
-                                            <t t-if="('TOTIM' == p.code)">
-                                                <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/>
-                                            </t>
-                                        </t>
-                                    </th>
-                                    <th class="text-right">
-                                        <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p">
-                                            <t t-if="'TRIBU' == p.code">
-                                                <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/>
-                                            </t>
-                                        </t>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table-condensed table-striped" width="100%">
-                            <thead>
-                                <tr>
-                                    <th align="left" width="50%">HABERES</th>
-                                    <th align="left" width="50%">DESCUENTOS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'IMPONIBLE')" t-as="p">
-                                                <td align="left"><span t-field="p.name"/></td>
-                                                <td align="right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code in ['PREV', 'SALUD', 'DED'])" t-as="p">
-                                                <td align="left"><span t-field="p.name"/></td>
-                                                <td align="right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <table width="100%">
-                                            <tr>
-                                                <td align="left"><strong>TOTAL IMPONIBLE</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOTIM')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table width="100%">
-                                            <tr>
-                                                <td align="left"><strong>TOTAL DESCUENTOS LEGALES</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TODELE')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <t t-set="no_imponibles" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'NOIMPO')"/>
-                                <t t-set="otros_descuentos" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'ODESC')"/>
-                                <tr t-if="no_imponibles or otros_descuentos">
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-foreach="no_imponibles" t-as="p">
-                                                <td align="left"><span t-field="p.name"/></td>
-                                                <td align="right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-foreach="otros_descuentos" t-as="p">
-                                                <td align="left"><span t-field="p.name"/></td>
-                                                <td align="right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr t-if="no_imponibles or otros_descuentos">
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-if="no_imponibles">
-                                                <td align="left"><strong>TOTAL NO IMPONIBLES</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOTNOI')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table width="100%">
-                                            <tr t-if="otros_descuentos">
-                                                <td align="left"><strong>TOTAL OTROS DESCUENTOS</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOD')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <table width="100%">
-                                            <tr>
-                                                <td align="left"><strong>TOTAL HABERES</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.code == 'HAB')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table width="100%">
-                                            <tr>
-                                                <td align="left"><strong>TOTAL DESCUENTOS</strong></td>
-                                                <td align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.code == 'TDE')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table table-condensed table-striped" width="100%" style="margin-top: 15px;">
-                            <thead>
-                                <tr>
-                                    <th>FECHA</th>
-                                    <th>ALCANCE LÍQUIDO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span t-field="o.date_to"/></td>
-                                    <td> <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p"><t t-if="('LIQ' == p.code)"> <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></t></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table table-condensed table-striped" width="100%">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <span>SON </span>
-                                        <span align="right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p"><t t-if="('LIQ' == p.code)"><span t-if="p.amount &lt; 0" t-esc="'MENOS '"/><span t-esc="o.convert(round(p.amount),'Peso')"/></t></t></span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="3"><span t-field="o.report_note_payslip"/></td><td/>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table width="100%" style="margin-top: 40px;">
-                            <tbody>
-                                <tr>
-                                    <td width="10%"/>
-                                    <td width="35%" align="center" style="border-top: 1px solid"><strong>FIRMA DEL EMPLEADOR</strong></td>
-                                    <td width="10%"/>
-                                    <td width="35%" align="center" style="border-top: 1px solid"><strong>FIRMA DEL TRABAJADOR</strong></td>
-                                    <td width="10%"/>
-                                </tr>
-                                <tr>
-                                    <td/>
-                                    <td/>
-                                    <td/>
-                                    <td align="center">
-                                        <span t-field="o.employee_id.full_name"/><br/>
-                                        <span t-field="o.employee_id.identification_id"/>
-                                    </td>
-                                    <td/>
-                                </tr>
-                            </tbody>
-                        </table>
+    <!-- Template -->
+    <template id="l10n_cl_hr_payroll.report_payslip" inherit_id="hr_payroll.report_payslip">
+        <t t-call="web.internal_layout" position="replace">
+        <t t-call="web.basic_layout">
+            <div class="page">
+                <div class="media mb-3">
+                    <img t-if="o.company_id.logo" style="height: 95px;" class="mr-3 w-auto" t-att-src="image_data_uri(o.company_id.logo)"/>
+                    <div class="media-body">
+                        <p class="w-100" style="font-size: 12px;">
+                            <strong>RAZON SOCIAL</strong>: <span t-field="res_company.name"/><br/>
+                            <strong>RUT EMPRESA</strong>: <span t-if="res_company.vat" t-raw="res_company.vat.replace('CL','')[:-1] + '-' + res_company.vat.replace('CL','')[-1:]"/><br/>
+                            <!-- <strong>GIRO</strong>: <span t-field="res_company.giro"/><br/> -->
+                            <strong>TELEFONO</strong>: <span t-field="res_company.phone"/><br/>
+                            <strong>UF</strong>: <span t-field="o.stats_id.uf"/><br/>
+                            <strong>UTM</strong>: <span t-field="o.stats_id.utm"/><br/>
+                        </p>
                     </div>
-                </t>
-            </t>
-            </t>
-            </t>
-        </template>
-    </data>
+                </div>
+                <h3 class="text-center mb-0">LIQUIDACIÓN DE SUELDO</h3>
+                <h5 class="text-center mb-0">MES: <span t-esc="o.date_to.strftime('%B %Y').replace('January', 'ENERO').replace('February', 'FEBRERO').replace('March', 'Marzo').replace('April', 'ABRIL').replace('May', 'MAYO').replace('June', 'JUNIO').replace('July', 'JULIO').replace('August', 'AGOSTO').replace('September', 'SEPTIEMBRE').replace('October', 'OCTUBRE').replace('November', 'NOVIEMBRE').replace('December', 'DICIEMBRE').upper()"/></h5>
+                <h5 t-if="o.report_show_referencia" class="text-center mb-0">REFERENCIA: <span t-field="o.number"/></h5>
+                <table class="table table-sm table-striped mt-2 mb-0">
+                    <thead>
+                        <tr>
+                            <th>R.U.T</th>
+                            <th>TRABAJADOR</th>
+                            <th>TIPO DE CONTRATO.</th>
+                            <th>CARGO</th>
+                            <th>FECHA CONTRATO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span t-field="o.employee_id.identification_id"/></td>
+                            <td><span t-field="o.employee_id"/></td>
+                            <td><span t-field="o.contract_id.type_id.name"/></td>
+                            <td><span t-field="o.contract_id.job_id"/></td>
+                            <!-- Francisca de "Los Insaciables" pidió que el campo "Fecha contrato" muestre la fecha inicio del contrato mas antiguo -->
+                            <td><span t-esc="min(o.employee_id.contract_ids.mapped('date_start'))" t-options="{'widget': 'date'}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>A.F.P</th>
+                            <th>SISTEMA DE SALUD</th>
+                            <th>COTIZACIÓN PACTADA SALUD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span t-if="o.afp_id" t-field="o.afp_id"/>
+                                <span t-else="" t-field="o.employee_id.afp_id"/>
+                            </td>
+                            <td>
+                                <span t-if="o.isapre_id" t-field="o.isapre_id"/>
+                                <span t-else="" t-field="o.employee_id.isapre_id"/>
+                            </td>
+                            <td>
+                                <span t-if="o.isapre_id" t-field="o.isapre_cotizacion_uf"/>
+                                <span t-else="" t-field="o.employee_id.isapre_cotizacion_uf"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <th>DIAS NO TRABAJADOS</th>
+                        <td>CON LICENCIA: <span t-esc="o.paid_leaves_count"/></td>
+                        <td>SIN LICENCIA: <span t-esc="o.unpaid_leaves_count"/></td>
+                        <td>VACACIONES: <span t-esc="o.vacations_taken_count"/></td>
+                    </tr>
+                </table>
+                <table class="table table-sm table-striped text-center">
+                    <tr>
+                        <th>DIAS</th>
+                        <th t-if="o.report_show_50_por">HORAS EXTRA 50%</th>
+                        <th t-if="o.report_show_100_por">HORAS EXTRA 100%</th>
+                        <th t-if="o.report_show_dom_por">HORAS DOMINGO</th>
+                        <th>CARGAS</th>
+                        <th>IMPONIBLE</th>
+                        <th>TRIBUTABLE</th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <t t-set="WORK100" t-value="o.worked_days_line_ids.filtered(lambda w: w.code == 'WORK100')"/>
+                            <span t-esc="WORK100 and WORK100.number_of_days or 0.0"/>
+                        </th>
+                        <th  t-if="o.report_show_50_por">
+                            <t t-foreach="o.input_line_ids" t-as="p">
+                                <t t-if="('HEX' == p.code)">
+                                    <span t-raw="p.amount"/>
+                                </t>
+                            </t>
+                        </th>
+                        <th t-if="o.report_show_100_por" >
+                            <t t-foreach="o.input_line_ids" t-as="p">
+                                <t t-if="('HEX100' == p.code)">
+                                    <span t-raw="p.amount"/>
+                                </t>
+                            </t>
+                        </th>
+                        <th t-if="o.report_show_dom_por">
+                            <t t-foreach="o.input_line_ids" t-as="p">
+                                <t t-if="('HXD' == p.code)">
+                                    <span t-raw="p.amount"/>
+                                </t>
+                            </t>
+                        </th>
+                        <th>
+                            <span t-esc="o.employee_id.cant_carga_familiar + o.employee_id.cant_carga_familiar_maternal + o.employee_id.cant_carga_familiar_invalida"/>
+                        </th>
+                        <th>
+                            <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p">
+                                <t t-if="('TOTIM' == p.code)">
+                                    <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/>
+                                </t>
+                            </t>
+                        </th>
+                        <th>
+                            <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p">
+                                <t t-if="'TRIBU' == p.code">
+                                    <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/>
+                                </t>
+                            </t>
+                        </th>
+                    </tr>
+                </table>
+                <table class="table-sm w-100">
+                    <thead>
+                        <tr>
+                            <th class="w-50">HABERES</th>
+                            <th class="w-50">DESCUENTOS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="align-top">
+                                <table class="table-striped w-100">
+                                    <tr t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'IMPONIBLE')" t-as="p">
+                                        <td><span t-field="p.name"/></td>
+                                        <td class="text-right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td class="align-top">
+                                <table class="table-striped w-100">
+                                    <tr t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code in ['PREV', 'SALUD', 'DED'])" t-as="p">
+                                        <td><span t-field="p.name"/></td>
+                                        <td class="text-right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="table-striped w-100">
+                                    <tr>
+                                        <td><strong>TOTAL IMPONIBLE</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOTIM')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>
+                                <table class="table-striped w-100">
+                                    <tr>
+                                        <td><strong>TOTAL DESCUENTOS LEGALES</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TODELE')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <t t-set="no_imponibles" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'NOIMPO')"/>
+                        <t t-set="otros_descuentos" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount != 0 and line.category_id.code == 'ODESC')"/>
+                        <tr t-if="no_imponibles or otros_descuentos">
+                            <td>
+                                <table class="w-100">
+                                    <tr t-foreach="no_imponibles" t-as="p">
+                                        <td><span t-field="p.name"/></td>
+                                        <td class="text-right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>
+                                <table class="w-100">
+                                    <tr t-foreach="otros_descuentos" t-as="p">
+                                        <td><span t-field="p.name"/></td>
+                                        <td class="text-right"><span t-esc="'{0:,.0f}'.format(round(p.total)).replace(',', '.')"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr t-if="no_imponibles or otros_descuentos">
+                            <td>
+                                <table class="w-100">
+                                    <tr t-if="no_imponibles">
+                                        <td><strong>TOTAL NO IMPONIBLES</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOTNOI')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>
+                                <table class="w-100">
+                                    <tr t-if="otros_descuentos">
+                                        <td><strong>TOTAL OTROS DESCUENTOS</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.code == 'TOD')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table class="w-100">
+                                    <tr>
+                                        <td><strong>TOTAL HABERES</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.code == 'HAB')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td>
+                                <table class="w-100">
+                                    <tr>
+                                        <td><strong>TOTAL DESCUENTOS</strong></td>
+                                        <td class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.code == 'TDE')" t-as="p"><span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm table-striped mt-3 mb-0">
+                    <thead>
+                        <tr>
+                            <th>FECHA</th>
+                            <th>ALCANCE LÍQUIDO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span t-field="o.date_to"/></td>
+                            <td> <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p"><t t-if="('LIQ' == p.code)"> <span t-esc="'{0:,.0f}'.format(p.amount).replace(',', '.')"/></t></t></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>SON </span>
+                                <span class="text-right"><t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="p"><t t-if="('LIQ' == p.code)"><span t-if="p.amount &lt; 0" t-esc="'MENOS '"/><span t-esc="o.convert(round(p.amount),'Peso')"/></t></t></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody t-if="o.report_note_payslip">
+                        <tr>
+                            <td colspan="3"><span t-field="o.report_note_payslip"/></td><td/>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="w-100 mt-5" style="page-break-inside: avoid;">
+                    <tbody>
+                        <tr>
+                            <td width="10%"/>
+                            <td width="35%" class="text-center border-top border-dark font-weight-bold">FIRMA DEL EMPLEADOR</td>
+                            <td width="10%"/>
+                            <td width="35%" class="text-center border-top border-dark font-weight-bold">FIRMA DEL TRABAJADOR</td>
+                            <td width="10%"/>
+                        </tr>
+                        <tr>
+                            <td/>
+                            <td/>
+                            <td/>
+                            <td class="text-center">
+                                <span t-field="o.employee_id"/><br/>
+                                <span t-field="o.employee_id.identification_id"/>
+                            </td>
+                            <td/>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="footer"/>
+            </div>
+        </t>
+        </t>
+    </template>
 </odoo>

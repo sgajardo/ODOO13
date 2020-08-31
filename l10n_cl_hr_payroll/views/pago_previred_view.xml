@@ -13,7 +13,7 @@
                   <button name="exe_next"
                            confirm="¿Estás seguro de que quieres Adelantar?"
                           string="Pagar"
-                          class="oe_highlight"
+                          class="btn-primary"
                           type="object"
                           attrs="{'invisible': [('state','in',['asentado','cancelado'])]}" />
 

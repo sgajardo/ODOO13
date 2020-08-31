@@ -1,42 +1,34 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-# Chilean Payroll
-# WARNING: This program as such is intended to be used by professional
-# programmers who take the whole responsability of assessing all potential
-# consequences resulting from its eventual inadequacies and bugs
-# End users who are looking for a ready-to-use solution with commercial
-# garantees and support are strongly adviced to contract a Free Software
-# Service Company
-#
-# This program is Free Software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-#
-##############################################################################
-
-
 from odoo import api, fields, models, tools, _
+from odoo.exceptions import UserError
+from odoo.tools.safe_eval import safe_eval
 
-class hr_salary_rule(models.Model):
+
+class HrSalaryRule(models.Model):
 
     _inherit = 'hr.salary.rule'
     _description = 'Salary Rule'
+
     date_start = fields.Date('Fecha Inicio',  help="Fecha de inicio de la regla salarial")
     date_end = fields.Date('Fecha Fin',  help="Fecha del fin de la regla salarial")
 
-    chile_type = fields.Selection(
-        [('FI', 'Fijo Imponible'),
-         ('VI', 'Variable Imponible'),
-         ('ANI', 'Asignaciones No Imponible')],
-        'Tipo Chile')
+    chile_type = fields.Selection([('FI', 'Fijo Imponible'),
+                                   ('VI', 'Variable Imponible'),
+                                   ('ANI', 'Asignaciones No Imponible')],
+                                  'Tipo Chile')
 
+    def _satisfy_condition(self, localdict):
+        self.ensure_one()
+        if self.condition_select == 'none':
+            return True
+        if self.condition_select == 'range':
+            try:
+                result = safe_eval(self.condition_range, localdict)
+                return self.condition_range_min <= result <= self.condition_range_max
+            except Exception as e:
+                raise UserError(_('Wrong range condition defined for salary rule %s (%s).\nError: %s') % (self.name, self.code, e))
+        else:  # python code
+            try:
+                safe_eval(self.condition_python, localdict, mode='exec', nocopy=True)
+                return localdict.get('result', False)
+            except Exception as e:
+                raise UserError(_('Código python erróneo en condición de la regla salarial %s (%s).\nError: %s') % (self.name, self.code, e))

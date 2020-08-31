@@ -1,4 +1,3 @@
-# coding: utf-8
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
@@ -18,13 +17,13 @@ class HrPrestamos(models.Model):
     rut_r = fields.Char('RUT', related='employee_id.identification_id')
     cuotas = fields.Integer()
     valor_total = fields.Integer('Valor Total')
-    line_ids = fields.One2many('hr.borrow.line', 'borrow_id', 'Cuotas', help='Cuotas de Prestamo')
+    line_ids = fields.One2many('hr.borrow.line', 'borrow_id', 'Líneas Cuotas', help='Cuotas de Prestamo')
     desc = fields.Text('Nota')
     amount_total = fields.Float('Importe Total', compute='_compute_all', help='Monto total del Prestamo', store=True)
     amount_paid = fields.Float('Importe Cobrado', compute='_compute_all', help='Monto cobrado del Prestamo', store=True)
     amount_due = fields.Float('Deuda', compute='_compute_all', help='Monto a pagar del Prestamo', store=True)
 
-    inputs_id = fields.Many2one('hr.rule.input', string='Entrada', required=True)
+    inputs_id = fields.Many2one('hr.payslip.input.type', string='Entrada', required=True)
 
     @api.model
     def create(self, vals):
@@ -68,12 +67,12 @@ class HrPrestamosLine(models.Model):
     amount = fields.Float('Monto', help='Monto de la cuota')
     date_due = fields.Date('Fecha Vencimiento', help='Fecha de vencimiento de la cuota')
     cobrado = fields.Boolean()
-    payslip_id = fields.Many2one('hr.payslip', 'Nómina', help=u'Nómina en la que se pagó esta cuota')
+    payslip_id = fields.Many2one('hr.payslip', 'Nómina', help='Nómina en la que se pagó esta cuota')
 
     def cobrar(self, payslip_id):
         """ Marca una cuota como pagada y agrega el monto cobrado al préstamo """
         if any(self.mapped('payslip_id')):
-            raise ValidationError(_(u'Algunas cuotas de préstamos fueron pagadas en las nóminas: %s') % ', '.join(self.mapped('payslip_id.name')))
+            raise ValidationError(_('Algunas cuotas de préstamos fueron pagadas en las nóminas: %s') % ', '.join(self.mapped('payslip_id.name')))
         self.write({'cobrado': True, 'payslip_id': payslip_id.id})
         return self.mapped('borrow_id')._compute_all()
 

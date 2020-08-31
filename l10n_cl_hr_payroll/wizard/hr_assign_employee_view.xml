@@ -8,8 +8,8 @@
                 <form string="Asignación de Haberes/Descuentos">
                     <label string="Seleccion un Haber/Descuento, ingrese monto y fechas y seleccione los empleados a asignar el concepto"/>
                     <footer>
-                        <button name="assign" string="Asignar" type="object" class="oe_highlight"/> o
-                        <button string="Cerrar" class="oe_link" special="cancel" />
+                        <button name="assign" string="Asignar" type="object" class="btn-primary"/> o
+                        <button string="Cerrar" class="btn-secondary" special="cancel" />
                     </footer>
                     <group>
                         <group>

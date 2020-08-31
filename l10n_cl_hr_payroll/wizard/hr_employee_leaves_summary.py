@@ -1,4 +1,3 @@
-# coding: utf-8
 import base64
 from calendar import monthrange
 from cStringIO import StringIO
@@ -82,7 +81,7 @@ class HrEmployeeLeavesSummary(models.TransientModel):
             worksheet.write(i, 0, employee.identification_id or '')
             worksheet.write(i, 1, employee.full_name)
             # Buscamos las horas extras
-            haberes = employee.haberes_descuentos_ids.filtered(lambda hyd: hyd.date_from <= self.date_to and (hyd.date_to >= self.date_from or not hyd.date_to))
+            haberes = employee.balance_ids.filtered(lambda hyd: hyd.date_from <= self.date_to and (hyd.date_to >= self.date_from or not hyd.date_to))
             hex_total = sum(haberes.filtered(lambda hyd: hyd.name.inputs_id.code == 'HEX').mapped('monto'))
             hex100_total = sum(haberes.filtered(lambda hyd: hyd.name.inputs_id.code == 'HEX100').mapped('monto'))
             hxd_total = sum(haberes.filtered(lambda hyd: hyd.name.inputs_id.code == 'HXD').mapped('monto'))
@@ -101,8 +100,8 @@ class HrEmployeeLeavesSummary(models.TransientModel):
             worksheet.write(i, 9, xlwt.Formula('D{0}+F{0}+H{0}'.format(i + 1)), style_currency)
             # Buscamos las ausencias
             leaves = employee.leave_ids.filtered(lambda l: l.type == 'remove')
-            licencias = sum(leaves.filtered(lambda l: l.holiday_status_id == licencia_id).mapped('number_of_days_temp'))
-            sin_licencias = sum(leaves.filtered(lambda l: l.holiday_status_id != licencia_id).mapped('number_of_days_temp'))
+            licencias = sum(leaves.filtered(lambda l: l.holiday_status_id == licencia_id).mapped('number_of_days_display'))
+            sin_licencias = sum(leaves.filtered(lambda l: l.holiday_status_id != licencia_id).mapped('number_of_days_display'))
             worksheet.write(i, 10, licencias, style_center)
             worksheet.write(i, 11, sin_licencias, style_center)
             worksheet.write(i, 12, xlwt.Formula('K{0}+L{0}'.format(i + 1)), style_center)

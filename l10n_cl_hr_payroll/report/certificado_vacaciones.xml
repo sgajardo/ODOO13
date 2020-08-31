@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <report id="certificado_vacaciones_report"
-        model="hr.holidays"
+        model="hr.leave"
         string="Certificado"
         report_type="qweb-pdf"
         paperformat="l10n_cl_hr_payroll.payslip_format"
@@ -49,7 +49,7 @@
                                 <span t-esc="res_company.name"/> Autoriza a Don(a) <span t-esc="o.employee_id.full_name.upper()"/> hacer uso
                                 de sus vacaciones desde el <span t-esc="'%.2d de %s de %d' % (desde[2], meses[desde[1] - 1], desde[0])"/>
                                 hasta el <span t-esc="'%.2d de %s de %d' % (hasta[2], meses[hasta[1] - 1], hasta[0])"/>, correspondiente a
-                                <span t-esc="int(o.number_of_days_temp)"/> día(s) hábil(es).
+                                <span t-esc="int(o.number_of_days_display)"/> día(s) hábil(es).
                             </p>
                         </div>
                         <table width="100%" style="margin-top: 200px;">

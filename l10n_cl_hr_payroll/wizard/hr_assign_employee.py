@@ -1,4 +1,3 @@
-# coding: utf-8
 from calendar import monthrange
 
 from odoo import api, fields, models

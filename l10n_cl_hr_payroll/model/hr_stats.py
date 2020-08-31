@@ -1,39 +1,11 @@
-
-# -*- coding: utf-8 -*-
-##############################################################################
-# Chilean Payroll
-#
-# Derivative from Odoo / Odoo / Tiny SPRL
-#
-# WARNING: This program as such is intended to be used by professional
-# programmers who take the whole responsability of assessing all potential
-# consequences resulting from its eventual inadequacies and bugs
-# End users who are looking for a ready-to-use solution with commercial
-# garantees and support are strongly adviced to contract a Free Software
-# Service Company
-#
-# This program is Free Software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-#
-##############################################################################
-
-from odoo import api, fields, models, tools, _
-import requests
-from bs4 import BeautifulSoup
-from odoo.exceptions import UserError, RedirectWarning, ValidationError, AccessError
-from datetime import datetime, timedelta, date
 import base64
+from datetime import datetime
+
+import requests
+
+from bs4 import BeautifulSoup
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError
 
 
 class HrStats(models.Model):
@@ -44,13 +16,13 @@ class HrStats(models.Model):
     _order = 'id desc'
 
     name = fields.Char('Nombre', required=True, default=lambda self: str(fields.Date.today().year))
-    notas = fields.Text('Notas')
+    notas = fields.Text()
 
     @api.model
     def cron_act_indicadores_previred(self):
-        u""" Actualizamos los indicadores """
+        """ Actualizamos los indicadores """
         name_ind = str(datetime.today())[:7]
-        u""" Revisamos que no exista el indicador """
+        """ Revisamos que no exista el indicador """
         param_obj = self.env['ir.config_parameter']
         day = int(param_obj.get_param('day_min_previred'))
         day_today = int(str(datetime.today())[8:10])
@@ -61,7 +33,7 @@ class HrStats(models.Model):
                     'name': name_ind,
                     'origen': 'Automático CRON'
                 }
-                u""" Lo creamos """
+                """ Lo creamos """
                 insert = self.env['hr.stats'].create(vals)
                 if insert:
                     insert.upate_indicators_previred()
@@ -70,109 +42,60 @@ class HrStats(models.Model):
                     obj_indicadores_previsionales.upate_indicators_previred()
 
     origen = fields.Char('Origen', default='Manual')
-    asignacion_familiar_primer = fields.Float(
-        'Asignación Familiar Tramo 1', 
-        help="Asig Familiar Primer Tramo")
-    asignacion_familiar_segundo = fields.Float(
-        'Asignación Familiar Tramo 2', 
-        help="Asig Familiar Segundo Tramo")
-    asignacion_familiar_tercer = fields.Float(
-        'Asignación Familiar Tramo 3', 
-        help="Asig Familiar Tercer Tramo")
-    asignacion_familiar_monto_a = fields.Float(
-        'Monto Tramo Uno', help="Monto A")
-    asignacion_familiar_monto_b = fields.Float(
-        'Monto Tramo Dos',  help="Monto B")
-    asignacion_familiar_monto_c = fields.Float(
-        'Monto Tramo Tres',  help="Monto C")
+    asignacion_familiar_primer = fields.Float('Asignación Familiar Tramo 1', help="Asig Familiar Primer Tramo")
+    asignacion_familiar_segundo = fields.Float('Asignación Familiar Tramo 2', help="Asig Familiar Segundo Tramo")
+    asignacion_familiar_tercer = fields.Float('Asignación Familiar Tramo 3', help="Asig Familiar Tercer Tramo")
+    asignacion_familiar_monto_a = fields.Float('Monto Tramo Uno', help="Monto A")
+    asignacion_familiar_monto_b = fields.Float('Monto Tramo Dos', help="Monto B")
+    asignacion_familiar_monto_c = fields.Float('Monto Tramo Tres', help="Monto C")
 
     # Contrato Plazo Indefinido Empleador
-    contrato_plazo_indefinido_empleador = fields.Float(
-        'Contrato Plazo Indefinido Empleador')
+    contrato_plazo_indefinido_empleador = fields.Float('Contrato Plazo Indefinido Empleador')
 
     # Contrato Plazo Indefinido Trabajador
-    contrato_plazo_indefinido_trabajador = fields.Float(
-        'Contrato Plazo Indefinido Trabajador')
+    contrato_plazo_indefinido_trabajador = fields.Float('Contrato Plazo Indefinido Trabajador')
 
     # Contrato Plazo Fijo Empleador
-    contrato_plazo_fijo_empleador = fields.Float(
-        'Contrato Plazo Fijo Empleador')
+    contrato_plazo_fijo_empleador = fields.Float('Contrato Plazo Fijo Empleador')
 
     # Contrato Plazo Indefinido 11 años o más (**)
-    contrato_plazo_indefinido_empleador_otro = fields.Float(
-        'Contrato Plazo Indefinido 11 anos o mas')
+    contrato_plazo_indefinido_empleador_otro = fields.Float('Contrato Plazo Indefinido 11 anos o mas')
 
-    caja_compensacion = fields.Float(
-        'Caja Compensación', 
-        help="Caja de Compensacion")
-    deposito_convenido = fields.Float(
-        'Deposito Convenido', help="Deposito Convenido")
-    fonasa = fields.Float('Fonasa',  help="Fonasa")
-    mutual_seguridad = fields.Float(
-        'Mutualidad',  help="Mutual de Seguridad")
-    pensiones_ips = fields.Float(
-        'Pensiones IPS',  help="Pensiones IPS")
-    sueldo_minimo = fields.Float(
-        'Trab. Dependientes e Independientes',  help="Sueldo Minimo")
-    sueldo_minimo_otro = fields.Float(
-        'Menores de 18 y Mayores de 65:', 
-        help="Sueldo Mínimo para Menores de 18 y Mayores a 65")
-    tasa_afp_cuprum = fields.Float(
-        'Cuprum',  help="Tasa AFP Cuprum")
-    tasa_afp_capital = fields.Float(
-        'Capital',  help="Tasa AFP Capital")
-    tasa_afp_provida = fields.Float(
-        'ProVida',  help="Tasa AFP Provida")
-    tasa_afp_modelo = fields.Float(
-        'Modelo',  help="Tasa AFP Modelo")
-    tasa_afp_planvital = fields.Float(
-        'PlanVital',  help="Tasa AFP PlanVital")
-    tasa_afp_habitat = fields.Float(
-        'Habitat',  help="Tasa AFP Habitat")
-    tasa_sis_cuprum = fields.Float(
-        'SIS', help="Tasa SIS Cuprum")
-    tasa_sis_capital = fields.Float(
-        'SIS', help="Tasa SIS Capital")
-    tasa_sis_provida = fields.Float(
-        'SIS',  help="Tasa SIS Provida")
-    tasa_sis_planvital = fields.Float(
-        'SIS',  help="Tasa SIS PlanVital")
-    tasa_sis_habitat = fields.Float(
-        'SIS',  help="Tasa SIS Habitat")
-    tasa_sis_modelo = fields.Float(
-        'SIS',  help="Tasa SIS Modelo")
-    tasa_independiente_cuprum = fields.Float(
-        'SIS',  help="Tasa Independientes Cuprum")
-    tasa_independiente_capital = fields.Float(
-        'SIS',  help="Tasa Independientes Capital")
-    tasa_independiente_provida = fields.Float(
-        'SIS',  help="Tasa Independientes Provida")
-    tasa_independiente_planvital = fields.Float(
-        'SIS',  help="Tasa Independientes PlanVital")
-    tasa_independiente_habitat = fields.Float(
-        'SIS',  help="Tasa Independientes Habitat")
-    tasa_independiente_modelo = fields.Float(
-        'SIS',  help="Tasa Independientes Modelo")
-    tope_anual_apv = fields.Float(
-        'Tope Anual APV',  help="Tope Anual APV")
-    tope_mensual_apv = fields.Float(
-        'Tope Mensual APV',  help="Tope Mensual APV")
-    tope_imponible_afp = fields.Float(
-        'Tope imponible AFP',  help="Tope Imponible AFP")
-    tope_imponible_ips = fields.Float(
-        'Tope Imponible IPS',  help="Tope Imponible IPS")
-    tope_imponible_salud = fields.Float(
-        'Tope Imponible Salud')
-    tope_imponible_seguro_cesantia = fields.Float(
-        'Tope Imponible Seguro Cesantía', 
-        help="Tope Imponible Seguro de Cesantía")
-    uf = fields.Float(
-        'UF', help="UF fin de Mes")
-    utm = fields.Float(
-        'UTM', help="UTM Fin de Mes")
-    uta = fields.Float('UTA',  help="UTA Fin de Mes")
-    uf_otros = fields.Float(
-        'UF Otros',  help="UF Seguro Complementario")
+    caja_compensacion = fields.Float('Caja Compensación', help="Caja de Compensacion")
+    deposito_convenido = fields.Float('Deposito Convenido', help="Deposito Convenido")
+    fonasa = fields.Float('Fonasa', help="Fonasa")
+    mutual_seguridad = fields.Float('Mutual de Seguridad')
+    pensiones_ips = fields.Float('Pensiones IPS')
+    sueldo_minimo = fields.Float('Sueldo Minimo')
+    sueldo_minimo_otro = fields.Float('Sueldo Mínimo para Menores de 18 y Mayores a 65')
+    tasa_afp_cuprum = fields.Float('Tasa AFP Cuprum')
+    tasa_afp_capital = fields.Float('Tasa AFP Capital')
+    tasa_afp_provida = fields.Float('Tasa AFP Provida')
+    tasa_afp_modelo = fields.Float('Tasa AFP Modelo')
+    tasa_afp_planvital = fields.Float('Tasa AFP PlanVital')
+    tasa_afp_habitat = fields.Float('Tasa AFP Habitat')
+    tasa_sis_cuprum = fields.Float('Tasa SIS Cuprum')
+    tasa_sis_capital = fields.Float('Tasa SIS Capital')
+    tasa_sis_provida = fields.Float('Tasa SIS Provida')
+    tasa_sis_planvital = fields.Float('Tasa SIS PlanVital')
+    tasa_sis_habitat = fields.Float('Tasa SIS Habitat')
+    tasa_sis_modelo = fields.Float('Tasa SIS Modelo')
+    tasa_independiente_cuprum = fields.Float('Tasa Independientes Cuprum')
+    tasa_independiente_capital = fields.Float('Tasa Independientes Capital')
+    tasa_independiente_provida = fields.Float('Tasa Independientes Provida')
+    tasa_independiente_planvital = fields.Float('Tasa Independientes PlanVital')
+    tasa_independiente_habitat = fields.Float('Tasa Independientes Habitat')
+    tasa_independiente_modelo = fields.Float('Tasa Independientes Modelo')
+    tope_anual_apv = fields.Float('Tope Anual APV')
+    tope_mensual_apv = fields.Float('Tope Mensual APV')
+    tope_imponible_afp = fields.Float('Tope Imponible AFP')
+    tope_imponible_ips = fields.Float('Tope Imponible IPS')
+    tope_imponible_salud = fields.Float('Tope Imponible Salud')
+    tope_imponible_seguro_cesantia = fields.Float('Tope Imponible Seguro de Cesantía')
+    uf = fields.Float('UF', help="UF fin de Mes")
+    utm = fields.Float('UTM', help="UTM Fin de Mes")
+    uta = fields.Float('UTA', help="UTA Fin de Mes")
+    uf_otros = fields.Float('UF Otros', help="UF Seguro Complementario")
     mutualidad_id = fields.Many2one('hr.mutual', 'MUTUAL')
     ccaf_id = fields.Many2one('hr.ccaf', 'CCAF')
 
@@ -180,80 +103,72 @@ class HrStats(models.Model):
 
     def exe_exportar(self):
         res = {}
-        fname = '%s_previred.csv' % self.name
-        path = '/tmp/' + fname
-        txtFile = open(path, 'wb')
+        filename = '%s_previred.csv' % self.name
 
-        line = "uf,utm,uta,tasa_afp_capital,tasa_sis_capital,tasa_independiente_capital,tasa_afp_cuprum,tasa_sis_cuprum,tasa_independiente_cuprum"
-        line += ",tasa_afp_habitat,tasa_sis_habitat,tasa_independiente_habitat,tasa_afp_planvital,tasa_sis_planvital,tasa_independiente_planvital"
-        line += ",tasa_afp_provida,tasa_sis_provida,tasa_independiente_provida,tasa_afp_modelo,tasa_sis_modelo,tasa_independiente_modelo"
-        line += ",tope_imponible_afp,tope_imponible_ips,tope_imponible_seguro_cesantia"
-        line += ",asignacion_familiar_monto_a,asignacion_familiar_primer,asignacion_familiar_monto_b,asignacion_familiar_segundo,asignacion_familiar_monto_c,asignacion_familiar_tercer"
-        line += ",sueldo_minimo,sueldo_minimo_otro"
-        line += ",deposito_convenido"
-        line += ",tope_anual_apv,tope_mensual_apv"
-        line += ",contrato_plazo_indefinido_empleador,contrato_plazo_indefinido_trabajador,contrato_plazo_fijo_empleador,contrato_plazo_indefinido_empleador_otro"
-        line += ",name"
-        txtFile.write(line + '\n')
+        data = "uf,utm,uta,tasa_afp_capital,tasa_sis_capital,tasa_independiente_capital,tasa_afp_cuprum,tasa_sis_cuprum,tasa_independiente_cuprum"
+        data += ",tasa_afp_habitat,tasa_sis_habitat,tasa_independiente_habitat,tasa_afp_planvital,tasa_sis_planvital,tasa_independiente_planvital"
+        data += ",tasa_afp_provida,tasa_sis_provida,tasa_independiente_provida,tasa_afp_modelo,tasa_sis_modelo,tasa_independiente_modelo"
+        data += ",tope_imponible_afp,tope_imponible_ips,tope_imponible_seguro_cesantia"
+        data += ",asignacion_familiar_monto_a,asignacion_familiar_primer,asignacion_familiar_monto_b,asignacion_familiar_segundo,asignacion_familiar_monto_c,asignacion_familiar_tercer"
+        data += ",sueldo_minimo,sueldo_minimo_otro"
+        data += ",deposito_convenido"
+        data += ",tope_anual_apv,tope_mensual_apv"
+        data += ",contrato_plazo_indefinido_empleador,contrato_plazo_indefinido_trabajador,contrato_plazo_fijo_empleador,contrato_plazo_indefinido_empleador_otro"
+        data += ",name\n"
 
-        line = str(self.uta) + "," + \
-               str(self.utm) + "," + \
-               str(self.uta) + "," + \
-               str(self.tasa_afp_capital) + "," + \
-               str(self.tasa_sis_capital) + "," + \
-               str(self.tasa_independiente_capital) + "," + \
-               str(self.tasa_afp_cuprum) + "," + \
-               str(self.tasa_sis_cuprum) + "," + \
-               str(self.tasa_independiente_cuprum) + "," + \
-               str(self.tasa_afp_habitat) + "," + \
-               str(self.tasa_sis_habitat) + "," + \
-               str(self.tasa_independiente_habitat) + "," + \
-               str(self.tasa_afp_planvital) + "," + \
-               str(self.tasa_sis_planvital) + "," + \
-               str(self.tasa_independiente_planvital) + "," + \
-               str(self.tasa_afp_provida) + "," + \
-               str(self.tasa_sis_provida) + "," + \
-               str(self.tasa_independiente_provida) + "," + \
-               str(self.tasa_afp_modelo) + "," + \
-               str(self.tasa_sis_modelo) + "," + \
-               str(self.tasa_independiente_modelo) + "," + \
-               str(self.tope_imponible_afp) + "," + \
-               str(self.tope_imponible_ips) + "," + \
-               str(self.tope_imponible_seguro_cesantia) + "," + \
-               str(self.asignacion_familiar_monto_a) + "," + \
-               str(self.asignacion_familiar_primer) + "," + \
-               str(self.asignacion_familiar_monto_b) + "," + \
-               str(self.asignacion_familiar_segundo) + "," + \
-               str(self.asignacion_familiar_monto_c) + "," + \
-               str(self.asignacion_familiar_tercer) + "," + \
-               str(self.sueldo_minimo) + "," + \
-               str(self.sueldo_minimo_otro) + "," + \
-               str(self.deposito_convenido) + "," + \
-               str(self.tope_anual_apv) + "," + \
-               str(self.tope_mensual_apv) + "," + \
-               str(self.contrato_plazo_indefinido_empleador) + "," + \
-               str(self.contrato_plazo_indefinido_trabajador) + "," + \
-               str(self.contrato_plazo_fijo_empleador) + "," + \
-               str(self.contrato_plazo_indefinido_empleador_otro) + "," + \
-               str(self.name)
+        data += str(self.uta) + "," + \
+            str(self.utm) + "," + \
+            str(self.uta) + "," + \
+            str(self.tasa_afp_capital) + "," + \
+            str(self.tasa_sis_capital) + "," + \
+            str(self.tasa_independiente_capital) + "," + \
+            str(self.tasa_afp_cuprum) + "," + \
+            str(self.tasa_sis_cuprum) + "," + \
+            str(self.tasa_independiente_cuprum) + "," + \
+            str(self.tasa_afp_habitat) + "," + \
+            str(self.tasa_sis_habitat) + "," + \
+            str(self.tasa_independiente_habitat) + "," + \
+            str(self.tasa_afp_planvital) + "," + \
+            str(self.tasa_sis_planvital) + "," + \
+            str(self.tasa_independiente_planvital) + "," + \
+            str(self.tasa_afp_provida) + "," + \
+            str(self.tasa_sis_provida) + "," + \
+            str(self.tasa_independiente_provida) + "," + \
+            str(self.tasa_afp_modelo) + "," + \
+            str(self.tasa_sis_modelo) + "," + \
+            str(self.tasa_independiente_modelo) + "," + \
+            str(self.tope_imponible_afp) + "," + \
+            str(self.tope_imponible_ips) + "," + \
+            str(self.tope_imponible_seguro_cesantia) + "," + \
+            str(self.asignacion_familiar_monto_a) + "," + \
+            str(self.asignacion_familiar_primer) + "," + \
+            str(self.asignacion_familiar_monto_b) + "," + \
+            str(self.asignacion_familiar_segundo) + "," + \
+            str(self.asignacion_familiar_monto_c) + "," + \
+            str(self.asignacion_familiar_tercer) + "," + \
+            str(self.sueldo_minimo) + "," + \
+            str(self.sueldo_minimo_otro) + "," + \
+            str(self.deposito_convenido) + "," + \
+            str(self.tope_anual_apv) + "," + \
+            str(self.tope_mensual_apv) + "," + \
+            str(self.contrato_plazo_indefinido_empleador) + "," + \
+            str(self.contrato_plazo_indefinido_trabajador) + "," + \
+            str(self.contrato_plazo_fijo_empleador) + "," + \
+            str(self.contrato_plazo_indefinido_empleador_otro) + "," + \
+            str(self.name)
 
-        txtFile.write(line + '\n')
-
-        txtFile.close()
-        data = base64.encodestring(open(path, 'r').read())
-        attach_vals = {'name': fname, 'datas': data, 'datas_fname': fname}
+        data = base64.b64encode(data.encode('utf-8'))
+        attach_vals = {'name': filename, 'datas': data, 'store_fname': filename}
         doc_id = self.env['ir.attachment'].create(attach_vals)
-        res['type'] = 'ir.actions.act_url'
-        res['target'] = 'new'
-        res['url'] = "web/content/?model=ir.attachment&id=" + str(
-            doc_id.id) + "&filename_field=datas_fname&field=datas&download=true&filename=" + str(doc_id.name)
 
         self.message_post(body=_("Descargado por : %s") % self.env.user.name)
-        return res
+        return {
+            'name': filename,
+            'type': 'ir.actions.act_url',
+            'url': 'web/content/%d?download=true' % doc_id.id,
+            'target': 'self',
+        }
 
-
-
-    # Link
     def go_to_link(self):
         return {
             'type': 'ir.actions.act_url',
@@ -275,14 +190,13 @@ class HrStats(models.Model):
                 cad = cad.replace("=", '').replace("R", '').replace("I", '').replace("%", '')
                 cad = cad.replace(",", '.')
                 # Error encontrado 2018-02-16
-                cad = cad.replace("1ff8","")
+                cad = cad.replace("1ff8", "")
                 return cad
         except Exception as e:
             raise AccessError("Error:" + str(e))
 
         def divide_cadena(cad, cad2, redondeo):
             return round(float(cad) / float(cad2), redondeo)
-
 
         try:
             # UF
@@ -353,22 +267,18 @@ class HrStats(models.Model):
             self.tasa_independiente_modelo = clear_string(letters[7].select("strong")[25].get_text())
 
             """ Mutual de Seguridad """
-            if self.env.user.company_id.mutualidad_id:
-                self.mutualidad_id = self.env.user.company_id.mutualidad_id
-                if self.env.user.company_id.mutual_seguridad:
-                    self.mutual_seguridad = self.env.user.company_id.mutual_seguridad
+            if self.env.company.mutualidad_id:
+                self.mutualidad_id = self.env.company.mutualidad_id
+                if self.env.company.mutual_seguridad:
+                    self.mutual_seguridad = self.env.company.mutual_seguridad
 
             """ Caja """
-            if self.env.user.company_id.ccaf_id:
-                self.ccaf_id = self.env.user.company_id.ccaf_id
-                if self.env.user.company_id.caja_compensacion:
-                    self.caja_compensacion = self.env.user.company_id.caja_compensacion
-
+            if self.env.company.ccaf_id:
+                self.ccaf_id = self.env.company.ccaf_id
+                if self.env.company.caja_compensacion:
+                    self.caja_compensacion = self.env.company.caja_compensacion
 
             self.message_post(body=_("Actualizado por: %s") % self.env.user.name)
 
         except Exception as e:
             raise AccessError("Error:" + str(e))
-
-
-

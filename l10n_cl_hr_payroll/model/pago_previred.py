@@ -63,7 +63,7 @@ class PagoPrevired(models.Model):
     state = fields.Selection([('borrador', 'Borrador'),
                               ('pagado', 'Pagado'),
                               ('cancelado', 'Cancelado')], 'Estado', required=True, default='borrador',
-                             track_visibility='onchange')
+                             tracking=True)
 
     journal_imposiciones_id = fields.Many2one('account.journal', 'Diario Pago Imposiciones',
                                               default=lambda self: self._get_default_journal(), )
@@ -99,15 +99,15 @@ class PagoPrevired(models.Model):
         return super(PagoPrevired, self).create(vals)
 
     def _create_moves(self):
-        u"""
+        """
         Acción que se ejecuta al presionar el botón pagara Previred
         """
 
         for record in self:
             if not record.journal_imposiciones_id:
-                raise UserError(_(u'No se ha especificado el diario'))
+                raise UserError(_('No se ha especificado el diario'))
             if not record.entry_date:
-                raise UserError(_(u'No se ha especificado la Fecha contable'))
+                raise UserError(_('No se ha especificado la Fecha contable'))
 
             """ AFP """
             move_lines = []

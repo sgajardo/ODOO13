@@ -1,4 +1,3 @@
-# coding: utf-8
 from odoo import api, fields, models
 
 
@@ -7,7 +6,7 @@ class HrMoveType(models.Model):
     _description = 'Tipos de Movimientos'
 
     name = fields.Char('Nombre', required=True)
-    code = fields.Char(u'Código', required=True)
+    code = fields.Char('Código', required=True)
     is_holiday = fields.Boolean('Es Ausencia')
 
     _sql_constraints = [
@@ -34,7 +33,7 @@ class HrMove(models.Model):
                               default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_move_type_0', raise_if_not_found=False))
     # El campo de holiday_id no debe salir en ninguna vista, es solo referencial
     # y para borrar el movimiento si se borra la ausencia
-    holiday_id = fields.Many2one('hr.holidays', ondelete='cascade')
+    holiday_id = fields.Many2one('hr.leave', ondelete='cascade')
 
     @api.model
     def create(self, vals):

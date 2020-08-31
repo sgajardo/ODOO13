@@ -12,20 +12,20 @@ class HrEmployee(models.Model):
 
     def _get_region_domain(self):
         """ Devuelve dominio con regiones chilenas """
-        return [('country_id', '=', self.env.ref('base.cl').id), ('type', '=', 'view')]
+        return [('country_id', '=', self.env.ref('base.cl').id)]
 
     first_name = fields.Char('Primer Nombre')
     last_name = fields.Char('Primer Apellido')
     middle_name = fields.Char('Segundo Nombre', help='Employees middle name')
     mothers_name = fields.Char('Segundo Apellido', help='Employees mothers name')
-    resource_calendar_id = fields.Many2one('resource.calendar', related='contract_id.resource_calendar_id', default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_resource_monthly', raise_if_not_found=False))
+    resource_calendar_id = fields.Many2one('resource.calendar', default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_resource_monthly', raise_if_not_found=False))
     region_id = fields.Many2one('res.country.state', 'Región', domain=_get_region_domain)
     city_id = fields.Many2one('res.country.state.city', 'Ciudad')
     address = fields.Char('Dirección')
     calculate_payroll = fields.Boolean('Cálculo de Nómina')
     acc_number = fields.Char('Cuenta Bancaria', related='bank_account_id.acc_number')
     bank_id = fields.Many2one('res.bank', 'Banco', related='bank_account_id.bank_id', ondelete='restrict')
-    # leave_ids = fields.One2many('hr.holidays', 'employee_id', 'Ausencias')
+    # leave_ids = fields.One2many('hr.leave', 'employee_id', 'Ausencias')
     vacations_count = fields.Float('Vacaciones', compute='_compute_vacations_count', help='Vacaciones pendientes.')
     # leaves_on_month = fields.Float('Ausencias del mes', compute='_compute_leaves_month')
     hired = fields.Boolean('Contratado', compute='_compute_hired', search='_search_hired')
@@ -50,12 +50,12 @@ class HrEmployee(models.Model):
          ('3', 'Activo > 65 años')],
         'Tipo de Trabajador', size=1, default='0')
 
-    haberes_descuentos_ids = fields.One2many('hr.hd', 'employee_id', 'Asignaciones y Descuentos')
+    balance_ids = fields.One2many('hr.hd', 'employee_id', 'Asignaciones y Descuentos')
     horas_extras_ids = fields.One2many('hr.he', 'employee_id', string='Horas Extras')
     rh_cargas_ids = fields.One2many('l.cargas', 'employee_id', string='Cargas')
     cant_carga_familiar = fields.Integer('Carga Familiar Simple', compute="_compute_cargas")
-    cant_carga_familiar_maternal = fields.Integer('Carga Familiar Simple', compute="_compute_cargas")
-    cant_carga_familiar_invalida = fields.Integer('Carga Familiar Simple', compute="_compute_cargas")
+    cant_carga_familiar_maternal = fields.Integer('Carga Familiar Maternal', compute="_compute_cargas")
+    cant_carga_familiar_invalida = fields.Integer('Carga Familiar Inválida', compute="_compute_cargas")
     cantidad_de_carga = fields.Integer('Cantidad de Cargas', default=0)
     private_role = fields.Boolean('Rol Privado', default=False)
 
@@ -128,27 +128,6 @@ class HrEmployee(models.Model):
             })
         return res
 
-    # Colocando las mayusculas
-    @api.onchange('first_name')
-    def first_name_capital(self):
-        if self.company_id.capital_text and self.first_name:
-            self.first_name = self.first_name.upper()
-
-    @api.onchange('last_name')
-    def last_name_capital(self):
-        if self.company_id.capital_text and self.last_name:
-            self.last_name = self.last_name.upper()
-
-    @api.onchange('middle_name')
-    def middle_name_capital(self):
-        if self.company_id.capital_text and self.middle_name:
-            self.middle_name = self.middle_name.upper()
-
-    @api.onchange('mothers_name')
-    def mothers_name_capital(self):
-        if self.company_id.capital_text and self.mothers_name:
-            self.mothers_name = self.mothers_name.upper()
-
     def _compute_contracts(self):
         for record in self:
             record.contracts = ', '.join(record.mapped('contract_ids.name'))
@@ -157,15 +136,14 @@ class HrEmployee(models.Model):
         day_end = monthrange(*map(int, fields.Date.today()[:7].split('-')))[-1]
         date_from, date_to = ('%s-%.2d' % (fields.Date.today()[:7], day) for day in [1, day_end])
         for record in self:
-            record.leaves_on_month = sum(record.leave_ids.filtered(lambda l: l.date_from <= date_to and l.date_to >= date_from and l.state == 'validate').mapped('number_of_days_temp'))
+            record.leaves_on_month = sum(record.leave_ids.filtered(lambda l: l.date_from <= date_to and l.date_to >= date_from and l.state == 'validate').mapped('number_of_days_display'))
 
     def _compute_vacations_count(self):
-        # vac_common = self.env.ref('l10n_cl_hr_payroll.LC05')
-        # vac_prog = self.env.ref('l10n_cl_hr_payroll.LC06')
-        # vacations = self.env['hr.holidays'].search([('employee_id', 'in', self.ids), ('type', '=', 'add'), ('holiday_status_id', 'in', [vac_common.id, vac_prog.id]), ('state', '=', 'validate')])
+        vac_common = self.env.ref('l10n_cl_hr_payroll.LC05')
+        vac_prog = self.env.ref('l10n_cl_hr_payroll.LC06')
+        vacations = self.env['hr.leave.allocation'].search([('employee_id', 'in', self.ids), ('holiday_status_id', 'in', [vac_common.id, vac_prog.id]), ('state', '=', 'validate')])
         for record in self:
-            record.vacations_count = 0  # TODO
-            # record.vacations_count = round(sum(vacations.filtered(lambda v: v.employee_id == record).mapped('remaining_vacations')), 2)
+            record.vacations_count = round(sum(vacations.filtered(lambda v: v.employee_id == record).mapped('remaining_vacations')), 2)
 
     def _compute_hired(self):
         today = fields.Date.today()
@@ -186,14 +164,15 @@ class HrEmployee(models.Model):
         for record in self:
             payslip = payslip_obj.search([('employee_id', '=', record.id)], order='date_from desc', limit=1)
             if payslip:
-                year, month = payslip.date_from[:7].split('-')
-                record.last_payroll = '%s/%s' % (meses[int(month) - 1], year)
+                year, month = payslip.date_from.year, payslip.date_from.month
+                record.last_payroll = '%s/%s' % (meses[month - 1], year)
             else:
                 record.last_payroll = False
 
     def _compute_prestamos(self):
-        day_end = monthrange(*map(int, fields.Date.today()[:7].split('-')))[-1]
-        date_from, date_to = ('%s-%.2d' % (fields.Date.today()[:7], day) for day in [1, day_end])
+        today = fields.Date.today()
+        date_from = today + relativedelta(day=1)
+        date_to = today + relativedelta(months=1, day=1, days=-1)
         prestamo_obj = self.env['hr.borrow.line']
         for record in self:
             record.borrow_ids = prestamo_obj.search([('borrow_id.employee_id', '=', record.id), ('date_due', '>=', date_from), ('date_due', '<=', date_to)])
@@ -207,19 +186,12 @@ class HrEmployee(models.Model):
                                                           record.mothers_name) if name)
 
     @api.onchange('first_name', 'mothers_name', 'middle_name', 'last_name')
-    def get_name(self):
+    def _onchange_names(self):
         for employee in self:
             employee.name = ' '.join(p for p in (employee.last_name,
                                                  employee.mothers_name,
                                                  employee.first_name,
                                                  employee.middle_name) if p)
-
-    @api.model
-    def _get_computed_name(self, last_name, first_name):
-        """Compute the 'name' field according to splitted data.
-        You can override this method to change the order of lastname and
-        first_name the computed name"""
-        return " ".join((p for p in (last_name, mothers_name, first_name, middle_name) if p))
 
     @api.onchange('identification_id')
     def _comprueba_rut(self):
@@ -263,15 +235,15 @@ class HrEmployee(models.Model):
 
     def get_workable_days_count(self, date_start, date_end):
         """ Devuelve un entero con la cantidad de días trabajables en el periodo."""
-        dt_start, dt_end = map(fields.Date.from_string, [date_start, date_end])
-        weekdays = self.contract_id and self.contract_id.working_hours and self.contract_id.working_hours.get_weekdays() or []
+        date_start, date_end = map(fields.Date.from_string, [date_start, date_end])
+        weekdays = self.contract_id.resource_calendar_id.get_weekdays()
         feriados = self.env['hr.holidays.chile'].search([('date', '>=', date_start), ('date', '<=', date_end)])
-        constantes = [f.date[5:] for f in feriados.filtered('constant') if f.date]
+        constantes = [fields.Date.to_string(f.date)[5:] for f in feriados.filtered('constant') if f.date]
         feriados = feriados.filtered(lambda f: (len(f.region_ids) == 0) or self.region_id in f.region_ids).mapped('date')
         count = 0
-        while dt_start <= dt_end:
-            count += dt_start.weekday() in weekdays and (fields.Date.to_string(dt_start) not in feriados) and (fields.Date.to_string(dt_start)[5:] not in constantes) and 1 or 0
-            dt_start += timedelta(days=1)
+        while date_start <= date_end:
+            count += date_start.weekday() in weekdays and (date_start not in feriados) and (fields.Date.to_string(date_start)[5:] not in constantes) and 1 or 0
+            date_start += timedelta(days=1)
         return count
 
     def get_worked_days_count(self, date_start, date_end):
@@ -279,28 +251,26 @@ class HrEmployee(models.Model):
         estos días trabajados se conforman de los días que aparecen en la
         `Planificación de Trabajo` de su contrato, adicionalmente, se restan
         los días feriados en el periodo y los días de ausencia justificados """
-        dt_start, dt_end = map(fields.Date.from_string, [date_start, date_end])
-        weekdays = self.contract_id and self.contract_id.working_hours and self.contract_id.working_hours.get_weekdays() or []
+        weekdays = self.contract_id.resource_calendar_id.get_weekdays()
         feriados = self.env['hr.holidays.chile'].search([('date', '>=', date_start), ('date', '<=', date_end)])
         constantes = [f.date[5:] for f in feriados.filtered('constant') if f.date]
         feriados = feriados.filtered(lambda f: (len(f.region_ids) == 0) or self.region_id in f.region_ids).mapped('date')
-        holidays = self.env['hr.holidays'].search([
+        holidays = self.env['hr.leave'].search([
             ('date_from', '<=', date_end),
             ('date_to', '>=', date_start),
             ('state', '=', 'validate'),
-            ('type', '=', 'remove'),
             ('employee_id', '=', self.id),
             ('holiday_status_id.affects_payslip', '=', True)])
         ausencias = set()
         for holiday in holidays:
-            holiday_start, holiday_end = map(fields.Date.from_string, [holiday.date_from, holiday.date_to])
+            holiday_start, holiday_end = holiday.date_from, holiday.date_to
             while holiday_start <= holiday_end:
-                ausencias.add(fields.Date.to_string(holiday_start))
+                ausencias.add(holiday_start)
                 holiday_start += timedelta(days=1)
         count = 0
-        while dt_start <= dt_end:
-            count += (dt_start.weekday() in weekdays) and (fields.Date.to_string(dt_start) not in feriados) and (fields.Date.to_string(dt_start)[5:] not in constantes) and (fields.Date.to_string(dt_start) not in ausencias) and 1 or 0
-            dt_start += timedelta(days=1)
+        while date_start <= date_end:
+            count += (date_start.weekday() in weekdays) and (date_start not in feriados) and (fields.Date.to_string(date_start)[5:] not in constantes) and (date_start not in ausencias) and 1 or 0
+            date_start += timedelta(days=1)
         return count
 
     def get_semana_corrida(self, date_start, date_end, day=None):
@@ -330,16 +300,14 @@ class HrEmployee(models.Model):
         vac_common = self.env.ref('l10n_cl_hr_payroll.LC05')
         vac_prog = self.env.ref('l10n_cl_hr_payroll.LC06')
         years = {}
-        vacations_common = self.env['hr.holidays'].search([('employee_id', '=', self.id),
-                                                           ('type', '=', 'add'),
-                                                           ('holiday_status_id', '=', vac_common.id),
-                                                           ('state', '=', 'validate')])
-        vacations_prog = self.env['hr.holidays'].search([('employee_id', '=', self.id),
-                                                         ('type', '=', 'add'),
-                                                         ('holiday_status_id', '=', vac_prog.id),
-                                                         ('state', '=', 'validate')])
-        saldo_common = sum(vacations_common.mapped('number_of_days_temp'))
-        saldo_prog = sum(vacations_prog.mapped('number_of_days_temp'))
+        vacations_common = self.env['hr.leave.allocation'].search([('employee_id', '=', self.id),
+                                                                   ('holiday_status_id', '=', vac_common.id),
+                                                                   ('state', '=', 'validate')])
+        vacations_prog = self.env['hr.leave.allocation'].search([('employee_id', '=', self.id),
+                                                                 ('holiday_status_id', '=', vac_prog.id),
+                                                                 ('state', '=', 'validate')])
+        saldo_common = sum(vacations_common.mapped('number_of_days_display'))
+        saldo_prog = sum(vacations_prog.mapped('number_of_days_display'))
         date_start = self.contract_id and self.contract_id.vacation_date_start or min(self.contract_ids.mapped('date_start'))
         date_end = self.contract_id and self.contract_id.date_end or fields.Date.today()
         total_days = (fields.Date.from_string(date_end) - fields.Date.from_string(date_start)).days + 1
@@ -392,22 +360,21 @@ class HrEmployee(models.Model):
             dt_start, dt_end = map(fields.Date.from_string, [contract.date_start, contract.date_end])
             nod = (dt_end - dt_start).days + 1
         # Buscamos los días de licencia
-        # licencias = self.env['hr.holidays'].search([
-        #     ('employee_id', '=', contract.employee_id.id),
-        #     ('date_from', '<=', date_to),
-        #     ('date_to', '>=', date_from),
-        #     ('state', '=', 'validate'),
-        #     ('type', '=', 'remove'),
-        #     ('holiday_status_id', '=', self.env.ref('l10n_cl_hr_payroll.LC02').id)
-        # ])
+        licencias = self.env['hr.leave'].search([
+            ('employee_id', '=', contract.employee_id.id),
+            ('date_from', '<=', date_to),
+            ('date_to', '>=', date_from),
+            ('state', '=', 'validate'),
+            ('holiday_status_id', '=', self.env.ref('l10n_cl_hr_payroll.LC02').id)
+        ])
         dias_licencia = set()
-        # for licencia in licencias:
-        #     dt_start, dt_end = map(fields.Date.from_string, [licencia.date_from, licencia.date_to])
-        #     while dt_start <= dt_end:
-        #         actual = fields.Date.to_string(dt_start)
-        #         if date_from <= actual <= date_to:
-        #             dias_licencia.add(actual)
-        #         dt_start += timedelta(days=1)
+        for licencia in licencias:
+            dt_start, dt_end = licencia.date_from.date(), licencia.date_to.date()
+            while dt_start <= dt_end:
+                actual = dt_start
+                if date_from <= actual <= date_to:
+                    dias_licencia.add(actual)
+                dt_start += timedelta(days=1)
         return round((nod - len(dias_licencia)) / nod, 5)
 
     @property
@@ -422,9 +389,9 @@ class HrEmployee(models.Model):
         que por defecto muestre estos nombres del empleado en vez del nombre de
         usuario. Si no tiene nombre y apellido definidos (ej. Administrador) se
         tomará el nombre de usuario, en caso de tener usuario definido. Y si
-        tampoco tiene usuario entonces... ¿se rompe? No se muestra nada.
+        tampoco tiene usuario entonces mostramos lo que haya en el name.
         """
-        return [(rec.id, '%s %s' % (rec.first_name or '', rec.last_name or '') if rec.first_name or rec.last_name else rec.user_id and rec.user_id.name or '') for rec in self]
+        return [(rec.id, '%s %s' % (rec.first_name or '', rec.last_name or '') if rec.first_name or rec.last_name else rec.user_id and rec.user_id.name or '' if rec.user_id else rec.name) for rec in self]
 
     @api.model
     def get_nombre_mes_espanol(self, fecha):
@@ -437,7 +404,7 @@ class HrEmployee(models.Model):
 
     def mostrar_todos_hd(self):
         """ Muestra todos los haberes y descuentos que están inactivos. """
-        return self.haberes_descuentos_ids.search([('employee_id', 'in', self.ids), ('active', '=', False)]).write({'active': True})
+        return self.balance_ids.search([('employee_id', 'in', self.ids), ('active', '=', False)]).write({'active': True})
 
     @property
     def last30days_wage(self):
@@ -455,73 +422,74 @@ class HrEmployee(models.Model):
         # Si no encuentro ninguna nómina donde haya trabajado 30 días, devuelvo su salario base, ¿estará bien?
         return 0
 
-    def write(self, vals):
-        res = super(HrEmployee, self).write(vals)
-        for record in self:
-            full_name = ' '.join(name for name in (record.first_name,
-                                                   record.middle_name,
-                                                   record.last_name,
-                                                   record.mothers_name) if name)
-            super(HrEmployee, record).write({'name': full_name})
-        return res
+    # def write(self, vals):
+    #     res = super().write(vals)
+    #     for record in self:
+    #         full_name = ' '.join(name for name in (record.first_name,
+    #                                                record.middle_name,
+    #                                                record.last_name,
+    #                                                record.mothers_name) if name)
+    #         super(HrEmployee, record).write({'name': full_name})
+    #     return res
+
 
 class HrHd(models.Model):
     _name = 'hr.hd'
     _description = 'Haber / Descuento Empleado'
     _order = 'id desc'
-    _rec_name = 'haberesydesc_id'
+    _rec_name = 'balance_id'
 
     origen = fields.Selection([
         ('manual', 'Manual'),
         ('single', 'PT'),
         ('multi', 'Multi')
     ], default='manual')
-    haberesydesc_id = fields.Many2one('hr.balance', string='Asignaciones y Descuentos', ondelete="restrict")
+    balance_id = fields.Many2one('hr.balance', string='Asignaciones y Descuentos', ondelete="restrict")
     date_from = fields.Date('Desde', default=fields.Date.today)
     date_to = fields.Date('Hasta')
-    moneda = fields.Selection('Tipo', related='haberesydesc_id.moneda')
-    um = fields.Selection('UM', related='haberesydesc_id.um')
+    moneda = fields.Selection('Tipo', related='balance_id.moneda')
+    um = fields.Selection('UM', related='balance_id.um')
     del_mes = fields.Boolean(compute='_compute_del_mes')
     active = fields.Boolean(default=True)
     amount = fields.Float('Monto')
     employee_id = fields.Many2one('hr.employee', "Empleado", ondelete='cascade')
-    r_tipo = fields.Selection('Tipo', related='haberesydesc_id.tipo')
+    r_tipo = fields.Selection('Tipo', related='balance_id.tipo')
 
-    @api.constrains('haberesydesc_id', 'date_from', 'date_to', 'employee_id', 'amount')
+    @api.constrains('balance_id', 'date_from', 'date_to', 'employee_id', 'amount')
     def _check_unique(self):
         for record in self:
             if record.date_to and record.date_from > record.date_to:
-                raise ValidationError(_('Fecha inicio en %s no puede ser mayor a fecha fin.') % record.haberesydesc_id.desc)
+                raise ValidationError(_('Fecha inicio en %s no puede ser mayor a fecha fin.') % record.balance_id.desc)
 
             if record.amount <= 0:
-                raise ValidationError(_('Monto en %s debe ser mayor a 0.') % record.haberesydesc_id.desc)
+                raise ValidationError(_('Monto en %s debe ser mayor a 0.') % record.balance_id.desc)
 
             if record.date_to:
                 repetidos = self.search_count([
                     ('id', '!=', record.id),
-                    ('haberesydesc_id', '=', record.haberesydesc_id.id),
+                    ('balance_id', '=', record.balance_id.id),
                     ('date_from', '<=', record.date_to),
                     ('date_to', '>=', record.date_from),
                     ('employee_id', '=', record.employee_id.id)])
             else:
                 repetidos = self.search_count([
                     ('id', '!=', record.id),
-                    ('haberesydesc_id', '=', record.haberesydesc_id.id),
+                    ('balance_id', '=', record.balance_id.id),
                     ('date_from', '<=', record.date_from),
                     ('date_to', '=', False),
                     ('employee_id', '=', record.employee_id.id)])
 
             if repetidos:
-                raise ValidationError(_('Ya existe el bono %s dentro del mismo rango de fechas para %s') % (record.haberesydesc_id.desc, record.employee_id.haberesydesc_id))
+                raise ValidationError(_('Ya existe el bono %s dentro del mismo rango de fechas para %s') % (record.balance_id.desc, record.employee_id.balance_id))
 
     @api.model
     def cron_hr_hd(self):
         today = fields.Date.today()
-        meses_hyd = self.env['ir.config_parameter'].get_param('meses.haberes.descuentos', '3')
+        meses_hyd = self.env['ir.config_parameter'].get_param('hr.balance.months', '3')
         if meses_hyd.isdigit():
             meses_hyd = int(meses_hyd)
         else:
-            raise ValidationError(_('Parámetro "meses.haberes.descuentos" debe ser un número entero positivo.'))
+            raise ValidationError(_('Parámetro "hr.balance.months" debe ser un número entero positivo.'))
         today -= relativedelta(months=meses_hyd)
         for record in self.search(['|', ('active', '=', True), ('active', '=', False)]):
             record.active = record.date_to and (record.date_to >= today) or not record.date_to
@@ -529,20 +497,21 @@ class HrHd(models.Model):
     @api.depends('date_from', 'date_to')
     def _compute_del_mes(self):
         today = fields.Date.today()
-        self.del_mes = self.date_from < today and (self.date_to and self.date_to > today or not self.date_to)
+        for record in self:
+            record.del_mes = record.date_from < today and (record.date_to and record.date_to > today or not record.date_to)
 
     @api.model
     def create(self, vals):
         origen = self.env.context.get('origen')
         vals['origen'] = origen or 'manual'
         record = super().create(vals)
-        record.employee_id.message_post(body=_('Creado el Haber y Descuento %s, de monto %.0f, desde %s%s.') % (record.haberesydesc_id.desc, record.amount, '/'.join(record.date_from.isoformat().split('-')[::-1]), record.date_to and (', hasta: %s' % '/'.join(record.date_to.isoformat().split('-')[::-1])) or ''))
+        record.employee_id.message_post(body=_('Creado el Haber y Descuento %s, de monto %.0f, desde %s%s.') % (record.balance_id.desc, record.amount, '/'.join(record.date_from.isoformat().split('-')[::-1]), record.date_to and (', hasta: %s' % '/'.join(record.date_to.isoformat().split('-')[::-1])) or ''))
         return record
 
     def write(self, vals):
         for record in self:
             campos = self._fields
-            listado = 'Modificado un Haber y Descuento: %s<ul>' % record.haberesydesc_id.display_name
+            listado = 'Modificado un Haber y Descuento: %s<ul>' % record.balance_id.display_name
             for key, value in vals.items():
                 campo = campos.get(key)
                 old_value = getattr(record, key)
@@ -550,8 +519,8 @@ class HrHd(models.Model):
                     old_value = old_value.display_name if old_value else 'No definido'
                     value = self.env[campo.comodel_name].browse(value).display_name
                 elif campo.type == 'date':
-                    old_value = '/'.join(old_value.isoformat().split('-')[::-1]) if old_value else 'No definido'
-                    value = '/'.join(value.isoformat().split('-')[::-1])
+                    old_value = old_value.strftime('%d/%m/%Y') if old_value else 'No definido'
+                    value = value.strftime('%d/%m/%Y')
                 elif not old_value:
                     old_value = 'No definido'
                 listado += '<li>%s: %s &rarr; %s</li>' % (campo.string, old_value, value)
@@ -561,13 +530,15 @@ class HrHd(models.Model):
 
     def unlink(self):
         for record in self:
-            record.employee_id.message_post(body=_('Borrado el Haber y Descuento %s, de monto %.0f, desde %s%s.') % (record.haberesydesc_id.desc, record.amount, '/'.join(record.date_from.isoformat().split('-')[::-1]), record.date_to and (', hasta: %s' % '/'.join(record.date_to.isoformat().split('-')[::-1])) or ''))
+            record.employee_id.message_post(body=_('Borrado el Haber y Descuento %s, de monto %.0f, desde %s%s.') % (record.balance_id.desc, record.amount, '/'.join(record.date_from.isoformat().split('-')[::-1]), record.date_to and (', hasta: %s' % '/'.join(record.date_to.isoformat().split('-')[::-1])) or ''))
         return super().unlink()
 
 
 class payrol_he(models.Model):
     _name = 'hr.he'
+    _description = 'Horas extras'
     _order = 'id desc'
+
     name = fields.Many2one('hr.balance', string='Horas Extras', ondelete="restrict")
     date = fields.Date('Fecha', default=lambda self: datetime.today())
     monto = fields.Float('Cantidad')
@@ -576,6 +547,8 @@ class payrol_he(models.Model):
 
 class List_Cargas(models.Model):
     _name = 'l.cargas'
+    _description = 'Cargas familiares'
+
     identification_id = fields.Char("RUT (00.000.000-0)", size=12)
     list_name = fields.Char("Nombre y Apellido", size=25)
     list_nacimiento = fields.Date('Fecha Nac')

@@ -1,4 +1,3 @@
-# coding: utf-8
 from odoo import api, fields, models
 
 
@@ -30,7 +29,7 @@ class HrHaberesydesc(models.Model):
                              ('2 ', 'Descuentos')], default='0')
     obs = fields.Text('Observación')
     inicializar_0 = fields.Boolean('Inicializar en 0')
-    inputs_id = fields.Many2one('hr.rule.input', 'Entrada', required=True)
+    inputs_id = fields.Many2one('hr.payslip.input.type', 'Entrada', required=True)
     active = fields.Boolean('Activo', default=True)
 
     @api.model

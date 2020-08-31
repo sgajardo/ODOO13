@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- hr.leave inherit search view -->
+    <record id="view_hr_leave_allocation_filter" model="ir.ui.view">
+        <field name="name">Vacations filter</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="inherit_id" ref="hr_holidays.view_hr_leave_allocation_filter"/>
+        <field name="arch" type="xml">
+            <filter name="accrual_allocation" position="after">
+                <separator/>
+                <filter name="vacations" string="Vacaciones" domain="[('holiday_status_id', 'in', [%(l10n_cl_hr_payroll.LC05)d, %(l10n_cl_hr_payroll.LC06)d])]"/>
+            </filter>
+        </field>
+    </record>
+
     <!-- Asignación de Vacaciones -->
     <record id="hr_holidays_vacations_list" model="ir.ui.view">
         <field name="name">Pending Vacations List</field>
-        <field name="model">hr.holidays</field>
-        <field name="sequence">64</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="priority">64</field>
         <field name="arch" type="xml">
             <tree create="0" delete="0">
                 <field name="employee_id"/>
@@ -14,7 +27,6 @@
                 <field name="number_of_days" string="Días Asignados" sum="Total Asignado"/>
                 <field name="consumed_vacations" sum="Total Consumido"/>
                 <field name="remaining_vacations" sum="Total Disponible"/>
-                <field name="type" invisible="1"/>
                 <field name="state" invisible="1"/>
             </tree>
         </field>
@@ -22,8 +34,8 @@
 
     <record id="hr_holidays_vacations_form" model="ir.ui.view">
         <field name="name">Vacations Form</field>
-        <field name="model">hr.holidays</field>
-        <field name="sequence">64</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="priority">64</field>
         <field name="arch" type="xml">
             <form string="Saldo de Vacaciones" create="0" edit="0" delete="0">
                 <field name="state" invisible="1"/>
@@ -47,7 +59,7 @@
                             <field name="holiday_status_id" options="{'no_create': 1}"/>
                         </group>
                         <group name="right" string="Cálculo de días">
-                            <field name="number_of_days_temp" string="Días Asignados"/>
+                            <field name="number_of_days_display" string="Días Asignados"/>
                             <field name="consumed_vacations"/>
                             <field name="remaining_vacations"/>
                         </group>
@@ -63,10 +75,9 @@
 <!-- Vacaciones pendientes -->
     <act_window id="action_pending_vacations"
         name="Saldo de Vacaciones"
-        res_model="hr.holidays"
+        res_model="hr.leave.allocation"
         view_mode="tree,form"
-        domain="[('type', '=', 'add'), ('holiday_status_id', 'in', [ref('LC05'), ref('LC06')])]"
-       />
+        context="{'search_default_vacations': 1}"/>
 
     <record model="ir.actions.act_window.view" id="action_vacation_pending_tree">
         <field name="sequence" eval="1"/>
@@ -81,18 +92,31 @@
         <field name="view_id" ref="hr_holidays_vacations_form"/>
         <field name="act_window_id" ref="action_pending_vacations"/>
     </record>
+
 <!-- Vacaciones tomadas -->
+
+    <record id="view_hr_holidays_filter" model="ir.ui.view">
+        <field name="name">hr.leave.inherit.view.search</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.view_hr_holidays_filter"/>
+        <field name="arch" type="xml">
+            <filter name="validated" position="after">
+                <separator/>
+                <filter name="vacations" string="Vacaciones" domain="[('holiday_status_id', 'in', [%(l10n_cl_hr_payroll.LC05)d, %(l10n_cl_hr_payroll.LC06)d])]"/>
+            </filter>
+        </field>
+    </record>
+
     <record id="hr_holidays_vacations_taken_list" model="ir.ui.view">
         <field name="name">Taken Vacations List</field>
-        <field name="model">hr.holidays</field>
-        <field name="sequence">65</field>
+        <field name="model">hr.leave</field>
+        <field name="priority">65</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="employee_id"/>
                 <field name="name"/>
                 <field name="department_id"/>
                 <field name="holiday_status_id"/>
-                <field name="type" invisible="1"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="number_of_days" string="Días Utilizados" sum="Total Utilizados"/>
@@ -103,19 +127,18 @@
 
     <record id="hr_holidays_vacations_taken_form" model="ir.ui.view">
         <field name="name">Taken Vacations Form</field>
-        <field name="model">hr.holidays</field>
-        <field name="sequence">65</field>
+        <field name="model">hr.leave</field>
+        <field name="priority">65</field>
         <field name="arch" type="xml">
             <form string="Vacaciones Utilizadas">
                 <field name="state" invisible="1"/>
                 <field name="can_reset" invisible="1"/>
                 <header>
-                    <button string="Confirmar" name="action_confirm" states="draft" type="object" class="oe_highlight"/>
-                    <button string="Aprobar" name="action_approve" states="confirm" type="object" groups="hr_holidays.group_hr_holidays_user" class="oe_highlight"/>
-                    <button string="Validar" name="action_validate" states="validate1" type="object" groups="hr_holidays.group_hr_holidays_manager" class="oe_highlight"/>
+                    <button string="Confirmar" name="action_confirm" states="draft" type="object" class="btn-primary"/>
+                    <button string="Aprobar" name="action_approve" states="confirm" type="object" groups="hr_holidays.group_hr_holidays_user" class="btn-primary"/>
+                    <button string="Validar" name="action_validate" states="validate1" type="object" groups="hr_holidays.group_hr_holidays_manager" class="btn-primary"/>
                     <button string="Rechazar" name="action_refuse" states="confirm,validate,validate1" type="object" groups="hr_holidays.group_hr_holidays_user"/>
                     <button string="Cambiar a borrador" name="action_draft" type="object" attrs="{'invisible': ['|', ('can_reset', '=', False), ('state', 'not in', ['confirm', 'refuse'])]}"/>
-                    <button name="%(certificado_vacaciones_report)d" type="action" string="Imprimir certificado" icon="fa-print" class="btn-primary"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirm,validate"/>
                 </header>
                 <sheet>
@@ -131,15 +154,15 @@
                             <field name="holiday_status_id" domain="[('name', 'in', ['Vacaciones', 'Vacaciones (Progresivas)'])]" options="{'no_create': 1}"/>
                         </group>
                         <group name="right" string="Cálculo de días">
-                            <label for="number_of_days_temp" string="Duración"/>
+                            <label for="number_of_days_display" string="Duración"/>
                             <div>
                                 <div>
                                     <field name="date_from" class="oe_inline" required="1"/>
-                                    <label string="-" class="oe_inline"/>
+                                    <span class="oe_inline">-</span>
                                     <field name="date_to" class="oe_inline" required="1"/>
                                 </div>
                                 <div>
-                                    <field name="number_of_days_temp" class="oe_inline" required="1"/> días
+                                    <field name="number_of_days_display" class="oe_inline" required="1"/> días
                                 </div>
                             </div>
                         </group>
@@ -155,10 +178,9 @@
 
     <act_window id="action_taken_vacations"
         name="Vacaciones Utilizadas"
-        res_model="hr.holidays"
+        res_model="hr.leave"
         view_mode="tree,form"
-        domain="[('type', '=', 'remove'), ('holiday_status_id', 'in', [ref('LC05'), ref('LC06')])]"
-       />
+        context="{'search_default_vacations': 1}"/>
 
     <record model="ir.actions.act_window.view" id="action_vacation_taken_tree">
         <field name="sequence" eval="1"/>

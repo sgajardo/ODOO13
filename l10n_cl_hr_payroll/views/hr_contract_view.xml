@@ -12,10 +12,11 @@
                 <attribute name="string">Cargo de trabajo</attribute>
             </field>
             <field name="job_id" position="after">
-                <field name="working_hours"/>
                 <field name="type_id"/>
                 <field name="parent_id" options="{'no_create': 1}"
                     domain="[('employee_id', '=', employee_id), ('id', '!=', id)]"/>
+                <field name="date_generated_from" readonly="0" groups="base.group_no_one"/>
+                <field name="date_generated_to" readonly="0" groups="base.group_no_one"/>
             </field>
             <field name="job_id" position="attributes">
                 <attribute name="required">1</attribute>

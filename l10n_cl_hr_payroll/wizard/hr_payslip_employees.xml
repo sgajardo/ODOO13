@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- hr.payslip.employees inherit form view -->
+    <record id="view_hr_payslip_by_employees" model="ir.ui.view">
+        <field name="name">hr.payslip.employees.inherit.view.form</field>
+        <field name="model">hr.payslip.employees</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_by_employees"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='structure_id']/.." position="replace">
+                <group>
+                    <field name="account_analytic_account_id"
+                        options="{'no_create': 1, 'no_open': 1}"
+                        groups="analytic.group_analytic_accounting"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

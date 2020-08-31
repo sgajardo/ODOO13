@@ -45,7 +45,7 @@
                                         <td><span t-esc="v.date_from[:4]"/></td>
                                         <td/>
                                         <td/>
-                                        <td><span t-esc="v.number_of_days_temp"/></td>
+                                        <td><span t-esc="v.number_of_days_display"/></td>
                                         <td><span t-field="v.date_from"/></td>
                                         <td><span t-field="v.date_to"/></td>
                                         <td><span t-esc="v.report_note"/></td>
@@ -64,7 +64,7 @@
                                 </colgroup>
                                 <tr>
                                     <th class="text-right">Total días asignados:</th>
-                                    <td class="text-right"><span t-esc="round(sum(vacations_asigned.mapped('number_of_days_temp')), 2)"/></td>
+                                    <td class="text-right"><span t-esc="round(sum(vacations_asigned.mapped('number_of_days_display')), 2)"/></td>
                                 </tr>
                                 <tr>
                                     <th class="text-right">Total días tomados:</th>

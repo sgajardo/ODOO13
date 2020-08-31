@@ -1,42 +1,15 @@
-# coding: utf-8
-##############################################################################
-# Chilean Payroll
-#
-# WARNING: This program as such is intended to be used by professional
-# programmers who take the whole responsability of assessing all potential
-# consequences resulting from its eventual inadequacies and bugs
-# End users who are looking for a ready-to-use solution with commercial
-# garantees and support are strongly adviced to contract a Free Software
-# Service Company
-#
-# This program is Free Software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-#
-##############################################################################
-from odoo import api, fields, _, models
+from odoo import _, fields, models
 
 
 class HrPayslipRun(models.Model):
     _name = 'hr.payslip.run'
     _inherit = ['hr.payslip.run', 'mail.thread']
-    _description = 'Payslip Run'
     _order = 'date_start desc'
 
     stats_id = fields.Many2one('hr.stats', 'Indicadores', states={'draft': [('readonly', False)]}, readonly=True, required=True)
-    state = fields.Selection(selection_add=[('validate', 'Validar nóminas')], track_visibility='onchange')
+    state = fields.Selection(selection_add=[('validate', 'Validar nóminas')], tracking=True)
     employees_count = fields.Char('Empleados', compute='_compute_employees_count')
-    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.user.company_id.currency_id)
+    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
     amount_total = fields.Monetary('Total a pagar', compute='_compute_amount_total')
     all_validate = fields.Boolean(compute='_compute_all_validate')
     corre_ids = fields.One2many('list.105.corre', 'template_id', string='Listado Correcciones')
@@ -51,6 +24,7 @@ class HrPayslipRun(models.Model):
     ccaf = fields.Float('Total ccaf')
     salario_liquido = fields.Float('Salario Líquido')
     mov_emp_ids = fields.One2many('hr.move.run', 'payslip_run_id', 'Movimientos')
+    account_analytic_account_id = fields.Many2one('account.analytic.account', 'Centro de costo', readonly=True)
 
     def exe_historic_all(self):
         for nominas in self.slip_ids:
@@ -87,7 +61,6 @@ class HrPayslipRun(models.Model):
         if insert:
             self.message_post(body=_("Se ha creado el Pago de Previred"))
 
-
     def calcular_masivo(self):
         if self.slip_ids:
             contador = 0
@@ -111,9 +84,9 @@ class HrPayslipRun(models.Model):
         for record in self:
             record.all_validate = all(slip.state not in ['draft', 'verify', 'cancel'] for slip in record.slip_ids)
 
-    def validate(self):
-        self.slip_ids.action_payslip_done()
-        return self.write({'state': 'validate'})
+    # def validate(self):
+    #     self.slip_ids.action_payslip_done()
+    #     return self.write({'state': 'validate'})
 
     def draft_payslip_run(self):
         self.slip_ids.action_payslip_draft()

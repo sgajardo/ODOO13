@@ -1,45 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="hr_historic_wizard_view" model="ir.ui.view">
-            <field name="name">hr.historic.wizard.view</field>
-            <field name="model">hr.historic.wizard</field>
-            <field name="arch" type="xml">
+    <record id="hr_historic_wizard_view" model="ir.ui.view">
+        <field name="name">hr.historic.wizard.view</field>
+        <field name="model">hr.historic.wizard</field>
+        <field name="arch" type="xml">
             <form string="Historial de Nómina">
-                <label string="Seleccione la operacion que desea realizar."/>
                 <group>
-                  <group>
-                    <field name="operation" required="1" widget="radio"/>
-                    <field name="period" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
-                    <field name="date_from" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
-                    <field name="date_to" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
-                    <field name="type"  class="oe_inline" attrs="{'invisible': ['|',('operation','=',False),('operation','=','upload')],'required': [('operation','=','download')]}"/>
-                    <field name="employee_id"  class="oe_inline" attrs="{'invisible': ['|','|','|',('operation','=',False),('operation','=','upload'),('type','=',False),('type','=','all')],'required': [('type','=','one')]}"/>
-                  </group>
+                    <group>
+                        <field name="operation" required="1" widget="radio"/>
+                        <field name="period" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
+                        <field name="date_from" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
+                        <field name="date_to" required="1" class="oe_inline" attrs="{'invisible': [('operation','=',False)]}"/>
+                        <field name="type" class="oe_inline" attrs="{'invisible': ['|',('operation','=',False),('operation','=','upload')],'required': [('operation','=','download')]}"/>
+                        <field name="employee_id" class="oe_inline" attrs="{'invisible': ['|','|','|',('operation','=',False),('operation','=','upload'),('type','=',False),('type','=','all')],'required': [('type','=','one')]}"/>
+                    </group>
                 </group>
                 <p>Nota: El proceso de descarga actualiza los datos del empleado a los que tenia en el período seleccionado.</p>
                 <footer>
-                    <button name="ask_operation" string="Ejecutar" type="object" class="oe_highlight"/>
-                    <button string="Cerrar" class="oe_link" special="cancel" />
+                    <button name="ask_operation" string="Ejecutar" type="object" class="btn-primary"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
-            </field>
-        </record>
+        </field>
+    </record>
 
-        <record id="hr_historic_wizard_action" model="ir.actions.act_window">
-            <field name="name">Historial de Nómina</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">hr.historic.wizard</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
+    <record id="hr_historic_wizard_action" model="ir.actions.act_window">
+        <field name="name">Historial de Nómina</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.historic.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
 
-        <menuitem
-            parent="l10n_cl_hr_payroll.menu_hr_payroll_historic_rut"
-            sequence="10" name="Ejecutar Histórico"
-            action="hr_historic_wizard_action"
-            id="hr_historic_wizard_menu"
-           />
-
-    </data>
+    <menuitem id="hr_historic_wizard_menu"
+        parent="l10n_cl_hr_payroll.menu_hr_payroll_historic_rut"
+        sequence="10" name="Ejecutar Histórico"
+        action="hr_historic_wizard_action"/>
 </odoo>

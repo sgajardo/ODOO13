@@ -37,7 +37,7 @@
                             <field name="line_ids" context="{'default_sheet_id': id}">
                                 <tree editable="bottom">
                                     <field name="sheet_id" invisible="1"/>
-                                    <field name="haberesydesc_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                    <field name="balance_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     <field name="employee_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     <field name="date_from"/>
                                     <field name="date_to"/>

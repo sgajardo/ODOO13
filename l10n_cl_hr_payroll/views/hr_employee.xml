@@ -53,7 +53,7 @@
                     <group>
                         <group string="Previsión">
                             <field name="afp_id" options="{'no_create': 1, 'no_open': 1}"
-                                attrs="{'required': [('calculate_payroll','==',True)]}"/>
+                                attrs="{'required': [('calculate_payroll','=',True)]}"/>
                             <field name="no_afp"/>
                             <field name="file_afp_name" invisible="1"/>
                             <field name="file_afp" filename="file_afp_name"
@@ -86,7 +86,7 @@
                     </group>
                     <group>
                         <group string="Otros">
-                            <field name="tipo_trabajador" attrs="{'required': [('calculate_payroll','==',True)]}"/>
+                            <field name="tipo_trabajador" attrs="{'required': [('calculate_payroll','=',True)]}"/>
                             <field name="trabajo_pesado" attrs="{'required': [('calculate_payroll', '!=', False)]}"/>
                             <field name="tiene_centro_costo" string="Centro Costo Previred"/>
                             <field name="centro_costo_id" attrs="{'invisible': [('tiene_centro_costo','=',False)]}" options='{"no_create": 1, "no_open": 1}' string="Centro Costo Previred"/>
@@ -101,9 +101,9 @@
 
                 <page name="haberes" string="Haberes y Descuentos">
                     <button name="mostrar_todos_hd" type="object" string="Mostrar todos" class="btn-primary"/>
-                    <field name="haberes_descuentos_ids">
+                    <field name="balance_ids">
                         <tree string="Haberes y Descuentos" editable="bottom" colors="blue:del_mes;">
-                            <field name="haberesydesc_id" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="balance_id" options='{"no_create": 1, "no_open": 1}'/>
                             <field name="moneda" readonly="1"/>
                             <field name="um" readonly="1"/>
                             <field name="amount" required="1"/>
@@ -159,7 +159,7 @@
                                 <field name="holiday_status_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="date_from"/>
                                 <field name="date_to"/>
-                                <field name="number_of_days_temp"/>
+                                <field name="number_of_days_display"/>
                                 <field name="state"/>
                             </tree>
                         </field>

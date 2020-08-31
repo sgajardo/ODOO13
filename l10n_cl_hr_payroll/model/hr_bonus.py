@@ -1,4 +1,3 @@
-# coding: utf-8
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -19,22 +18,22 @@ class HrBonusSheet(models.Model):
         ('approve', 'Aprobado'),
         ('cancel', 'Cancelado'),
         ('done', 'En nómina')
-    ], 'Estado', default='draft', copy=False, track_visibility='onchange')
+    ], 'Estado', default='draft', copy=False, tracking=True)
     description = fields.Text('Descripción', compute='_compute_description')
     line_ids = fields.One2many('hr.bonus.line', 'sheet_id', 'Bonos', readonly=True, states=RO_STATES)
-    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.user.company_id.currency_id)
+    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
     bonus_count = fields.Integer('Cant. bonos', compute='_compute_total')
     amount_total = fields.Monetary('Monto Total', compute='_compute_total')
 
     @api.depends('line_ids')
     def _compute_description(self):
         for record in self:
-            record.description = ', '.join(record.mapped('line_ids.haberesydesc_id.desc'))
+            record.description = ', '.join(record.mapped('line_ids.balance_id.desc'))
 
     @api.depends('line_ids')
     def _compute_total(self):
         for record in self:
-            record.amount_total = sum(record.line_ids.filtered(lambda l: l.haberesydesc_id.um == '$').mapped('amount'))
+            record.amount_total = sum(record.line_ids.filtered(lambda l: l.balance_id.um == '$').mapped('amount'))
             record.bonus_count = len(record.line_ids)
 
     def back_draft(self):
@@ -72,18 +71,18 @@ class HrBonusSheet(models.Model):
             # 3.- Línea a insertar no tiene fecha fin y el hyd si tiene: fecha inicio de línea debe ser menor a fecha fin de hyd debe ser
             # 4.- Línea a insertar y hyd tienen fecha fin: se compara rango exacto de fechas
             if line.date_to:
-                hyd_ids = line.employee_id.haberes_descuentos_ids.filtered(lambda hd: hd.name == line.haberesydesc_id and line.date_to >= hd.fecha_desde and (line.date_from <= hd.fecha_hasta or not hd.fecha_hasta))
+                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and line.date_to >= hd.fecha_desde and (line.date_from <= hd.fecha_hasta or not hd.fecha_hasta))
             else:
-                hyd_ids = line.employee_id.haberes_descuentos_ids.filtered(lambda hd: hd.name == line.haberesydesc_id and (line.date_from < hd.fecha_hasta or not hd.fecha_hasta))
+                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and (line.date_from < hd.fecha_hasta or not hd.fecha_hasta))
             if hyd_ids:
                 hyd_ids.monto = line.amount
                 vals = False
             else:
                 vals = (0, 0, {
-                    'name': line.haberesydesc_id.id,
+                    'balance_id': line.balance_id.id,
                     'date_from': line.date_from,
                     'date_to': line.date_to,
-                    'monto': line.amount
+                    'amount': line.amount
                 })
             if vals:
                 if line.employee_id in employees:
@@ -91,16 +90,16 @@ class HrBonusSheet(models.Model):
                 else:
                     employees[line.employee_id] = [vals]
         for employee, values in employees.items():
-            employee.haberes_descuentos_ids = values
+            employee.balance_ids = values
         self.write({'state': 'done'})
 
 
 class HrBonusLine(models.Model):
     _name = 'hr.bonus.line'
     _description = 'Línea de bonos RRHH'
-    _rec_name = 'haberesydesc_id'
+    _rec_name = 'balance_id'
 
-    haberesydesc_id = fields.Many2one('hr.balance', 'Haber/Descuento', required=True, ondelete='cascade')
+    balance_id = fields.Many2one('hr.balance', 'Haber/Descuento', required=True, ondelete='cascade')
     employee_id = fields.Many2one('hr.employee', 'Empleado', required=True, ondelete='cascade')
     date_from = fields.Date('Fecha desde', required=True, default=fields.Date.today)
     date_to = fields.Date('Fecha hasta')
@@ -109,7 +108,7 @@ class HrBonusLine(models.Model):
     um = fields.Selection([
         ('$', '$'),
         ('u', 'u'),
-        ('%', '%')], 'UM', related='haberesydesc_id.um', readonly=True)
+        ('%', '%')], 'UM', related='balance_id.um', readonly=True)
 
     @api.constrains('date_from', 'date_to')
     def _check_dates(self):
