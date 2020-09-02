@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_bim_ite" model="ir.sequence">
+            <field name="name">Bim ITE</field>
+            <field name="code">bim.ite</field>
+            <field name="prefix">ITE</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_part" model="ir.sequence">
+            <field name="name">Bim Part</field>
+            <field name="code">bim.part</field>
+            <field name="prefix">PAT</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_mport_temp" model="ir.sequence">
+            <field name="name">Bim Import Temp</field>
+            <field name="code">bim.import.temp</field>
+            <field name="prefix">BIP</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+
+        <record id="seq_bim_obras" model="ir.sequence">
+            <field name="name">Obras</field>
+            <field name="code">bim.project</field>
+            <field name="prefix">PRJ</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_budget" model="ir.sequence">
+            <field name="name">Budget</field>
+            <field name="code">bim.budget</field>
+            <field name="prefix">PSU</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_purchase_requisition" model="ir.sequence">
+                <field name="name">Bim Purchase Requisition</field>
+                <field name="code">bim.purchase.requisition</field>
+                <field name="prefix">BPR</field>
+                <field name="padding">5</field>
+                <field name="company_id" eval="False"/>
+            </record>
+
+        <record id="seq_bim_estadopago" model="ir.sequence">
+            <field name="name">Estado de Pagos</field>
+            <field name="code">bim.paidstate</field>
+            <field name="prefix">EPA</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_maintenance" model="ir.sequence">
+            <field name="name">BIM Mantenimientos</field>
+            <field name="code">bim.maintenance</field>
+            <field name="prefix">MANT</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_documentation" model="ir.sequence">
+            <field name="name">BIM Documentos</field>
+            <field name="code">bim.documentation</field>
+            <field name="prefix">DOC</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_object" model="ir.sequence">
+            <field name="name">BIM Object</field>
+            <field name="code">bim.object</field>
+            <field name="prefix">B</field>
+            <field name="padding">3</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_master_checklist" model="ir.sequence">
+            <field name="name">BIM Plantilla Checklist</field>
+            <field name="code">bim.master.checklist</field>
+            <field name="prefix">TMPCHK</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_checklist" model="ir.sequence">
+            <field name="name">BIM Checklist</field>
+            <field name="code">bim.checklist</field>
+            <field name="prefix">CHKLST</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_assets" model="ir.sequence">
+            <field name="name">Haberes y Descuentos</field>
+            <field name="code">bim.assets</field>
+            <field name="prefix">HAD</field>
+            <field name="padding">5</field>
+            <field name="number_next">13</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_ticket" model="ir.sequence">
+            <field name="name">Ticket</field>
+            <field name="code">ticket.bim</field>
+             <field name="prefix">TKB/%(range_year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_mobile_warehouse" model="ir.sequence">
+            <field name="name">Almacen Movil</field>
+            <field name="code">bim.mobile.warehouse</field>
+             <field name="prefix">SMOV/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_bim_work_order" model="ir.sequence">
+            <field name="name">Pedido de Trabajo</field>
+            <field name="code">bim.work.order</field>
+             <field name="prefix">WO/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

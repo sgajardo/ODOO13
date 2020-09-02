@@ -1,0 +1,78 @@
+.o_hierarchy_container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    .o_hierarchy_sidebar_container {
+        width: 20%;
+        padding: 10px;
+        border-right: 2px solid #555;
+        background: #fff;
+        user-select: none;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
+        ul {
+            padding-left: 0;
+            list-style: none;
+
+            li {
+                padding: 3px 0;
+                flex-flow: wrap;
+
+                a:hover {
+                    text-decoration: underline;
+                    cursor: pointer;
+                }
+
+                a.unfolded {
+                    font-weight: bold;
+                    color: $o-brand-primary;
+                }
+
+                .oh_title {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                >ul {
+                    width: 100%;
+
+                    >li {
+                        padding-left: 15px;
+                    }
+                }
+            }
+        }
+    }
+
+    .o_hierarchy_view {
+        width: 100%;
+        overflow-y: scroll;
+
+        .o_hierarchy_widget table tr {
+
+            th:first-child,
+            td:first-child {
+                padding-left: 10px;
+            }
+
+            th:last-child,
+            td:last-child {
+                padding-right: 10px;
+            }
+        }
+    }
+
+}
+
+.oh_contextmenu {
+    position: fixed;
+    box-shadow: 3px 5px 5px 0px rgba(100, 100, 100, 0.1);
+
+    .list-group-item {
+        padding: 5px 10px;
+        min-width: 100px;
+    }
+}

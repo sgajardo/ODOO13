@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ticket_bim_01" model="ticket.bim.category">
+            <field name="name">Servidor</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_02" model="ticket.bim.category">
+            <field name="name">Web</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_03" model="ticket.bim.category">
+            <field name="name">Permisos</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_03" model="ticket.bim.category">
+            <field name="name">Caja</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_05" model="ticket.bim.category">
+            <field name="name">Contabilidad</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_06" model="ticket.bim.category">
+            <field name="name">Ventas</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_07" model="ticket.bim.category">
+            <field name="name">Compras</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_08" model="ticket.bim.category">
+            <field name="name">Inventario</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_bim_09" model="ticket.bim.category">
+            <field name="name">Varios</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+    </data>
+</odoo>

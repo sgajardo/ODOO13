@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <div t-name="HierarchyView" class="o_hierarchy_container">
+        <div class="o_hierarchy_sidebar_container d-none d-md-block"/>
+        <div class="o_hierarchy_view o_list_view">
+            <div class="o_hierarchy_widget" />
+        </div>
+    </div>
+
+    <t t-name="HierarchyView.buttons">
+        <div class="o_hierarchy_buttons" role="toolbar" aria-label="Main actions">
+            <t t-if="widget.is_action_enabled('create')">
+                <button type="button" class="btn btn-primary o_hierarchy_button_add" accesskey="c">
+                    Create
+                </button>
+            </t>
+            <button type="button" class="btn btn-secondary o_hierarchy_button_unfold" accesskey="u">
+                Unfold all
+            </button>
+            <button type="button" class="btn btn-secondary o_hierarchy_button_fold" accesskey="x">
+                Fold all
+            </button>
+        </div>
+    </t>
+
+    <ul t-name="HierarchySidebarList" style="display: none;">
+        <li t-foreach="records" t-as="record" class="d-flex">
+            <div class="oh_title">
+                <i t-attf-class="fa fa-{{record.data.child_ids &amp;&amp; record.data.child_ids.count > 0 ? 'caret-right' : 'angle-right text-muted'}}"/>
+                <a t-att-data-id="record.data.id" t-att-data-res-id="record.id"
+                    t-att-data-parent-id="record.data.parent_id.ref"
+                    t-att-data-childs="record.data.child_ids &amp;&amp; record.data.child_ids.count > 0"
+                    t-att-title="record.data.display_name">
+                    <t t-esc="record.data.display_name"/>
+                </a>
+            </div>
+        </li>
+    </ul>
+
+    <div t-name="HierarchyContextMenu" class="list-group oh_contextmenu" style="display: none;" data-res-id="0">
+        <button data-action="open" class="list-group-item list-group-item-action"><i class="fa fa-external-link"/> Open</button>
+        <button data-action="create" class="list-group-item list-group-item-action"><i class="fa fa-plus"/> Add child</button>
+        <button data-action="copy" class="list-group-item list-group-item-action"><i class="fa fa-chevron-right"/> Add same level</button>
+        <button data-action="unlink" class="list-group-item list-group-item-action"><i class="fa fa-trash-o"/> Remove</button>
+    </div>
+</templates>

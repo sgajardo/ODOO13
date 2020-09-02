@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bim_clone_budget_wizard_form" model="ir.ui.view">
+        <field name="name">bim.clone.budget.wizard.form</field>
+        <field name="model">bim.clone.budget.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla Presupuesto">
+                <group name="main">
+                    <group name="left">
+                        <field name="budget_id" required="1" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <group name="right">
+                        <field name="name"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Continuar" name="do_action"  type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-default"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_clone_budget_wizard_action" model="ir.actions.act_window">
+        <field name="name">Plantillas Carga de Presupuesto</field>
+        <field name="res_model">bim.clone.budget.wizard</field>
+        <field name="view_mode">form</field>
+       <field name="target">new</field>
+    </record>
+
+</odoo>

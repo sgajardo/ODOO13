@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="base_bim_2.budget_report">
+        <t t-call="web.html_container">
+          <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+              <div class="page">
+                <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+                </style>
+                <h3 class="text-center">REPORTE DE PRESUPUESTO</h3>
+                <t t-set="budget" t-value="o.budget_id"/>
+                <table class="table table-sm" style="width:100%;">
+                    <tr>
+                        <th class="text-center" style="border:1px solid black;">OBRA</th>
+                        <th class="text-center text-uppercase" style="border:1px solid black;"><span t-field="budget.name"/></th>
+                        <th t-if="o.filter_ok" class="text-center" style="border:1px solid black;">FILTRO</th>
+                        <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.project_id"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.code"/></td>
+                        <td t-if="o.filter_ok" class="text-center" style="background-color:#E9ECEF;"><span t-esc="o.get_filter_glosa()"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                    </tr>
+                </table>
+                <div class="row">
+                    <table class="table table-sm main_table" style="font-size:10px;width:100%;">
+                        <thead>
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>CRITERIO</th>
+                                <th class="text-center">UNIDAD</th>
+                                <th class="text-center">CANTIDAD</th>
+                                <th class="text-right">PRECIO</th>
+                                <th class="text-right">IMPORTE</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-set="parents" t-value="budget.concept_ids.filtered(lambda c: not c.parent_id and c.type == 'chapter')"/>
+                            <t t-foreach="parents" t-as="parent" class="active">
+                                <t t-if="o.filter_ok" id="filter_active">
+                                    <t t-set="filter_cap" t-value="o.get_quantity_filter(parent)"/>
+                                    <t t-if="filter_cap['qty'] > 0">
+                                        <!-- CAPITULOS -->
+                                        <tr style="background-color: #E9ECEF;" class="parent_row">
+                                            <td class="text-left"><i t-attf-class="fa fa-{{'percent text-success' if parent.type == 'aux' else 'th-large text-success' if parent.type == 'chapter' else 'th-list text-warning' if parent.type == 'departure' else 'edit text-info'}} mr-2 float-left"/><em><span t-field="parent.code"/></em></td>
+                                            <td class="text-left"><em><span t-field="parent.name"/></em></td>
+                                            <td class="text-center"><em><t t-if="parent.uom_id"><span t-field="parent.uom_id"/></t><t t-if="not parent.uom_id">-</t></em></td>
+                                            <td class="text-center"><em><span t-esc="parent.quantity"/></em></td>
+                                            <td class="text-right"><em><span t-esc="filter_cap['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                            <td class="text-right"><em><span t-esc="filter_cap['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                        </tr>
+
+                                        <t t-if="o.display_type in ['detailed','full'] and o.summary_type in ['departure','resource']" t-foreach="parent.child_ids" t-as="child">
+                                            <t t-set="filter_dep" t-value="o.get_quantity_filter(child)"/>
+                                            <t t-if="filter_dep['qty'] > 0">
+
+                                                <!-- PARTIDAS -->
+                                                <tr class="child_row">
+                                                    <td class="text-left">
+                                                        <i t-attf-class="fa fa-{{'th-large text-success' if child.type == 'chapter' else 'percent text-warning' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-2 float-left"/><span t-field="child.code"/>
+                                                    </td>
+                                                    <td class="text-left"><span t-field="child.name"/></td>
+                                                    <td class="text-center"><span t-field="child.uom_id"/></td>
+                                                    <td class="text-center"><span t-esc="filter_dep['qty']" /></td>
+                                                    <td class="text-right"><span t-esc="filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                    <td class="text-right"><span t-esc="filter_dep['qty']*filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                </tr>
+                                                <!-- PARTIDA EXTRA EN NIVEL PARTIDAS UNICAMENTE-->
+                                                <t t-if="any(ext.id for ext in child.child_ids if ext.type == 'departure') and o.summary_type == 'departure'" t-foreach="child.child_ids" t-as="extra">
+                                                    <t t-set="filter_ext" t-value="o.get_quantity_filter(extra)"/>
+                                                    <t t-if="filter_ext['qty'] > 0">
+                                                        <tr class="extra_row">
+                                                            <td class="text-left">
+                                                                <i t-attf-class="fa fa-{{'th-large text-success' if extra.type == 'chapter' else 'percent text-warning' if extra.type == 'aux' else 'th-list text-warning' if extra.type == 'departure' else 'male text-success' if extra.type == 'labor' else 'gears text-danger' if extra.type == 'equip' else 'maxcdn text-warning' if extra.type == 'material' else 'edit text-info'}} mr-2 ml-2 float-left"/><span t-field="extra.code"/>
+                                                            </td>
+                                                            <td class="text-left"><span t-field="extra.name"/></td>
+                                                            <td class="text-center"><span t-field="extra.uom_id"/></td>
+                                                            <td class="text-center"><span t-esc="filter_ext['qty']" /></td>
+                                                            <td class="text-right"><span t-esc="filter_ext['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                            <td class="text-right"><span t-esc="filter_ext['qty']*filter_ext['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                                <!-- RECURSOS -->
+                                                <t t-if="child.child_ids and o.summary_type in ['resource']" t-foreach="child.child_ids" t-as="resource">
+                                                    <tr style="font-style: italic;" class="resource_row">
+                                                        <td class="text-left">
+                                                            <i t-attf-class="fa fa-{{'percent text-success' if resource.type == 'aux' else 'th-list text-warning' if resource.type == 'departure' else 'male text-success' if resource.type == 'labor' else 'gears text-danger' if resource.type == 'equip' else 'maxcdn text-warning' if resource.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="resource.code"/>
+                                                        </td>
+                                                        <td class="text-left"><span t-field="resource.name"/></td>
+                                                        <td class="text-center"><span t-field="resource.uom_id"/></td>
+                                                        <td class="text-center"><span t-field="resource.quantity" /></td>
+                                                        <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                        <td class="text-right"><span t-field="resource.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                    </tr>
+                                                    <!-- NIVELES ADICIONALES MAX 8 -->
+                                                    <t t-if="resource.child_ids" t-foreach="resource.child_ids" t-as="level_4">
+                                                        <t t-call="base_bim_2.concept_extra_level">
+                                                            <t t-set="level" t-value="level_4"/>
+                                                        </t>
+                                                        <t t-if="level_4.child_ids" t-foreach="level_4.child_ids" t-as="level_5">
+                                                            <t t-call="base_bim_2.concept_extra_level">
+                                                                <t t-set="level" t-value="level_5"/>
+                                                            </t>
+                                                            <t t-if="level_5.child_ids" t-foreach="level_5.child_ids" t-as="level_6">
+                                                                <t t-call="base_bim_2.concept_extra_level">
+                                                                    <t t-set="level" t-value="level_6"/>
+                                                                </t>
+                                                                <t t-if="level_6.child_ids" t-foreach="level_6.child_ids" t-as="level_7">
+                                                                    <t t-call="base_bim_2.concept_extra_level">
+                                                                        <t t-set="level" t-value="level_7"/>
+                                                                    </t>
+                                                                    <t t-if="level_7.child_ids" t-foreach="level_7.child_ids" t-as="level_8">
+                                                                        <t t-call="base_bim_2.concept_extra_level">
+                                                                            <t t-set="level" t-value="level_8"/>
+                                                                        </t>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+
+                                <t t-else="" id="filter_inactive">
+                                    <!-- CAPITULOS -->
+                                    <tr class="parent_row" style="background-color: #E9ECEF;">
+                                        <td class="text-left">
+                                            <i t-attf-class="fa fa-{{'percent text-success' if parent.type == 'aux' else 'th-large text-success' if parent.type == 'chapter' else 'th-list text-warning' if parent.type == 'departure' else 'male text-success'}} mr-2 float-left"/><em><span t-field="parent.code"/></em>
+                                        </td>
+                                        <td><em><span t-field="parent.name"/></em></td>
+                                        <td class="text-center"><em><t t-if="parent.uom_id"><span t-field="parent.uom_id"/></t><t t-if="not parent.uom_id">-</t></em></td>
+                                        <td class="text-center"><em><span t-field="parent.quantity"/></em></td>
+                                        <td class="text-right"><em><span t-field="parent.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                        <td class="text-right"><em><span t-field="parent.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                    </tr>
+                                    <!-- PARTIDAS -->
+                                    <t t-if="o.summary_type in ['departure','resource']" t-foreach="parent.child_ids" t-as="child">
+                                        <tr class="child_row">
+                                            <td class="text-left">
+                                                <i t-attf-class="fa fa-{{'th-large text-success' if child.type == 'chapter' else 'percent text-warning' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-2 float-left"/><span t-field="child.code"/>
+                                            </td>
+                                            <td><span t-field="child.name"/></td>
+                                            <td class="text-center"><span t-field="child.uom_id"/></td>
+                                            <td class="text-center"><span t-field="child.quantity" /></td>
+                                            <td class="text-right"><span t-field="child.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                            <td class="text-right"><span t-field="child.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                        </tr>
+                                        <!-- PARTIDA EXTRA (SOLO DETALLE PARTIDAS)-->
+                                        <t t-if="any(ext.type == 'departure' for ext in child.child_ids) and o.summary_type == 'departure'" t-foreach="child.child_ids" t-as="extra">
+                                            <tr class="extra_row">
+                                                <td class="text-left">
+                                                    <i t-attf-class="fa fa-{{'th-large text-success' if extra.type == 'chapter' else 'percent text-warning' if extra.type == 'aux' else 'th-list text-warning' if extra.type == 'departure' else 'male text-success' if extra.type == 'labor' else 'gears text-danger' if extra.type == 'equip' else 'maxcdn text-warning' if extra.type == 'material' else 'edit text-info'}} mr-2 ml-2 float-left"/><span t-field="child.code"/>
+                                                </td>
+                                                <td class="text-left"><span t-field="extra.name"/></td>
+                                                <td class="text-center"><span t-field="extra.uom_id"/></td>
+                                                <td class="text-center"><span t-esc="extra.quantity" /></td>
+                                                <td class="text-right"><span t-field="extra.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                <td class="text-right"><span t-esc="extra.balance" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                            </tr>
+                                        </t>
+                                        <!-- RECURSOS -->
+                                        <t t-if="child.child_ids and o.summary_type in ['resource']" t-foreach="child.child_ids" t-as="resource">
+                                            <tr class="resource_row" style="font-style: italic;">
+                                                <td class="text-left">
+                                                    <i t-attf-class="fa fa-{{'percent text-success' if resource.type == 'aux' else 'th-list text-warning' if resource.type == 'departure' else 'male text-success' if resource.type == 'labor' else 'gears text-danger' if resource.type == 'equip' else 'maxcdn text-warning' if resource.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="resource.code"/>
+                                                </td>
+                                                <td><span t-field="resource.name"/></td>
+                                                <td class="text-center"><span t-field="resource.uom_id"/></td>
+                                                <td class="text-center"><span t-field="resource.quantity" /></td>
+                                                <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                <td class="text-right"><span t-field="resource.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                            </tr>
+                                            <!-- NIVELES ADICIONALES MAX 8 -->
+                                            <t t-if="resource.child_ids" t-foreach="resource.child_ids" t-as="level_4">
+                                                <t t-call="base_bim_2.concept_extra_level">
+                                                    <t t-set="level" t-value="level_4"/>
+                                                    <t t-set="pos" t-value="4"/>
+                                                </t>
+                                                <t t-if="level_4.child_ids" t-foreach="level_4.child_ids" t-as="level_5">
+                                                    <t t-call="base_bim_2.concept_extra_level">
+                                                        <t t-set="level" t-value="level_5"/>
+                                                        <t t-set="pos" t-value="5"/>
+                                                    </t>
+                                                    <t t-if="level_5.child_ids" t-foreach="level_5.child_ids" t-as="level_6">
+                                                        <t t-call="base_bim_2.concept_extra_level">
+                                                            <t t-set="level" t-value="level_6"/>
+                                                            <t t-set="pos" t-value="6"/>
+                                                        </t>
+                                                        <t t-if="level_6.child_ids" t-foreach="level_6.child_ids" t-as="level_7">
+                                                            <t t-call="base_bim_2.concept_extra_level">
+                                                                <t t-set="level" t-value="level_7"/>
+                                                                <t t-set="pos" t-value="7"/>
+                                                            </t>
+                                                            <t t-if="level_7.child_ids" t-foreach="level_7.child_ids" t-as="level_8">
+                                                                <t t-call="base_bim_2.concept_extra_level">
+                                                                    <t t-set="level" t-value="level_8"/>
+                                                                    <t t-set="pos" t-value="8"/>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TOTALES CON FILTRO -->
+                <t t-if="o.filter_ok">
+                    <t t-set="total_filter" t-value="o.get_total_filter()"/>
+
+                    <table class="pull-right" style="width:40%;align:right">
+                        <t>
+                            <tr t-if="total_filter['MT']" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Total Materiales</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="total_filter['MT']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <tr t-if="total_filter['MO'] > 0" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Total Mano de Obra</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="total_filter['MO']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <tr t-if="total_filter['EQ'] > 0" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Total Equipos</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="total_filter['EQ']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <tr t-if="total_filter['AX'] > 0" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Otros</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="total_filter['AX']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                            <tr class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>TOTAL</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="total_filter['MT']+total_filter['MO']+total_filter['EQ']+total_filter['AX']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                        </t>
+                    </table>
+                </t>
+
+                <!-- TOTALES SIN FILTRO -->
+                <t t-if="not o.filter_ok">
+                    <table class="pull-right" style="width:40%;align:right">
+                        <t t-if="o.total_type == 'asset' and budget.asset_ids">
+                            <t t-foreach="budget.asset_ids" t-as="asset">
+                                <tr t-if="asset.asset_id.show_on_report">
+                                    <td class="text-left" colspan="5"><strong><span t-field="asset.asset_id.desc"/></strong></td>
+                                    <td class="text-right" colspan="2"><strong><span t-esc="asset.total" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                                </tr>
+                            </t>
+                        </t>
+
+                        <t t-if="not budget.asset_ids or o.total_type == 'normal'">
+                            <t t-set="MT" t-value="round(o.get_total('material'),2)"/>
+                            <tr t-if="MT > 0" class="border-black o_subtotal" style="">
+                                <td class="text-left" colspan="5"><strong>Total Materiales</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="MT" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <t t-set="MO" t-value="round(o.get_total('labor'),2)"/>
+                            <tr t-if="MO > 0" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Total Mano de Obra</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="MO" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <t t-set="EQ" t-value="round(o.get_total('equip'),2)"/>
+                            <tr t-if="EQ > 0" class="border-black o_subtotal">
+
+                                <td class="text-left" colspan="5"><strong>Total Equipos</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="EQ" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+
+                            <t t-set="AX" t-value="round(o.get_total('aux'),2)"/>
+                            <tr t-if="AX > 0" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>Otros</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="budget.balance-(MT+MO+EQ)" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                            <tr class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong>TOTAL</strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-field="budget.balance"/></strong></td><!--(MT+MO+EQ+AX)-->
+                            </tr>
+                        </t>
+                    </table>
+                </t>
+              </div>
+            </t>
+          </t>
+        </t>
+    </template>
+
+    <template id="concept_extra_level">
+        <tr class="resource_row" style="font-style: italic;">
+            <td class="text-left">
+                <i t-attf-class="fa fa-{{'percent text-success' if level.type == 'aux' else 'th-list text-warning' if level.type == 'departure' else 'male text-success' if level.type == 'labor' else 'gears text-danger' if level.type == 'equip' else 'maxcdn text-warning' if level.type == 'material' else 'edit text-info'}} mr-2 ml-{{pos}} float-left"/><span t-field="level.code"/>
+            </td>
+            <td><span t-field="level.name"/></td>
+            <td class="text-center"><span t-field="level.uom_id"/></td>
+            <td class="text-center"><span t-field="level.quantity" /></td>
+            <td class="text-right"><span t-field="level.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+            <td class="text-right"><span t-field="level.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+        </tr>
+    </template>
+
+    <template id="budget_report_full_extra_rows">
+        <tr t-if="o.text and row.note">
+            <td colspan="6" class="border-top-0 border-bottom-0 px-4 py-0">
+                <p t-field="row.note"/>
+            </td>
+        </tr>
+        <tr t-if="o.measures and row.measuring_ids">
+            <td colspan="6" class="border-top-0 border-bottom-0 px-4 py-0">
+                <table class="table table-sm table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Espacio</th>
+                            <th>Descripción</th>
+                            <th class="text-right">Cant (N)</th>
+                            <th class="text-right">Largo (X)</th>
+                            <th class="text-right">Ancho (Y)</th>
+                            <th class="text-right">Alto (Z)</th>
+                            <th>Fórmula</th>
+                            <th class="text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-if="o.filter_ok">
+                            <t t-if="o.filter_type == 'space'">
+                                <tr t-foreach="row.measuring_ids.filtered(lambda m: m.space_id.id in o.space_ids.ids)" t-as="msr">
+                                    <td t-esc="msr.space_id.display_name or ''"/>
+                                    <td t-esc="msr.name or ''"/>
+                                    <td class="text-right" t-esc="msr.qty" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.length" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.width" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.height" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td t-esc="msr.formula.name or ''"/>
+                                    <td class="text-right" t-esc="msr.amount_subtotal" t-options="{'widget': 'float', 'precision': 3}"/>
+                                </tr>
+                            </t>
+                            <t t-if="o.filter_type == 'object'">
+                                <tr t-foreach="row.measuring_ids.filtered(lambda m: m.space_id.object_id.id in o.object_ids.ids)" t-as="msr">
+                                    <td t-esc="msr.space_id.display_name or ''"/>
+                                    <td t-esc="msr.name or ''"/>
+                                    <td class="text-right" t-esc="msr.qty" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.length" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.width" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td class="text-right" t-esc="msr.height" t-options="{'widget': 'float', 'precision': 2}"/>
+                                    <td t-esc="msr.formula.name or ''"/>
+                                    <td class="text-right" t-esc="msr.amount_subtotal" t-options="{'widget': 'float', 'precision': 3}"/>
+                                </tr>
+                            </t>
+                        </t>
+                        <t t-if="not o.filter_ok">
+                            <tr t-foreach="row.measuring_ids" t-as="msr">
+                                <td t-esc="msr.space_id.display_name or ''"/>
+                                <td t-esc="msr.name or ''"/>
+                                <td class="text-right" t-esc="msr.qty" t-options="{'widget': 'float', 'precision': 2}"/>
+                                <td class="text-right" t-esc="msr.length" t-options="{'widget': 'float', 'precision': 2}"/>
+                                <td class="text-right" t-esc="msr.width" t-options="{'widget': 'float', 'precision': 2}"/>
+                                <td class="text-right" t-esc="msr.height" t-options="{'widget': 'float', 'precision': 2}"/>
+                                <td t-esc="msr.formula.name or ''"/>
+                                <td class="text-right" t-esc="msr.amount_subtotal" t-options="{'widget': 'float', 'precision': 3}"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr t-if="o.images and row.attachment_ids">
+            <td colspan="6" class="border-top-0 border-bottom-0 px-4 py-1">
+                <div class="row">
+                    <div t-foreach="row.attachment_ids" t-as="attch" t-attf-class="col-{{int(12/len(row.attachment_ids))}}">
+                        <img t-attf-src="/web/image/{{attch.id}}" alt="attch.name" class="img-fluid img-thumbnail" style="max-width: 150px;"/>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </template>
+
+    <template id="base_bim_2.budget_report_full" primary="True" inherit_id="base_bim_2.budget_report">
+        <xpath expr="//t[@id='filter_active']//t[@t-as='child']" position="attributes">
+            <attribute name="t-if">o.summary_type in ['departure','resource']</attribute>
+        </xpath>
+        <xpath expr="//t[@id='filter_active']//tr[hasclass('parent_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="parent"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_active']//tr[hasclass('child_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="child"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_active']//tr[hasclass('extra_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="extra"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_active']//tr[hasclass('resource_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="resource"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_inactive']//t[@t-as='child']" position="attributes">
+            <attribute name="t-if">o.summary_type in ['departure','resource']</attribute>
+        </xpath>
+        <xpath expr="//t[@id='filter_inactive']//tr[hasclass('parent_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="parent"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_inactive']//tr[hasclass('child_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="child"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_inactive']//tr[hasclass('extra_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="extra"/>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='filter_inactive']//tr[hasclass('resource_row')]" position="after">
+            <t t-call="base_bim_2.budget_report_full_extra_rows">
+                <t t-set="row" t-value="resource"/>
+            </t>
+        </xpath>
+    </template>
+</odoo>

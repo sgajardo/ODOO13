@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+        <record id="view_form_bim_paidstate" model="ir.ui.view">
+            <field name="name">view.form.bim.paidstate</field>
+            <field name="model">bim.paidstate</field>
+            <field name="arch" type="xml">
+                <form string="Estados de Pagos">
+                    <header>
+                        <button name="action_validate" string="Validar" type="object" states="draft" class="btn-primary"/>
+                        <button name="action_invoice" states="validated" string="Generar Factura" class="btn-primary o_sale_confirm" type="object" groups="base_bim_2.group_create_invoice_paidstate"/>
+                        <button name="%(base_bim_2.bim_paidstate_wizard_action)d" type="action" string="Cargar Monto"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,validated,invoiced"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                       <group>
+                            <group>
+                                <field name="project_id" options='{"no_open": True, "no_create": True, "no_create_edit": True, "no_quick_create": True}'/>
+                                <field name="budget_id" options='{"no_open": True, "no_create": True, "no_create_edit": True, "no_quick_create": True}' domain="[('project_id', '=', project_id)]"/>
+                                <field name="stage_id" attrs="{'invisible': [('stage_id', '=', False)]}"/>
+                                <field name="date"/>
+                                <field name="invoice_id" attrs="{'invisible': [('state','!=','invoiced')]}" groups="base_bim_2.group_create_invoice_paidstate"/>
+                                <field name="maintenance_id" attrs="{'invisible': [('maintenance_id', '=', False)]}"/>
+
+                            </group>
+                            <group>
+                                <field name="amount"/>
+                                <field name="progress"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="currency_id"/>
+                            </group>
+                       </group>
+
+                        <notebook>
+                        <page string="Líneas">
+                                <field name="lines_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="name" options='{"no_create": 1}'/>
+                                        <field name="note"/>
+                                        <field name="percent"/>
+                                        <field name="amount" sum="Suma"/>
+                                    </tree>
+                                </field>
+                        </page>
+                        </notebook>
+
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_tree_bim_paidstate" model="ir.ui.view">
+            <field name="name">view.tree.bim.paidstate</field>
+            <field name="model">bim.paidstate</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="date"/>
+                    <field name="progress" sum="Avance"/>
+                    <field name="amount" sum="Total"/>
+                    <field name="state"/>
+                    <field name="currency_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_bim_paidstate" model="ir.actions.act_window">
+            <field name="name">Estados de Pagos</field>
+            <field name="res_model">bim.paidstate</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Presione para crear nuevo Registro</p>
+            </field>
+        </record>
+
+        <menuitem id="menu_bim_paidstate"
+            name="Estados de Pagos"
+            parent="base_bim_2.menu_bim"
+            action="action_bim_paidstate"
+            sequence="3" />
+
+        <!-- CONTABILIDAD -->
+        <menuitem id="menu_bim_account_cat"
+            name="BIM"
+            parent="account.menu_finance_receivables"
+            sequence="-1" />
+
+        <menuitem id="menu_bim_paidstate_account"
+            name="Estados de Pagos"
+            parent="base_bim_2.menu_bim_account_cat"
+            action="action_bim_paidstate"
+            sequence="1" />
+
+     </data>
+</odoo>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="bim_import_wizard_view_form" model="ir.ui.view">
+        <field name="name">bim.import.wizard.view.form</field>
+        <field name="model">bim.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar presupuesto">
+                <group name="main">
+                    <group name="left">
+                        <field name="filename" invisible="1"/>
+                        <field name="version"/>
+                        <field name="excel_file" string="Archivo Excel" filename="filename" attrs="{'invisible': [('version', '=', 'bc3')]}"/>
+                        <field name="excel_file" string="Archivo BC3" filename="filename" attrs="{'invisible': [('version', '=', '8.8')]}"/>
+                    </group>
+                    <group name="right">
+                        <field name="project_id" options="{'no_create': 1, 'no_open': 1}"/>
+                        <field name="create_all_products" groups="base_bim_2.group_create_product_import_budget"/>
+                        <field name="product_id" options="{'no_create': 1, 'no_open': 1}"
+                               attrs="{'invisible': [('create_all_products', '=', True)], 'required': [('create_all_products', '=', False)]}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="cancel" string="Cancelar" special="cancel" class="btn-secondary"/>
+                    <button name="import_data" type="object" string="Importar" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="bim_import_wizard_action"
+                name="Importar presupuesto"
+                res_model="bim.import.wizard"
+                view_mode="form"
+                target="new"/>
+
+    <menuitem id="bim_import_wizard_menu"
+              name="Importar"
+              parent="menu_bim_imports"
+              action="bim_import_wizard_action"
+              sequence="20"/>
+
+    <record id="bim_import_temp_view_form" model="ir.ui.view">
+        <field name="name">bim.import.temp.view.form</field>
+        <field name="model">bim.import.temp</field>
+        <field name="arch" type="xml">
+            <form string="Importar presupuesto">
+
+                <field name="state" invisible="1"/>
+                <header>
+                    <button name="back_draft" type="object" string="Volver a intentar" states="error"/>
+                    <button name="action_import" type="object" string="Importar" class="btn-secondary"
+                            states="to_execute,ongoing"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" text="Error" attrs="{'invisible': [('state', '!=', 'error')]}"
+                            bg_color="bg-danger"/>
+                    <widget name="web_ribbon" text="En proceso" attrs="{'invisible': [('state', '!=', 'ongoing')]}"
+                            bg_color="bg-warning"/>
+                    <widget name="web_ribbon" text="Completado" attrs="{'invisible': [('state', '!=', 'done')]}"
+                            bg_color="bg-success"/>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+
+                    <group name="main" attrs="{'readonly': [('state', '=', 'done')]}">
+                        <group name="left">
+                            <field name="filename" invisible="1"/>
+                            <field name="version"/>
+                            <field name="excel_file" filename="filename"/>
+                        </group>
+                        <group name="right">
+                            <field name="project_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            <field name="create_all_products"/>
+                            <field name="product_id" options="{'no_create': 1, 'no_open': 1}"
+                                   attrs="{'invisible': [('create_all_products', '=', True)], 'required': [('create_all_products', '=', False)]}"/>
+                            <field name="user_id" options="{'no_open': True}" force_save="1"/>
+                            <field name="budget_id" states="done"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="error" string="Error" states="error">
+                            <field name="error"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_import_temp_view_tree" model="ir.ui.view">
+        <field name="name">bim.import.temp.view.tree</field>
+        <field name="model">bim.import.temp</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="state=='error'" decoration-success="state=='done'">
+                <field name="name"/>
+                <field name="filename"/>
+                <field name="project_id" optional="show"/>
+                <field name="version" optional="hide"/>
+                <field name="create_all_products" optional="hide"/>
+                <field name="product_id" optional="hide"/>
+                <field name="user_id" optional="show"/>
+                <field name="budget_id" optional="show"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="bim_import_temp_view_search" model="ir.ui.view">
+        <field name="name">bim.import.temp.view.search</field>
+        <field name="model">bim.import.temp</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="filename" string="Archivo"/>
+                <field name="project_id"/>
+                <field name="version"/>
+                <field name="user_id"/>
+                <field name="budget_id"/>
+                <field name="state"/>
+                <filter name="state_to_execute" string="Por ejecutar" domain="[('state', '=', 'to_execute')]"/>
+                <filter name="state_ongoing" string="En proceso" domain="[('state', '=', 'ongoing')]"/>
+                <filter name="state_done" string="Completado" domain="[('state', '=', 'done')]"/>
+                <filter name="state_error" string="Error" domain="[('state', '=', 'error')]"/>
+                <filter name="groupby_state" string="Estado" context="{'group_by': 'state'}"/>
+                <filter name="groupby_user" string="Responsable" context="{'group_by': 'user_id'}"/>
+                <filter name="groupby_project" string="Proyecto" context="{'group_by': 'project_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <act_window id="bim_import_temp_action"
+                name="Trabajos de importación"
+                res_model="bim.import.temp"
+                view_mode="tree,form"
+                context="{'search_default_state_to_execute': 1, 'search_default_state_ongoing': 1, 'search_default_state_error': 1}"/>
+
+    <menuitem id="bim_import_temp_menu"
+              name="Trabajos de importación"
+              parent="menu_bim_imports"
+              action="bim_import_temp_action"
+              sequence="10"/>
+</odoo>

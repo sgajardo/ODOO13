@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bim_bc3_wizard_form" model="ir.ui.view">
+        <field name="name">bim.bc3.wizard.form</field>
+        <field name="model">bim.bc3.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar BC3">
+                <group name="main">
+                    <group name="left">
+                        <field name="filename" invisible="1"/>
+                        <field name="bc3_file" filename="filename"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Continuar" name="do_action"  type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-default"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_wizard_bc3_action" model="ir.actions.act_window">
+        <field name="name">Importar BC3</field>
+        <field name="res_model">bim.bc3.wizard</field>
+        <field name="view_mode">form</field>
+       <field name="target">new</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="base_bim_2.compare_cert_report">
+        <t t-call="web.html_container">
+          <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+              <div class="page">
+                <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+                </style>
+                <h3 class="text-center">COMPARATIVO  CERTIFICACIÓN - PRESUPUESTO</h3>
+                <t t-set="budget" t-value="o.budget_id"/>
+                <table class="table table-sm" style="width:100%;">
+                    <tr>
+                        <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
+                        <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="budget.name"/></th>
+                        <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.project_id"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.code"/></td>
+                        <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                    </tr>
+                </table>
+
+                <div class="row">
+                    <table class="table table-sm main_table" style="font-size:10px;width:100%;">
+                        <thead>
+                            <tr>
+                                <th colspan="2"></th>
+                                <th class="text-center" colspan="1">PRECIO</th>
+                                <th class="text-center" colspan="3">CANTIDAD</th>
+                                <th class="text-center" colspan="3">IMPORTE</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center" style="width:10%;">CÓDIGO</th>
+                                <th class="text-left">CONCEPTO</th>
+                                <th class="text-center">PRES</th>
+                                <th class="text-center">PRES</th>
+                                <th class="text-right">CERT</th>
+                                <th class="text-right">DIFERENCIA</th>
+                                <th class="text-right">PRES</th>
+                                <th class="text-right">CERT</th>
+                                <th class="text-right">DIFERENCIA</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-set="chapters" t-value="budget.concept_ids.filtered(lambda c: not c.parent_id and c.balance_cert > 0)"/>
+                            <t t-set="total_pres" t-value="0"/>
+                            <t t-set="total_cert" t-value="0"/>
+                            <t t-foreach="chapters" t-as="chapter" class="active">
+                                <tr style="background-color: #E5E5E5;" class="parent_row">
+                                    <td class="text-left">
+                                        <i t-attf-class="fa fa-{{'th-large text-success' if chapter.type == 'chapter' else 'th-list text-warning' if chapter.type == 'departure' else 'male text-success'}} mr-2 float-left"/><em><strong><span t-field="chapter.code"/></strong></em>
+                                    </td>
+                                    <td class="text-left"><em><strong><span t-field="chapter.name"/></strong></em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-right"><em><strong><span t-field="chapter.balance"/></strong></em></td>
+                                    <td class="text-right"><em><strong><span t-field="chapter.balance_cert"/></strong></em></td>
+                                    <td class="text-right"><em><strong><span t-esc="round(chapter.balance-chapter.balance_cert)" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></em></td>
+                                </tr>
+                                <t t-set="total_pres" t-value="total_pres+chapter.balance"/>
+                                <t t-set="total_cert" t-value="total_cert+chapter.balance_cert"/>
+
+                                <t t-set="cert_childs" t-value="chapter.child_ids.filtered(lambda c: c.to_certify and c.balance_cert > 0)"/>
+                                <t t-foreach="cert_childs" t-as="child">
+                                    <tr class="child_row">
+                                        <td class="text-left">
+                                            <i t-attf-class="fa fa-{{'percent text-success' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="child.code"/>
+                                        </td>
+                                        <td><span t-field="child.name"/></td>
+                                        <td class="text-center"><span t-field="child.amount_compute"/></td>
+                                        <td class="text-center"><span t-field="child.quantity"/></td>
+                                        <td class="text-center"><span t-field="child.quantity_cert"/></td>
+                                        <td class="text-center"><span t-esc="round(child.quantity-child.quantity_cert,3)"/></td>
+                                        <td class="text-right"><span t-field="child.balance"/></td>
+                                        <td class="text-right"><span t-field="child.balance_cert"/></td>
+                                        <td class="text-right"><span t-esc="round(child.balance-child.balance_cert,2)" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                    </tr>
+                                    <tr t-if="o.text">
+                                        <td colspan="1"></td>
+                                        <td colspan="8" style="text-align:justify;"><span t-field="child.note"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <tr style="background-color: #BFBFBF; font-size: 12px;">
+                                <td colspan="1" style="text-align:center;"><strong>TOTALES</strong></td>
+                                <td colspan="5"></td>
+                                <td colspan="1" style="text-align:right;"><strong><span t-esc="total_pres" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                                <td colspan="1" style="text-align:right;"><strong><span t-esc="total_cert" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                                <td colspan="1" style="text-align:right;"><strong><span t-esc="total_pres-total_cert" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+            </t>
+          </t>
+        </t>
+    </template>
+</odoo>

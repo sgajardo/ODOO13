@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_form_bim_mobile_warehouse" model="ir.ui.view">
+        <field name="name">view.form.bim.mobile.warehouse</field>
+        <field name="model">bim.mobile.warehouse</field>
+        <field name="arch" type="xml">
+            <form string="Almacen Móvil">
+                <header>
+<!--                <button name="%(base_bim_2.bim_io_stock_mobile_action)d" states="aprobado" type="action" string="Comprar"/>-->
+                    <button name="%(base_bim_2.bim_io_stock_mobile_action)d" string="Entrada/Salida de Materiales" class="oe_highlight" type="action"/>
+                    <!-- <field name="state" widget="statusbar"/> -->
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickings_in" class="oe_stat_button" icon="fa-arrow-down"
+                                type="object" attrs="{'invisible': [('picking_in_count', '=', 0)]}">
+                            <field name="picking_in_count" widget="statinfo" string="Entradas"/>
+                        </button>
+                        <button name="action_view_pickings_out" class="oe_stat_button" icon="fa-arrow-up"
+                                type="object" attrs="{'invisible': [('picking_out_count', '=', 0)]}">
+                            <field name="picking_out_count" widget="statinfo" string="Salidas"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="reference"/>
+                            <field name="user_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="date" required="1"/>
+                            <field name="warehouse_id" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_mobile_warehouse" model="ir.ui.view">
+        <field name="name">view.tree.bim.mobile.warehouse</field>
+        <field name="model">bim.mobile.warehouse</field>
+        <field name="arch" type="xml">
+            <tree delete="0">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="date"/>
+                <field name="warehouse_id"/>
+                <field name="user_id"/>
+<!--            <field name="state"/>-->
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_mobile_warehouse" model="ir.actions.act_window">
+        <field name="name">Almacen Móvil de Materiales</field>
+        <field name="res_model">bim.mobile.warehouse</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_tree_bim_mobile_warehouse"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem
+        id="menu_bim_mobile_warehouse"
+        name="Almacen Móvil"
+        parent="base_bim_2.menu_bim_stock"
+        action="action_bim_mobile_warehouse"
+        sequence="120"/>
+
+
+
+
+</odoo>

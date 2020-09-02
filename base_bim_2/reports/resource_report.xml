@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="base_bim_2.budget_resource">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="web.external_layout">
+          <div class="page">
+            <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+            </style>
+            <h3 class="text-center">LISTADO DE RECURSOS</h3>
+
+            <table class="table table-sm" style="width:100%;">
+                <tr>
+                    <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
+                    <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="o.budget_id.name"/></th>
+                    <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                </tr>
+                <tr>
+                    <td class="text-center" style="background-color:#E9ECEF;"><span t-field="o.budget_id.project_id"/></td>
+                    <td class="text-center" style="background-color:#E9ECEF;"><span t-field="o.budget_id.code"/></td>
+                    <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                </tr>
+            </table>
+            <br/>
+            <div class="row">
+                <t t-set="resources" t-value="o.get_resources(o.material,o.labor,o.equipment)"/>
+                <t t-set="functions" t-value="o.get_function(o.aux)"/>
+                <table class="table table-sm main_table" style="font-size:10px;">
+                    <thead>
+                        <tr class="active">
+                            <th>CÓDIGO</th>
+                            <th>RECURSO</th>
+                            <th>TIPO</th>
+                            <th>UNIDAD</th>
+                            <th class="text-right">CANTIDAD</th>
+                            <th class="text-right">PESO</th>
+                            <th class="text-right">COSTO</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr t-foreach="resources" t-as="res">
+                        <t t-set="weight" t-value="round(o.get_weight(res.id),2)"/>
+                        <td><span t-field="res.code" /></td>
+                        <td><span t-field="res.name" /></td>
+                        <td><span t-field="res.resource_type"/></td>
+                        <td><span t-field="res.uom_id" /></td>
+                        <td class="text-right"><span t-esc="round(o.get_quantity(res.id),3)"/></td>
+                        <td class="text-right"><span t-if="weight &gt; 0" t-esc="weight" /><span t-if="weight &lt;= 0" t-esc="'-'" /></td>
+                        <td class="text-right"><span t-esc="o.get_total(res.id)" t-options="{'widget': 'monetary', 'display_currency': o.budget_id.currency_id}"/></td>
+                      </tr>
+                      <tr t-if="functions" t-foreach="functions" t-as="aux">
+                        <td><span t-field="aux.code" /></td>
+                        <td><span t-field="aux.name" /></td>
+                        <td><span t-field="aux.type"/></td>
+                        <td><span t-field="aux.uom_id" /></td>
+                        <td class="text-right"><span t-esc="aux.amount_compute" /></td>
+<!--                    <td class="text-right"><span t-esc="round(o.get_quantity_aux(aux),3)"/></td>-->
+                        <td class="text-right">-</td>
+                        <td class="text-right"><span t-esc="o.get_total_aux(aux)" t-options="{'widget': 'monetary', 'display_currency': o.budget_id.currency_id}"/></td>
+                      </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-12">
+                <table class="pull-right" style="width:40%;align:right">
+                  <t t-set="totals" t-value="o.get_resources_total(o.material,o.labor,o.equipment,o.aux)"/>
+                  <t t-foreach="totals" t-as="t">
+                      <tr class="border-black o_subtotal">
+                        <td class="text-left" colspan="3"><strong></strong></td>
+                        <td class="text-left" colspan="3" style="padding:5px"><strong><span t-esc="t['name']"/></strong></td>
+                        <td class="text-right" colspan="1" style="padding:5px"><strong><span t-esc="t['amount']" t-options="{'widget': 'monetary', 'display_currency': o.budget_id.currency_id}"/></strong></td>
+                      </tr>
+                  </t>
+                </table>
+            </div>
+
+
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>
