@@ -341,7 +341,7 @@ result = - round(inputs.DSCAT.amount * valor_hora)</field>
         <field name="code">ALSB</field>
         <field name="category_id" ref="IMPONIBLE"/>
         <field name="condition_select">python</field>
-        <field name="condition_python">result = (payslip.stats_id.sueldo_minimo > contract.wage) and (worked_days.WORK100.number_of_hours >= 180)</field>
+        <field name="condition_python">result = (payslip.stats_id.sueldo_minimo > contract.wage) and worked_days.WORK100 and (worked_days.WORK100.number_of_hours >= 180)</field>
         <field name="amount_select">code</field>
         <field name="amount_python_compute">workable = employee.get_workable_days_count(payslip.date_from, payslip.date_to) if contract.type_id.codigo == 'diario' else 30
 result = round((payslip.stats_id.sueldo_minimo - contract.wage) * (worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0) / workable)</field>

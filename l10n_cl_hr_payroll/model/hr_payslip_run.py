@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from odoo import _, fields, models
 
 
@@ -9,6 +11,7 @@ class HrPayslipRun(models.Model):
     stats_id = fields.Many2one('hr.stats', 'Indicadores', states={'draft': [('readonly', False)]}, readonly=True, required=True)
     state = fields.Selection(selection_add=[('validate', 'Validar nóminas')], tracking=True)
     employees_count = fields.Char('Empleados', compute='_compute_employees_count')
+    work_entries_count = fields.Integer('Entradas', compute='_compute_work_entries')
     currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
     amount_total = fields.Monetary('Total a pagar', compute='_compute_amount_total')
     all_validate = fields.Boolean(compute='_compute_all_validate')
@@ -75,6 +78,29 @@ class HrPayslipRun(models.Model):
         total_employees = self.env['hr.employee'].search_count([('hired', '=', True)])
         for record in self:
             record.employees_count = '%d/%d' % (len(record.slip_ids.mapped('employee_id')), total_employees)
+
+    def _compute_work_entries(self):
+        work_entry_obj = self.env['hr.work.entry']
+        for record in self:
+            record.work_entries_count = work_entry_obj.search_count([
+                ('employee_id', 'in', record.slip_ids.mapped('employee_id').ids),
+                ('date_start', '>=', datetime.combine(record.date_start, datetime.min.time())),
+                ('date_stop', '<=', datetime.combine(record.date_end, datetime.max.time())),
+            ])
+
+    def action_view_work_entries(self):
+        work_entries_domain = [
+            ('employee_id', 'in', self.slip_ids.mapped('employee_id').ids),
+            ('date_start', '>=', datetime.combine(self.date_start, datetime.min.time())),
+            ('date_stop', '<=', datetime.combine(self.date_end, datetime.max.time())),
+        ]
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Entradas',
+            'res_model': 'hr.work.entry',
+            'view_mode': 'gantt,tree,form,pivot',
+            'domain': work_entries_domain,
+        }
 
     def _compute_amount_total(self):
         for record in self:

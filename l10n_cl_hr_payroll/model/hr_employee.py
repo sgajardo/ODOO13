@@ -1,5 +1,6 @@
 from calendar import monthrange
 from datetime import datetime, timedelta
+from itertools import cycle
 
 from dateutil.relativedelta import relativedelta
 
@@ -20,11 +21,11 @@ class HrEmployee(models.Model):
     mothers_name = fields.Char('Segundo Apellido', help='Employees mothers name')
     resource_calendar_id = fields.Many2one('resource.calendar', default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_resource_monthly', raise_if_not_found=False))
     region_id = fields.Many2one('res.country.state', 'Región', domain=_get_region_domain)
-    city_id = fields.Many2one('res.country.state.city', 'Ciudad')
     address = fields.Char('Dirección')
     calculate_payroll = fields.Boolean('Cálculo de Nómina')
     acc_number = fields.Char('Cuenta Bancaria', related='bank_account_id.acc_number')
     bank_id = fields.Many2one('res.bank', 'Banco', related='bank_account_id.bank_id', ondelete='restrict')
+    work_entries_count = fields.Integer('Entradas', compute='_compute_work_entries')
     # leave_ids = fields.One2many('hr.leave', 'employee_id', 'Ausencias')
     vacations_count = fields.Float('Vacaciones', compute='_compute_vacations_count', help='Vacaciones pendientes.')
     # leaves_on_month = fields.Float('Ausencias del mes', compute='_compute_leaves_month')
@@ -113,21 +114,6 @@ class HrEmployee(models.Model):
 
             record.cantidad_de_carga = c_familiar + c_maternal + c_invalida
 
-    @api.onchange('region_id')
-    def onchange_region(self):
-        res = {
-            'value': {
-                'city_id': False
-            }
-        }
-        if self.region_id:
-            res.update({
-                'domain': {
-                    'city_id': [('state_id.parent_id', '=', self.region_id.id)]
-                }
-            })
-        return res
-
     def _compute_contracts(self):
         for record in self:
             record.contracts = ', '.join(record.mapped('contract_ids.name'))
@@ -177,6 +163,20 @@ class HrEmployee(models.Model):
         for record in self:
             record.borrow_ids = prestamo_obj.search([('borrow_id.employee_id', '=', record.id), ('date_due', '>=', date_from), ('date_due', '<=', date_to)])
 
+    def _compute_work_entries(self):
+        work_entry_obj = self.env['hr.work.entry']
+        for record in self:
+            record.work_entries_count = work_entry_obj.search_count([('employee_id', '=', record.id)])
+
+    def action_view_work_entries(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Entradas',
+            'res_model': 'hr.work.entry',
+            'view_mode': 'gantt,tree,form,pivot',
+            'domain': [('employee_id', '=', self.id)],
+        }
+
     @api.depends('first_name', 'mothers_name', 'middle_name', 'last_name')
     def full_name_func(self):
         for record in self:
@@ -195,43 +195,60 @@ class HrEmployee(models.Model):
 
     @api.onchange('identification_id')
     def _comprueba_rut(self):
+        def validarRut(rut):
+            rut = rut.upper()
+            rut = rut.replace("-", "")
+            rut = rut.replace(".", "")
+            aux = rut[:-1]
+            dv = rut[-1:]
+
+            revertido = map(int, reversed(str(aux)))
+            factors = cycle(range(2, 8))
+            s = sum(d * f for d, f in zip(revertido, factors))
+            res = (-s) % 11
+
+            if str(res) == dv:
+                return True
+            elif dv == "K" and res == 10:
+                return True
+            else:
+                return False
+
+        def check_rut(document_number, fomat):
+            if document_number:
+                int_rut = document_number.upper()
+                int_rut = int_rut.replace("-", '')
+                int_rut = int_rut.replace(".", '')
+                int_rut = int_rut.replace(",", '')
+                int_rut = int_rut.replace("C", '')
+                int_rut = int_rut.replace("L", '')
+                int_rut = int_rut.replace("c", '')
+                int_rut = int_rut.replace("l", '')
+                int_rut = int_rut.replace(" ", '')
+                int_rut_impio = int_rut.strip()
+                ok = False
+                if len(int_rut) > 8:
+                    if validarRut(int_rut):
+                        ok = True
+                else:
+                    ok = True
+                # Formateamos el RUT con el estandar 24.063.888-6
+                position = len(int_rut) - 1
+                int_rut = int_rut[:position] + '-' + int_rut[position:]
+                int_rut = int_rut[:-5] + '.' + int_rut[-5:]
+                if len(int_rut) > 9:
+                    # 24.063.888-6
+                    if fomat == 1:
+                        int_rut = int_rut[:-9] + '.' + int_rut[-9:]
+                    if fomat == 2:
+                        int_rut = 'CL' + int_rut_impio
+                if not ok:
+                    return ''
+                else:
+                    return int_rut
+
         if self.identification_id:
-            int_rut = self.identification_id
-            int_rut = int_rut.replace('-', '').replace('.', '').replace(',', '')
-            rut = int_rut[:-1]
-            dig = int_rut[-1]
-            resto = ""
-            ok = False
-            if len(int_rut) > 8 and int_rut != '555555555':
-                n1, n2, n3, n4, n5, n6, n7, n8 = rut
-                m1 = int(n1) * 3
-                m2 = int(n2) * 2
-                m3 = int(n3) * 7
-                m4 = int(n4) * 6
-                m5 = int(n5) * 5
-                m6 = int(n6) * 4
-                m7 = int(n7) * 3
-                m8 = int(n8) * 2
-                suma = m1 + m2 + m3 + m4 + m5 + m6 + m7 + m8
-                resto = suma / 11
-                resto = 11 - (suma - resto * 11)
-                if resto == 10 or resto == 11:
-                    resto = 'K'
-                    ok = True
-                if dig == str(resto):
-                    ok = True
-            else:
-                ok = True
-            # Formateamos el RUT con el estandar 24.063.888-6
-            position = len(int_rut) - 1
-            int_rut = int_rut[:position] + '-' + int_rut[position:]
-            int_rut = int_rut[:-5] + '.' + int_rut[-5:]
-            if len(int_rut) > 9:
-                int_rut = int_rut[:-9] + '.' + int_rut[-9:]
-            if not ok:
-                self.identification_id = ''
-            else:
-                self.identification_id = int_rut
+            self.identification_id = check_rut(self.identification_id, 1)
 
     def get_workable_days_count(self, date_start, date_end):
         """ Devuelve un entero con la cantidad de días trabajables en el periodo."""
@@ -519,8 +536,8 @@ class HrHd(models.Model):
                     old_value = old_value.display_name if old_value else 'No definido'
                     value = self.env[campo.comodel_name].browse(value).display_name
                 elif campo.type == 'date':
-                    old_value = old_value.strftime('%d/%m/%Y') if old_value else 'No definido'
-                    value = value.strftime('%d/%m/%Y')
+                    old_value = (fields.Date.from_string(old_value) if isinstance(old_value, str) else old_value).strftime('%d/%m/%Y') if old_value else 'No definido'
+                    value = (fields.Date.from_string(value) if isinstance(value, str) else value).strftime('%d/%m/%Y')
                 elif not old_value:
                     old_value = 'No definido'
                 listado += '<li>%s: %s &rarr; %s</li>' % (campo.string, old_value, value)

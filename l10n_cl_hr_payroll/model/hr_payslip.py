@@ -7,9 +7,7 @@ from ..report.amount_to_text_es import amount_to_text_es
 
 
 class HrPayslip(models.Model):
-    _name = 'hr.payslip'
-    _inherit = ['hr.payslip', 'mail.thread']
-    _description = 'Pay Slip'
+    _inherit = 'hr.payslip'
     _order = 'id desc'
 
     @api.model
@@ -141,7 +139,6 @@ class HrPayslip(models.Model):
             record.message_post(body=_('Calculada hoja de nómina.'))
         return super(HrPayslip, self).compute_sheet()
 
-    # def onchange_employee_id(self, date_from, date_to, employee_id=False, contract_id=False):
     @api.onchange('employee_id', 'struct_id', 'contract_id', 'date_from', 'date_to')
     def _onchange_employee(self):
         # defaults

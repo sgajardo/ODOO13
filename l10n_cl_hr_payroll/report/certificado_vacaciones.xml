@@ -11,7 +11,7 @@
     <template id="l10n_cl_hr_payroll.certificado_vacaciones_template">
         <t t-set="meses" t-value="['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']"/>
         <t t-set="hoy" t-value="datetime.date.today()"/>
-        <t t-set="ciudad" t-value="res_company.city or res_company.city_id and res_company.city_id.name or 'Santiago'"/>
+        <t t-set="ciudad" t-value="res_company.city or 'Santiago'"/>
         <t t-call="report.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="report.layout">

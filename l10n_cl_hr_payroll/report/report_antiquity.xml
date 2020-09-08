@@ -56,7 +56,7 @@
                                     Su contrato <span t-esc="'es de caracter indefinido' if not contrato.date_end else 'vence el ' if not retirado else 'venció el '" /><span t-if="contrato.date_end" t-esc="o.get_nombre_mes_espanol(contrato.date_end)" />.
                                 </p>
                                 <p style="margin-top: 30px;">Se otorga el presente certificado a pedido del interesado para los fines que estime conveniente.</p>
-                                <p style="margin-top: 30px;"><span t-esc="res_company.city or res_company.city_id and res_company.city_id.name or 'Santiago'" />, <span t-esc="o.get_nombre_mes_espanol(time.strftime('%Y-%m-%d', time.gmtime()))" />.</p>
+                                <p style="margin-top: 30px;"><span t-esc="res_company.city or 'Santiago'" />, <span t-esc="o.get_nombre_mes_espanol(time.strftime('%Y-%m-%d', time.gmtime()))" />.</p>
                             </t>
                             <t t-if="not o.contract_ids">
                                 <p><b><span t-field="o.full_name or o.name" /></b> no tiene contratos registrados en el sistema.</p>

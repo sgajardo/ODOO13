@@ -1,3 +1,4 @@
+from datetime import datetime
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError, RedirectWarning
 
@@ -38,4 +39,12 @@ class HrPayslipEmployees(models.TransientModel):
                 raise ValidationError('No se han cargado los indicadores Previred')
             stats_id = stats.id
         payslip_run.account_analytic_account_id = self.account_analytic_account_id
+        # Borramos las entradas del periodo
+        self.env['hr.work.entry'].search([
+            ('employee_id', 'in', self.employee_ids.ids),
+            ('date_start', '>=', datetime.combine(payslip_run.date_start, datetime.min.time())),
+            ('date_stop', '<=', datetime.combine(payslip_run.date_end, datetime.max.time())),
+        ]).unlink()
+        contracts = self.employee_ids._get_contracts(payslip_run.date_start, payslip_run.date_end, states=['open', 'close'])
+        contracts.write({'date_generated_to': datetime.combine(payslip_run.date_start, datetime.min.time())})
         return super(HrPayslipEmployees, self.with_context(default_stats_id=stats_id)).compute_sheet()

@@ -196,7 +196,7 @@
         <field name="act_window_id" ref="action_taken_vacations"/>
     </record>
 <!-- Menues -->
-    <menuitem id="menu_vacations" name="Vacaciones" parent="hr_holidays.menu_hr_holidays_root"/>
+    <menuitem id="menu_vacations" name="Vacaciones" parent="hr_holidays.menu_hr_holidays_root" sequence="2"/>
     <menuitem id="pending_vacation_menu" name="Saldo" parent="menu_vacations"
         action="action_pending_vacations" sequence="4"/>
     <menuitem id="taken_vacation_menu" name="Utilizadas" parent="menu_vacations"

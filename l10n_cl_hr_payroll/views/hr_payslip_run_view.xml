@@ -5,36 +5,33 @@
         <field name="model">hr.payslip.run</field>
         <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
         <field name="arch" type="xml">
-
             <header position="inside">
                 <button name="calcular_masivo" type="object" string="Calculo Masivo"
                     confirm="¿Estás seguro que quieres recalcular todas las nóminas?"
                     class="btn-danger"/>
-
                 <button name="crear_pago_previred" type="object" string="Pago Previred"
                         style="background-color:#449d44;border-color:#449d44;"
                         confirm="¿Estás seguro que quieres crear el Pago Previred?"
                         attrs="{'invisible': [('state','!=','accounted')]}"
                         class="btn-primary"/>
-
             </header>
 
-            <xpath expr="//label[@for='name']" position="before">
-                <field name="currency_id" invisible="1"/>
-                <div class="oe_button_box" name="button_box">
-                    <button name="view_employees_action" type="object" class="oe_stat_button" icon="fa-users">
-                        <field name="employees_count" widget="statinfo"/>
-                    </button>
-                    <button name="view_payslips_action" type="object" class="oe_stat_button" icon="fa-money">
-                        <div class="o_form_field o_stat_info">
-                            <span class="o_stat_value">
-                                <field name="amount_total"/>
-                            </span>
-                            <span class="o_stat_text">A pagar</span>
-                        </div>
-                    </button>
-                </div>
-            </xpath>
+            <div name="button_box">
+                <button name="action_view_work_entries" type="object" class="oe_stat_button" icon="fa-calendar">
+                    <field name="work_entries_count" widget="statinfo"/>
+                </button>
+                <button name="view_employees_action" type="object" class="oe_stat_button" icon="fa-users">
+                    <field name="employees_count" widget="statinfo"/>
+                </button>
+                <button name="view_payslips_action" type="object" class="oe_stat_button" icon="fa-money">
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="amount_total"/>
+                        </span>
+                        <span class="o_stat_text">A pagar</span>
+                    </div>
+                </button>
+            </div>
             <!-- <field name="state" position="attributes">
                 <attribute name="statusbar_visible">draft,validate</attribute>
             </field>
@@ -47,21 +44,6 @@
                     attrs="{'invisible': [('account_analytic_account_id', '=', False)]}"
                     groups="analytic.group_analytic_accounting"/>
             </field>
-            <!-- <field name="slip_ids" position="replace">
-                <field name="slip_ids">
-                    <tree decoration-info="state in ('confirm','hr_check','accont_check')" decoration-muted="state == 'cancel'" colors="blue:state == 'draft';">
-                        <field name="sequence" string="#"/>
-                        <field name="number"/>
-                        <field name="employee_id"/>
-                        <field name="name"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                        <field name="contract_id"/>
-                        <field name="state"/>
-                        <field name="notas"/>
-                    </tree>
-                </field>
-            </field> -->
             <sheet>
                 <notebook>
                     <page name="mov_personal" string="Movimientos de Personal">
@@ -158,7 +140,6 @@
                     </page>
                 </notebook>
             </sheet>
-
             <sheet position="after">
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
