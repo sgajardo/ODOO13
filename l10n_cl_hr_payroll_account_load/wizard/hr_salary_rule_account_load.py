@@ -38,7 +38,7 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
             rule_code = sheet.cell_value(row, rule_code_index)
             acc_type = acc_type_map.get(sheet.cell_value(row, acc_type_index))
             #~ account_name = sheet.cell_value(row, account_index)
-            account_name = '%.0f' % sheet.cell_value(row, account_index) if isinstance(float, sheet.cell_value(row, account_index)) else sheet.cell_value(row, account_index)
+            account_name = '%.0f' % sheet.cell_value(row, account_index) if isinstance(sheet.cell_value(row, account_index), float) else sheet.cell_value(row, account_index)
             account = accounts.get(account_name)
             if not account and account_name:
                 account = account_obj.search([('code', '=', account_name)])
