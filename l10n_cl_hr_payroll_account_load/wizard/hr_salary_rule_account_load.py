@@ -52,5 +52,5 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
                     raise ValidationError('La regla salarial con código %s no existe' % str(rule_code))
                 rule.write({'account_type': acc_type, 'account_id': account.id})
         if account_errors:
-            raise ValidationError('Las siguientes cuentas contables no existen: \n%f' % '\n'.join(account_errors))
+            raise ValidationError('Las siguientes cuentas contables no existen: \n%s' % '\n'.join(map(str, account_errors)))
         return {'type': 'ir.actions.act_window_close'}
