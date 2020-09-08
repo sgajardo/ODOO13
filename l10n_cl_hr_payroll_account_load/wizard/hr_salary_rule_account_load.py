@@ -31,7 +31,7 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
         except ValueError:
             raise ValidationError('El archivo Excel no tiene la columna "Tipo (Debe/Haber)"')
         try:
-            account_index = index.index('Cuenta Contable')
+            account_index = index.index('Codigo')
         except ValueError:
             raise ValidationError('El archivo Excel no tiene la columna "Cuenta Contable"')
         for row in range(1, sheet.nrows):
@@ -40,7 +40,7 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
             account_name = sheet.cell_value(row, account_index)
             account = accounts.get(account_name)
             if not account and account_name:
-                account = account_obj.search([('name', '=', account_name)])
+                account = account_obj.search([('code', '=', account_name)])
                 if not account:
                     if account_name not in account_errors:
                         account_errors.append(account_name)
