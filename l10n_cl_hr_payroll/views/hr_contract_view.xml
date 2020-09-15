@@ -31,6 +31,10 @@
                     </group>
                 </page>
             </notebook>
+            <field name="advantages" position="before">
+                <field name="use_mid_wage"/>
+                <field name="mid_wage" attrs="{'invisible': [('use_mid_wage', '=', False)], 'required': [('use_mid_wage', '=', True)]}"/>
+            </field>
         </field>
     </record>
 

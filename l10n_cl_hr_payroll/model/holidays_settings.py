@@ -56,77 +56,76 @@ class HolidaysSettings(models.Model):
             # Definimos desde cuando comienza a disfrutar las vacaciones, su fecha
             # de inicio mas los meses que debe esperar para empezar a disfrutar
             date_start = employee.contract_id.vacation_date_start or employee.contract_id.date_start
-            if date_start:
-                if date_start >= today:
-                    # Ignoramos los que tengan fecha inicial mayor al día actual
+            if date_start >= today:
+                # Ignoramos los que tengan fecha inicial mayor al día actual
+                continue
+            days = 0.0
+            # Se calculan cuantos días de vacaciones debería tener el trabajador
+            # desde que inició su relación laboral en la empresa
+            for period in periods:
+                start = period['start']
+                end = period['end']
+                if date_start >= end or today <= start:
+                    # Si este caso se da, es porque no necesita calcular en este periodo
                     continue
-                days = 0.0
-                # Se calculan cuantos días de vacaciones debería tener el trabajador
-                # desde que inició su relación laboral en la empresa
-                for period in periods:
-                    start = period['start']
-                    end = period['end']
-                    if date_start >= end or today <= start:
-                        # Si este caso se da, es porque no necesita calcular en este periodo
-                        continue
-                    if date_start > start:
-                        start = date_start
-                    contract_end = employee.contract_id.date_end
-                    if contract_end and contract_end < end and contract_end <= today:
-                        end = contract_end
-                    elif today < end:
-                        end = today
-                    rel_time = relativedelta(end + relativedelta(days=1), start)
-                    months = rel_time.months + rel_time.years * 12 + rel_time.days / 30.0
-                    days += period['days'] / 12.0 * months
-                # Pasamos a actualizar las vacaciones, o crearlas si no existen
-                employee_holidays = holidays.filtered_domain([('employee_id', '=', employee.id)])
-                if len(employee_holidays) > 1:
-                    to_delete += employee_holidays - employee_holidays[0]
-                    employee_holidays = employee_holidays[0]
-                if days <= 0:
-                    raise UserError(_('Verifique las fechas de vacaciones para %s.\nDías de vacaciones deben ser mayor a 0.') % employee.display_name)
-                if employee_holidays:
-                    calculated_holiday = employee_holidays
-                    employee_holidays.write({
-                        'number_of_days': days,
-                        'name': 'Vacaciones pendientes de %s' % employee.display_name
+                if date_start > start:
+                    start = date_start
+                contract_end = employee.contract_id.date_end
+                if contract_end and contract_end < end and contract_end <= today:
+                    end = contract_end
+                elif today < end:
+                    end = today
+                rel_time = relativedelta(end + relativedelta(days=1), start)
+                months = rel_time.months + rel_time.years * 12 + rel_time.days / 30.0
+                days += period['days'] / 12.0 * months
+            # Pasamos a actualizar las vacaciones, o crearlas si no existen
+            employee_holidays = holidays.filtered_domain([('employee_id', '=', employee.id)])
+            if len(employee_holidays) > 1:
+                to_delete += employee_holidays - employee_holidays[0]
+                employee_holidays = employee_holidays[0]
+            if days <= 0:
+                raise UserError(_('Verifique las fechas de vacaciones para %s.\nDías de vacaciones deben ser mayor a 0.') % employee.display_name)
+            if employee_holidays:
+                calculated_holiday = employee_holidays
+                employee_holidays.write({
+                    'number_of_days': days,
+                    'name': 'Vacaciones pendientes de %s' % employee.display_name
+                })
+            else:
+                calculated_holiday = holidays.create({
+                    'employee_id': employee.id,
+                    'state': 'validate',
+                    'holiday_type': 'employee',
+                    'holiday_status_id': vacaciones.id,
+                    'number_of_days': days,
+                    'name': 'Vacaciones pendientes de %s' % employee.display_name
+                })
+            ids.append(calculated_holiday.id)
+            # Y y luego calculamos los días progresivos, si aplicara...
+            employee_progressive_holidays = progressive_holidays.filtered_domain([('employee_id', '=', employee.id)])
+            if len(employee_progressive_holidays) > 1:
+                to_delete += employee_progressive_holidays - employee_progressive_holidays[0]
+                employee_progressive_holidays = employee_progressive_holidays[0]
+            progressive_days = self.calcular_progresivos(employee, employee_progressive_holidays)
+            if progressive_days:
+                if employee_progressive_holidays:
+                    calculated_progressive = employee_progressive_holidays
+                    calculated_progressive.write({
+                        'number_of_days_display': progressive_days,
                     })
                 else:
-                    calculated_holiday = holidays.create({
+                    calculated_progressive = employee_progressive_holidays.create({
                         'employee_id': employee.id,
                         'state': 'validate',
                         'holiday_type': 'employee',
-                        'holiday_status_id': vacaciones.id,
-                        'number_of_days': days,
-                        'name': 'Vacaciones pendientes de %s' % employee.display_name
+                        'holiday_status_id': progresivas.id,
+                        'number_of_days_display': progressive_days,
+                        'name': 'Vacaciones progresivas pendientes de %s' % employee.name
                     })
-                ids.append(calculated_holiday.id)
-                # Y y luego calculamos los días progresivos, si aplicara...
-                employee_progressive_holidays = progressive_holidays.filtered_domain([('employee_id', '=', employee.id)])
-                if len(employee_progressive_holidays) > 1:
-                    to_delete += employee_progressive_holidays - employee_progressive_holidays[0]
-                    employee_progressive_holidays = employee_progressive_holidays[0]
-                progressive_days = self.calcular_progresivos(employee, employee_progressive_holidays)
-                if progressive_days:
-                    if employee_progressive_holidays:
-                        calculated_progressive = employee_progressive_holidays
-                        calculated_progressive.write({
-                            'number_of_days_display': progressive_days,
-                        })
-                    else:
-                        calculated_progressive = employee_progressive_holidays.create({
-                            'employee_id': employee.id,
-                            'state': 'validate',
-                            'holiday_type': 'employee',
-                            'holiday_status_id': progresivas.id,
-                            'number_of_days_display': progressive_days,
-                            'name': 'Vacaciones progresivas pendientes de %s' % employee.name
-                        })
-                    ids.append(calculated_progressive.id)
-            # Terminamos borrando los registros repetidos
-            to_delete.write({'state': 'draft'})
-            to_delete.unlink()
+                ids.append(calculated_progressive.id)
+        # Terminamos borrando los registros repetidos
+        to_delete.write({'state': 'draft'})
+        to_delete.unlink()
         if not ids:
             raise UserError(_('No se encontraron vacaciones pendientes'))
         return ids

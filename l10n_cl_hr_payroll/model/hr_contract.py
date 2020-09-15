@@ -16,6 +16,8 @@ class HrContract(models.Model):
     account_analytic_account_id = fields.Many2one('account.analytic.account', 'Cuenta Analítica')
     # date_exp = fields.Date(tracking=True, string='Fecha Vencimiento', compute='_compute_giveme_date_exp')
     rut = fields.Char(related='employee_id.identification_id')
+    use_mid_wage = fields.Boolean('Usar salario promedio para asignación familiar')
+    mid_wage = fields.Monetary('Salario promedio')
 
     # @api.depends('type_id')
     # def _compute_giveme_date_exp(self):

@@ -744,7 +744,8 @@ result = round(inputs.PROD.amount * (worked_days.WORK100.number_of_days if worke
         <field name="code">ASIGFAM</field>
         <field name="category_id" ref="NOIMPO"/>
         <field name="condition_select">python</field>
-        <field name="condition_python">result = (employee.cantidad_de_carga > 0) and (payslip.stats_id.asignacion_familiar_tercer >= contract.wage) and (not employee.pension)</field>
+        <field name="condition_python">emp_wage = contract.use_mid_wage and contract.mid_wage or contract.wage
+result = (employee.cantidad_de_carga > 0) and (payslip.stats_id.asignacion_familiar_tercer >= emp_wage) and (not employee.pension)</field>
         <field name="amount_select">code</field>
         <field name="amount_python_compute">if (worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0) > 25:
     dias = 30	
@@ -752,14 +753,15 @@ else:
     dias = (worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0)
 
 carga = employee.cantidad_de_carga
+emp_wage = contract.use_mid_wage and contract.mid_wage or contract.wage
 
 if (worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0) == 0:
     result = 0
-elif contract.wage  &lt;= payslip.stats_id.asignacion_familiar_primer:
+elif emp_wage  &lt;= payslip.stats_id.asignacion_familiar_primer:
     result = round(((payslip.stats_id.asignacion_familiar_monto_a*carga) / 30) * (dias))
-elif contract.wage  &lt;= payslip.stats_id.asignacion_familiar_segundo:
+elif emp_wage  &lt;= payslip.stats_id.asignacion_familiar_segundo:
     result = round(((payslip.stats_id.asignacion_familiar_monto_b*carga) / 30) * (dias))
-elif contract.wage  &lt;= payslip.stats_id.asignacion_familiar_tercer:
+elif emp_wage  &lt;= payslip.stats_id.asignacion_familiar_tercer:
     result = round(((payslip.stats_id.asignacion_familiar_monto_c*carga) / 30) * (dias))
 else:
     result = 0</field>
