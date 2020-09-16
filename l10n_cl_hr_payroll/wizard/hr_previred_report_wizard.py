@@ -268,7 +268,7 @@ class HrPreviredReportWizard(models.TransientModel):
                 # Dejamos la fecha un día después del final del último movimiento que tocamos
                 dt_start = fields.Date.from_string(mov['fin']) + relativedelta(days=1)
             # Debemos verificar que el último movimiento llegue hasta el final del periodo, sino, agregamos un movimiento 0 para finalizar el periodo
-            if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'].date() < self.end_date:
+            if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'] < self.end_date:
                 fixed_movs.append({
                     'mov': 0,
                     'inicio': fields.Date.to_string(fields.Date.from_string(fixed_movs[-1]['fin']) + relativedelta(days=1)),

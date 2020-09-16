@@ -107,138 +107,45 @@ class HrRemunerationReportWizard(models.TransientModel):
         txt_file = io.StringIO()
         writer = csv.writer(txt_file, delimiter=str(self.type_delimitador), quoting=csv.QUOTE_NONE)
         row = ['RUT', 'NOMBRE', 'CENTRO COSTOS', 'AFP', 'SALUD', 'CARGO', 'DIAS', 'S. BASE', 'S. MES', 'No. HORAS EXTRAS (50%)', 'MONTO HORAS EXTRAS 50%',
-               'No. HORAS EXTRAS (100%)', 'MONTO HORAS EXTRAS 100%', 'GRATIFICACION LEGAL', 'BONO DESEMPENO',
-               'BONO INCENTIVO MINERIA', 'BONO TURNO', 'COMISION', 'BONO ZONA', 'BONO RIESGO', 'BONO SUPERVISION', 'OTROS BONOS',
-               'OTROS IMP.', 'TOTAL IMP.', 'ASIG. FAMILIAR', 'ASIG. FAM. RETRO.', 'COLACION', 'MOVILIZACION', 'VIATICOS', 'OTROS NO IMP.',
-               'TOTAL NO IMP.', 'TOTAL HABERES', 'PREVISION', '% COTIZACION', 'COTIZACION OBLIGATORIA', 'SEGURO CENSATIA', 'APORTE EMPRESA AFC',
-               '% TRABAJO PESADO', 'COTIZACION TRABAJO PESADO', 'A.P.Vs', 'CTA. AHORRO 2', 'INSTITUCION SALUD', 'PLAN PACTADO',
-               'COTIZACION 7%', 'ADICIONAL ISAPRE', 'TOTAL DESCUENTOS PREVISIONALES', 'BASE TRIBUTABLE', 'IMP. UNICO',
-               'PRESTAMOS INTERNOS', 'PRESTAMOS C.C.A.F.', 'ADELANTO VIATICO', 'ANTICIPO SUELDO', 'OTROS DESCTOS', 'TOTAL DESC.',
-               'LIQUIDO A PAGAR', 'APORTE EMPLEADOR SIS', 'APORTE EMPLEADOR AFC', 'APORTE EMPLEADOR MUTUAL',
-               'APORTE EMPLEADOR TRABAJO PESADO', 'TOTAL COSTO EMPRESA']
-
+               'No. HORAS EXTRAS (100%)', 'MONTO HORAS EXTRAS 100%', 'TOTAL COSTO EMPRESA']
+        rules = self.env['hr.salary.rule'].browse()
+        for categ in ['IMPONIBLE', 'NOIMPO', 'DED', 'ODESC', 'COMP', 'PREV', 'SALUD']:
+            rules += rules.search([('struct_id', '=', self.env.ref('l10n_cl_hr_payroll.hr_struct_cl').id), ('category_id.code', '=', categ),
+                                   ('code', 'not in', ['SUELDO', 'HEX', 'HEX100'])])
+        for rule in rules:
+            row.insert(-1, rule.name.upper())
         writer.writerow(row)
 
         for p in payslips:
             emp = p.employee_id
             complete_name = '%s %s %s %s' % (emp.last_name and emp.last_name or '', emp.mothers_name and emp.mothers_name or '', emp.first_name and emp.first_name or '', emp.middle_name and emp.middle_name or '')
 
-            row = [emp.identification_id, complete_name, emp.contract_id.account_analytic_account_id.name or '',
-                   # AFP
-                   emp.afp_id.display_name if not emp.no_afp and emp.afp_id else '',
-                   # Salud
-                   emp.isapre_id.display_name if not emp.no_salud and emp.isapre_id else '',
-                   # Cargo
-                   emp.contract_id.job_id.display_name or '',
-                   # Dias
-                   int(self.get_total_worked_days(p)),
-                   # Sueldo Base
-                   int(self.get_rule_value('SUELDO', p.id)),
-                   # Sueldo del mes (Base menos DDNT)
-                   int(self.get_rule_value('SUELDO', p.id)) + int(self.get_rule_value('DDNT', p.id)),
-                   # No. Horas Extras 50%
-                   int(self.get_input_value('HEX', p.id)),
-                   # Monto Horas Extras 50%
-                   int(self.get_rule_value('HEX', p.id)),
-                   # No. Horas Extras 100%
-                   int(self.get_input_value('HEX100', p.id)),
-                   # Monto Horas Extras 100%
-                   int(self.get_rule_value('HEX100', p.id)),
-                   # Gratificacion Legal
-                   int(self.get_rule_value('GRAT', p.id)),
-                   # BONO DESEMPENO
-                   int(self.get_rule_value('BDESEMP', p.id)),
-                   # BONO INCENTIVO MINERIA
-                   int(self.get_rule_value('BINCM', p.id)),
-                   # BONO TURNO
-                   int(self.get_rule_value('BTURN', p.id)),
-                   # COMISION
-                   int(self.get_rule_value('COMI', p.id)),
-                   # BONO ZONA
-                   int(self.get_rule_value('BZON10', p.id)),
-                   # BONO RIESGO
-                   int(self.get_rule_value('BRIESG', p.id)),
-                   # BONO SUPERVISION
-                   int(self.get_rule_value('BSUP10', p.id)),
-                   # BONO SUPERVISION
-                   int(self.get_rule_value('OBONOS', p.id)),
-                   # OTROS IMPONIBLES
-                   int(self.get_rule_value('BONO', p.id)),
-                   # TOTAL IMPONIBLES
-                   int(self.get_rule_value('TOTIM', p.id)),
-                   # ASIGNACION FAMILIAR
-                   int(self.get_rule_value('ASIGFAM', p.id)),
-                   # ASIGNACION FAMILIAR
-                   int(self.get_rule_value('ASFR', p.id)),
-                   # COLACION
-                   int(self.get_rule_value('COL', p.id)),
-                   # MOVILIZACION
-                   int(self.get_rule_value('MOV', p.id)),
-                   # VIATICOS
-                   int(self.get_rule_value('VIASAN', p.id)),
-                   # OTROS NO IMPONIBLES
-                   int(self.get_rule_value('OTRONOIMP', p.id)),
-                   # TOTAL NO IMPONIBLE
-                   int(self.get_rule_value('TOTNOI', p.id)),
-                   # TOTAL HABERES
-                   int(self.get_rule_value('HAB', p.id)),
-                   # PREVISION
-                   int(self.get_rule_value('PREV', p.id)),
-                   # % COTIZACION
-                   0,
-                   # COTIZACION OBLIGATORIA
-                   0,
-                   # SEGURO CENSATIA
-                   int(self.get_rule_value('SECE', p.id)),
-                   # SEGURO CENSATIA APORTE EMPRESA
-                   int(self.get_rule_value('SECEEMP', p.id)),
-                   # % TRABAJO PESADO
-                   emp.trabajo_pesado,
-                   # COTIZACION TRABAJO PESADO
-                   0,
-                   # A.P.Vs
-                   int(self.get_rule_value('APV', p.id)),
-                   # CUENTA AHORRO 2
-                   int(self.get_rule_value('AHVOL', p.id)),
-                   # INSTITUCION SALUD
-                   int(self.get_rule_value('SALUD', p.id)),
-                   # PLAN PACTADO
-                   0,
-                   # COTIZACION 7%
-                   0,
-                   # ADICIONAL ISAPRE
-                   int(self.get_rule_value('ADISA', p.id)),
-                   # TOTAL DESCUENTO PREVISIONALES
-                   int(self.get_rule_value('TODELE', p.id)),
-                   # int(self.get_rule_value('APV', p.id) + self.get_rule_value('AHVOL', p.id) + self.get_rule_value('SALUD', p.id)),
-                   # BASE TRIBUTABLE
-                   int(self.get_rule_value('TRIBU', p.id)),
-                   # IMPUESTO UNICO
-                   int(self.get_rule_value('IMPUNI', p.id)),
-                   # PRESTAMOS INTERNOS
-                   int(self.get_rule_value('PRESTEMP', p.id)),
-                   # PRESTAMOS C.C.A.F
-                   0,
-                   # ADELANTO VIATICO
-                   0,
-                   # ANTICIPO SUELDO
-                   int(self.get_rule_value('ASUE', p.id)),
-                   # OTROS DESCUENTOS
-                   int(self.get_rule_value('OTDESC', p.id)),
-                   # TOTAL DESCUENTOS
-                   int(self.get_rule_value('TDE', p.id)),
-                   # LIQUIDO A PAGAR
-                   int(self.get_rule_value('LIQ', p.id)),
-                   # APORTE EMPLEADOR SIS
-                   int(self.get_rule_value('SIS', p.id)),
-                   # APORTE EMPLEADOR AFC
-                   0,
-                   # APORTE EMPLEADOR MUTUAL
-                   int(self.get_rule_value('MUT', p.id)),
-                   # APORTE EMPLEADOR TRABAJO PESADO
-                   int(self.get_rule_value('TRABPES', p.id)),
-                   int(self.get_rule_value('HAB', p.id) + self.get_rule_value('SIS', p.id) + self.get_rule_value('MUT', p.id) + self.get_rule_value('TRABPES', p.id)),
-                   ]
+            row = [
+                emp.identification_id, complete_name, emp.contract_id.account_analytic_account_id.name or '',
+                # AFP
+                emp.afp_id.display_name if not emp.no_afp and emp.afp_id else '',
+                # Salud
+                emp.isapre_id.display_name if not emp.no_salud and emp.isapre_id else '',
+                # Cargo
+                emp.contract_id.job_id.display_name or '',
+                # Dias
+                int(self.get_total_worked_days(p)),
+                # Sueldo Base
+                int(self.get_rule_value('SUELDO', p.id)),
+                # Sueldo del mes (Base menos DDNT)
+                int(self.get_rule_value('SUELDO', p.id)) + int(self.get_rule_value('DDNT', p.id)),
+                # No. Horas Extras 50%
+                int(self.get_input_value('HEX', p.id)),
+                # Monto Horas Extras 50%
+                int(self.get_rule_value('HEX', p.id)),
+                # No. Horas Extras 100%
+                int(self.get_input_value('HEX100', p.id)),
+                # Monto Horas Extras 100%
+                int(self.get_rule_value('HEX100', p.id)),
+                int(self.get_rule_value('HAB', p.id) + self.get_rule_value('SIS', p.id) + self.get_rule_value('MUT', p.id) + self.get_rule_value('TRABPES', p.id)),
+            ]
+            for rule in rules:
+                row.insert(-1, int(self.get_rule_value(rule.code, p.id)))
             writer.writerow(row)
         data = base64.b64encode(txt_file.getvalue().encode('utf-8'))
         txt_file.close()
