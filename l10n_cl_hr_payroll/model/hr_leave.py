@@ -158,3 +158,6 @@ class HrHolidays(models.Model):
             return {'days': self.env['hr.employee'].browse(employee_id).get_worked_days_count(date_from, date_to), 'hours': 0}
         dt_from, dt_to = map(fields.Date.from_string, [date_from, date_to])
         return {'days': relativedelta(dt_to, dt_from).days + 1, 'hours': 0}
+
+    def print_vacation_report(self):
+        return self.env.ref('l10n_cl_hr_payroll.certificado_vacaciones_report').report_action(self)

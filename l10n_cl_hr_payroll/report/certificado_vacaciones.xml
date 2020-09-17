@@ -9,74 +9,57 @@
         file="l10n_cl_hr_payroll.certificado_vacaciones_template"/>
 
     <template id="l10n_cl_hr_payroll.certificado_vacaciones_template">
-        <t t-set="meses" t-value="['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']"/>
-        <t t-set="hoy" t-value="datetime.date.today()"/>
-        <t t-set="ciudad" t-value="res_company.city or 'Santiago'"/>
-        <t t-call="report.html_container">
+        <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="o">
-                <t t-call="report.layout">
-                    <div class="page" style="font-size: 20px !important; line-height: 1.5; padding: 0 50px;">
-                        <div class="media">
-                            <div class="media-left">
-                                <img t-if="res_company.logo" style="max-height: 65px;" class="media-object"
-                                    t-att-src="'data:image/png;base64,%s' % res_company.logo"/>
-                            </div>
-                        </div>
-                        <div class="row mt32">
-                            <span t-if="not (o.state == 'validate')">
-                                <h3 align="center"><strong>SOLICITUD DÍAS DE VACACIONES</strong></h3>
-                            </span>
-                            <span t-if="(o.state == 'validate')">
-                                <h3 align="center"><strong>CERTIFICADO DE VACACIONES</strong></h3>
-                            </span>
-                        </div>
-                        <div class="row mt64 text-right">
-                            <strong><span t-esc="'%s, %.2d de %s de %d' % (ciudad, hoy.day, meses[hoy.month - 1], hoy.year)"/></strong>
-                        </div>
-                        <div class="row mt64">
-                            <p>
-                                <strong>NOMBRE:</strong> <span t-esc="o.employee_id.full_name"/>
-                            </p>
-                            <p>
-                                <strong>RUT:</strong> <span t-esc="o.employee_id.identification_id or 'SIN RUT.'"/>
-                            </p>
-                            <hr class="mt64 mb64"/>
-                        </div>
-                        <div class="row">
-                            <t t-set="desde" t-value="map(int, o.date_from.split('-'))"/>
-                            <t t-set="hasta" t-value="map(int, o.date_to.split('-'))"/>
-                            <p class="text-justify">
-                                <span t-esc="res_company.name"/> Autoriza a Don(a) <span t-esc="o.employee_id.full_name.upper()"/> hacer uso
-                                de sus vacaciones desde el <span t-esc="'%.2d de %s de %d' % (desde[2], meses[desde[1] - 1], desde[0])"/>
-                                hasta el <span t-esc="'%.2d de %s de %d' % (hasta[2], meses[hasta[1] - 1], hasta[0])"/>, correspondiente a
-                                <span t-esc="int(o.number_of_days_display)"/> día(s) hábil(es).
-                            </p>
-                        </div>
-                        <table width="100%" style="margin-top: 200px;">
-                            <colgroup>
-                                <col width="10%"/>
-                                <col width="35%"/>
-                                <col width="10%"/>
-                                <col width="35%"/>
-                                <col width="10%"/>
-                            </colgroup>
-                            <tbody>
-                                <tr>
-                                    <td/>
-                                    <td align="center" style="border-top: 1px solid black;">
-                                        <strong>Recursos Humanos</strong><br/>
-                                        <span t-esc="res_company.name"/>
-                                    </td>
-                                    <td/>
-                                    <td align="center" style="border-top: 1px solid black;">
-                                        <strong><span t-esc="o.employee_id.full_name"/></strong><br/>Trabajador
-                                    </td>
-                                    <td/>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="page" style="font-size: 20px !important; line-height: 1.5; padding: 0 50px;">
+                    <img t-if="res_company.logo" style="max-height: 65px;" class="media-object"
+                        t-att-src="image_data_uri(res_company.logo)"/>
+                    <h3 class="mt32 text-center font-weight-bold">
+                        <t t-if="o.state == 'validate'">CERTIFICADO DE VACACIONES</t>
+                        <t t-else="">SOLICITUD DÍAS DE VACACIONES</t>
+                    </h3>
+                    <div class="mt64 text-right font-weight-bold">
+                        <span t-esc="'%s, %s' % (res_company.city or 'Santiago', datetime.date.today().strftime('%d de %B de %Y'))"/>
                     </div>
-                </t>
+                    <div class="mt64">
+                        <p>
+                            <b>NOMBRE:</b> <span t-field="o.employee_id"/>
+                        </p>
+                        <p>
+                            <b>RUT:</b> <span t-esc="o.employee_id.identification_id or 'SIN RUT.'"/>
+                        </p>
+                        <hr class="mt64 mb64"/>
+                    </div>
+                    <p class="text-justify">
+                        <span t-esc="res_company.name"/> Autoriza a Don(a) <span t-esc="o.employee_id.name.upper()"/> hacer uso
+                        de sus vacaciones desde el <span t-esc="o.date_from.strftime('%d de %B de %Y')"/>
+                        hasta el <span t-esc="o.date_to.strftime('%d de %B de %Y')"/>, correspondiente a
+                        <span t-esc="int(o.number_of_days_display)"/> día(s) hábil(es).
+                    </p>
+                    <table width="100%" style="margin-top: 200px;">
+                        <colgroup>
+                            <col width="10%"/>
+                            <col width="35%"/>
+                            <col width="10%"/>
+                            <col width="35%"/>
+                            <col width="10%"/>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <td/>
+                                <td align="center" style="border-top: 1px solid black;">
+                                    <strong>Recursos Humanos</strong><br/>
+                                    <span t-esc="res_company.name"/>
+                                </td>
+                                <td/>
+                                <td align="center" style="border-top: 1px solid black;">
+                                    <strong><span t-field="o.employee_id"/></strong><br/>Trabajador
+                                </td>
+                                <td/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>

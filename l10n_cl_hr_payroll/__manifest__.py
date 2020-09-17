@@ -83,7 +83,7 @@ Recursos Humanos.
         # 'wizard/hr_employee_leaves_summary.xml',
         'wizard/hr_payslip_employees.xml',
         'report/report_hrsalarybymonth.xml',
-        # 'report/certificado_vacaciones.xml',
+        'report/certificado_vacaciones.xml',
         # 'report/certificado_sueldo.xml',
         # 'report/report_vacations.xml',
         # 'report/report_antiquity.xml',

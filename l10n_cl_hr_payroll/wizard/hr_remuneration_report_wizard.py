@@ -116,6 +116,9 @@ class HrRemunerationReportWizard(models.TransientModel):
             row.insert(-1, rule.name.upper())
         writer.writerow(row)
 
+        # Saltar la gratificación legal que se repite
+        grat_dupe = self.env.ref('l10n_cl_hr_payroll.hr_rule_6', raise_if_not_found=True)
+
         for p in payslips:
             emp = p.employee_id
             complete_name = '%s %s %s %s' % (emp.last_name and emp.last_name or '', emp.mothers_name and emp.mothers_name or '', emp.first_name and emp.first_name or '', emp.middle_name and emp.middle_name or '')
@@ -145,6 +148,9 @@ class HrRemunerationReportWizard(models.TransientModel):
                 int(self.get_rule_value('HAB', p.id) + self.get_rule_value('SIS', p.id) + self.get_rule_value('MUT', p.id) + self.get_rule_value('TRABPES', p.id)),
             ]
             for rule in rules:
+                if rule == grat_dupe:
+                    # Nos saltamos la gratificación legal repetida.
+                    continue
                 row.insert(-1, int(self.get_rule_value(rule.code, p.id)))
             writer.writerow(row)
         data = base64.b64encode(txt_file.getvalue().encode('utf-8'))
