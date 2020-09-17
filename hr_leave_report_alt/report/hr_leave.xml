@@ -22,59 +22,59 @@
                 <p class="mb-0">Empresa: <t t-esc="res_company.name"/></p>
                 <p>RUT: <t t-esc="res_company.vat"/></p>
                 <h3 class="my-5 text-center">COMPROBANTE DE FERIADO LEGAL</h3>
-                <table class="w-50 mx-auto table table-borderless table-sm">
+                <table class="mx-auto table table-borderless table-sm">
                     <tr>
-                        <th class="w-50 pr-2 text-right">Fecha de emisión:</th>
-                        <td class="w-50 pl-2"><t t-esc="datetime.date.today().strftime('%d/%m/%Y')"/></td>
+                        <th class="w-25">Fecha de emisión:</th>
+                        <td colspan="2"><t t-esc="datetime.date.today().strftime('%d/%m/%Y')"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Nombre empleado:</th>
-                        <td class="w-50 pl-2 "><t t-esc="o.employee_id.name"/></td>
+                        <th>Nombre empleado:</th>
+                        <td colspan="2"><t t-esc="o.employee_id.name"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">RUT:</th>
-                        <td class="w-50 pl-2"><t t-esc="o.employee_id.identification_id"/></td>
+                        <th>RUT:</th>
+                        <td colspan="2"><t t-esc="o.employee_id.identification_id"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Cargo:</th>
-                        <td class="w-50 pl-2"><t t-esc="o.employee_id.job_id.name"/></td>
+                        <th>Cargo:</th>
+                        <td colspan="2"><t t-esc="o.employee_id.job_id.name"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Fecha de contrato:</th>
-                        <td class="w-50 pl-2"><t t-if="o.employee_id.contract_id.date_start" t-esc="o.employee_id.contract_id.date_start.strftime('%d/%m/%Y')"/></td>
+                        <th>Fecha de contrato:</th>
+                        <td colspan="2"><t t-if="o.employee_id.contract_id.date_start" t-esc="o.employee_id.contract_id.date_start.strftime('%d/%m/%Y')"/></td>
                     </tr>
                     <tr>
-                        <td class="py-5 text-justify" colspan="2">En cumplimiento a las disposiciones legales vigentes, se deja constancia
+                        <td class="py-5 text-justify" colspan="3">En cumplimiento a las disposiciones legales vigentes, se deja constancia
                         que el Empleado hará uso de su Feriado Legal de acuerdo a siguiente detalle:</td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Fecha desde:</th>
-                        <td class="w-50 pl-2"><t t-if="o.request_date_from" t-esc="o.request_date_from.strftime('%d/%m/%Y')"/></td>
+                        <th>Fecha desde:</th>
+                        <td colspan="2"><t t-if="o.request_date_from" t-esc="o.request_date_from.strftime('%d/%m/%Y')"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Fecha hasta:</th>
-                        <td class="w-50 pl-2"><t t-if="o.request_date_to" t-esc="o.request_date_to.strftime('%d/%m/%Y')"/></td>
+                        <th>Fecha hasta:</th>
+                        <td colspan="2"><t t-if="o.request_date_to" t-esc="o.request_date_to.strftime('%d/%m/%Y')"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Días hábiles:</th>
-                        <td class="w-50 pl-2"><t t-esc="o.number_of_days" t-options="{'widget': 'integer'}"/></td>
+                        <th>Días hábiles:</th>
+                        <td colspan="2"><t t-esc="o.number_of_days" t-options="{'widget': 'integer'}"/></td>
                     </tr>
                     <t t-set="total_days" t-value="(o.request_date_to - o.request_date_from).days + 1 if o.request_date_to and o.request_date_from else 0"/>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Días inhábiles:</th>
-                        <td class="w-50 pl-2"><t t-esc="total_days - o.number_of_days" t-options="{'widget': 'integer'}"/></td>
+                        <th>Días inhábiles:</th>
+                        <td colspan="2"><t t-esc="total_days - o.number_of_days" t-options="{'widget': 'integer'}"/></td>
                     </tr>
                     <tr>
-                        <th class="w-50 pr-2 text-right">Total de días:</th>
-                        <td class="w-50 pl-2 pb-5"><t t-esc="total_days" t-options="{'widget': 'integer'}"/></td>
+                        <th>Total de días:</th>
+                        <td colspan="2" class="pb-5"><t t-esc="total_days" t-options="{'widget': 'integer'}"/></td>
                     </tr>
                     <tr>
-                        <td class="w-50"> </td>
-                        <td class="pt-5 w-50 border-bottom border-dark"> </td>
+                        <td colspan="2"> </td>
+                        <td class="w-50 pt-5 border-bottom border-dark"> </td>
                     </tr>
                     <tr>
-                        <td class="w-50"> </td>
-                        <th class="w-50 text-center">Firma del empleado</th>
+                        <td colspan="2"> </td>
+                        <th class="text-center">Firma del empleado</th>
                     </tr>
                 </table>
             </div>
