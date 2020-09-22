@@ -230,8 +230,8 @@ class HrPreviredReportWizard(models.TransientModel):
             # Calculamos todos los movimientos de tipo ausencia
             movimientos = [{
                 'mov': h.holiday_status_id.move_type_id.code,
-                'inicio': h.date_from if h.date_from and h.date_from.date() > self.start_date else self.start_date,
-                'fin': h.date_to if h.date_to and h.date_to.date() < self.end_date else self.end_date
+                'inicio': h.date_from.date() if h.date_from and h.date_from.date() > self.start_date else self.start_date,
+                'fin': h.date_to.date() if h.date_to and h.date_to.date() < self.end_date else self.end_date
             } for h in holidays.filtered(lambda s: s.employee_id == emp)]
             # Calculamos todos los movimientos referente a contratos
             # for contract in contracts.filtered(lambda c: c.employee_id == emp).sorted('date_start'):
@@ -247,18 +247,17 @@ class HrPreviredReportWizard(models.TransientModel):
             #         })
             if not movimientos:
                 movimientos.append({'mov': 0, 'inicio': '', 'fin': ''})
-            dt_start, dt_end = fields.Date.from_string(self.start_date), fields.Date.from_string(self.end_date)
+            dt_start = self.start_date
             fixed_movs = []
             for mov in sorted(movimientos, key=lambda m: m['inicio']):
                 if mov['inicio'] and mov['fin']:
-                    dt_start_mov = fields.Date.from_string(mov['inicio'])
-                    dt_end_mov = fields.Date.from_string(mov['fin'])
+                    dt_start_mov = mov['inicio']
                     # Llenamos los vacíos
                     if dt_start < dt_start_mov:
                         fixed_movs.append({
                             'mov': 0,
-                            'inicio': fields.Date.to_string(dt_start),
-                            'fin': fields.Date.to_string(dt_start_mov - relativedelta(days=1))
+                            'inicio': dt_start,
+                            'fin': dt_start_mov - relativedelta(days=1)
                         })
                 else:
                     fixed_movs.append(mov)
@@ -266,8 +265,9 @@ class HrPreviredReportWizard(models.TransientModel):
                 # Agregamos el movimiento
                 fixed_movs.append(mov)
                 # Dejamos la fecha un día después del final del último movimiento que tocamos
-                dt_start = fields.Date.from_string(mov['fin']) + relativedelta(days=1)
+                dt_start = mov['fin'] + relativedelta(days=1)
             # Debemos verificar que el último movimiento llegue hasta el final del periodo, sino, agregamos un movimiento 0 para finalizar el periodo
+            print(f"{fixed_movs[-1]['fin']}\t{self.end_date}")
             if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'] < self.end_date:
                 fixed_movs.append({
                     'mov': 0,
@@ -315,7 +315,7 @@ class HrPreviredReportWizard(models.TransientModel):
                 row = [rut_split[0].replace(".", ''), rut_split[1], elimina_tildes(last_name.replace(" ", '') and last_name.replace(" ", '') or ''), elimina_tildes(mothers_name.replace(" ", '') and mothers_name.replace(" ", '') or ''),
                        elimina_tildes(complete_name), gender_map[emp.gender], nac, 1,
                        # 9,10  periodo rem Desde, periodo rem Desde
-                       p.date_from.strftime('%m%Y'), p.date_to.strftime('%m%Y'),
+                       p.date_from.strftime('%-m%Y'), p.date_to.strftime('%-m%Y'),
                        # 11 - Todos los trabajadores tienen AFP
                        'AFP',
                        # 12 - Tipo de Trabajador
@@ -335,9 +335,9 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 15 - Código Movimiento de Personal
                        str(mov['mov']),
                        # 16 - Fecha movimiento desde
-                       mov['inicio'],
+                       mov['inicio'].strftime('%d-%m-%Y'),
                        # 17 - Fecha movimiento hasta
-                       mov['fin'],
+                       mov['fin'].strftime('%d-%m-%Y'),
                        # 18 - Tramo Asigna. Familiar
                        # A
                        # B
@@ -377,11 +377,11 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 34 Nº Periodos (Sustitutivos)
                        '0',
                        # 35 Nº Período desde (Sustitutivo)
-                       '0',
+                       '',
                        # 36 Período Hasta (Sustitutivo)
-                       '0',
+                       '',
                        # 37 Puesto de Trabajo pesado  ! dame el nombre del cargo del trabajador pesado
-                       '0',
+                       '',
                        # 38 % Cotización Trabajo Pesado
                        int(emp.trabajo_pesado),
                        # 39 Cotización Trabajo Pesado
@@ -407,21 +407,21 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 49 Cotización Empleador APVC
                        '0',
                        # 50 Rut Afiliado Voluntario
-                       '0',
+                       '',
                        # 51 DV Afiliado Voluntario
-                       '0',
+                       '',
                        # 52 Apellido Paterno
-                       '0',
+                       '',
                        # 53 Apellido Materno
-                       '0',
+                       '',
                        # 54 Nombres
-                       '0',
+                       '',
                        # 55 Código Movimiento de Personal
                        '0',
                        # 56 Fecha Desde
-                       '0',
-                       # 56 Fecha Hasta
-                       '0',
+                       '',
+                       # 57 Fecha Hasta
+                       '',
                        # 58 Código de la AFP
                        '0',
                        # 59 Monto de Capitalización Voluntaria
@@ -473,7 +473,7 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 82 Monto GES (Futuro)
                        '0',
                        # 83 Código CCAF
-                       str(p.stats_id.ccaf_id.codigo) if emp.isapre_id.name == 'FONASA' else 0,
+                       str(p.stats_id.ccaf_id.codigo or '') if emp.isapre_id.name == 'FONASA' else 0,
                        # -----------------------------------------
                        # 84 Renta Imponible CCAF
                        int(total_imponible if total_imponible < tope_afp else tope_afp),
@@ -518,7 +518,7 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 103 Rut Pagadora Subsidioa
                        '0',
                        # 104 DV Pagadora Subsidio
-                       '0',
+                       '',
                        # 105 Centro de Costos,Sucursal,Agencia,Obra,Región
                        centro_costo]
                 # Validamos que los días trabajados no pase de 31 dias
