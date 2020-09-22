@@ -267,11 +267,10 @@ class HrPreviredReportWizard(models.TransientModel):
                 # Dejamos la fecha un día después del final del último movimiento que tocamos
                 dt_start = mov['fin'] + relativedelta(days=1)
             # Debemos verificar que el último movimiento llegue hasta el final del periodo, sino, agregamos un movimiento 0 para finalizar el periodo
-            print(f"{fixed_movs[-1]['fin']}\t{self.end_date}")
             if fixed_movs[-1]['fin'] and fixed_movs[-1]['fin'] < self.end_date:
                 fixed_movs.append({
                     'mov': 0,
-                    'inicio': fields.Date.to_string(fields.Date.from_string(fixed_movs[-1]['fin']) + relativedelta(days=1)),
+                    'inicio': fixed_movs[-1]['fin'] + relativedelta(days=1),
                     'fin': self.end_date
                 })
             # Sustituimos los movimientos:
@@ -285,7 +284,7 @@ class HrPreviredReportWizard(models.TransientModel):
                 if emp.mothers_name:
                     mothers_name = emp.mothers_name.replace(" ", '')
 
-                dias_trabajados = relativedelta(fields.Date.from_string(mov['fin'] or self.end_date), fields.Date.from_string(mov['inicio'] or self.start_date)).days + 1
+                dias_trabajados = relativedelta(mov['fin'] or self.end_date, mov['inicio'] or self.start_date).days + 1
                 mes = str(self.start_date)[5:7]
                 if dias_trabajados == 28 and mes == '02':
                     dias_trabajados = 30
