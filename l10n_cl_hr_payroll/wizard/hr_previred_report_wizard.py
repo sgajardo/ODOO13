@@ -246,7 +246,7 @@ class HrPreviredReportWizard(models.TransientModel):
             #             'fin': contract.date_end
             #         })
             if not movimientos:
-                movimientos.append({'mov': 0, 'inicio': '', 'fin': ''})
+                movimientos.append({'mov': 0, 'inicio': False, 'fin': False})
             dt_start = self.start_date
             fixed_movs = []
             for mov in sorted(movimientos, key=lambda m: m['inicio']):
@@ -334,9 +334,9 @@ class HrPreviredReportWizard(models.TransientModel):
                        # 15 - Código Movimiento de Personal
                        str(mov['mov']),
                        # 16 - Fecha movimiento desde
-                       mov['inicio'].strftime('%d-%m-%Y'),
+                       mov['inicio'].strftime('%d-%m-%Y') if mov['inicio'] else '',
                        # 17 - Fecha movimiento hasta
-                       mov['fin'].strftime('%d-%m-%Y'),
+                       mov['fin'].strftime('%d-%m-%Y') if mov['fin'] else '',
                        # 18 - Tramo Asigna. Familiar
                        # A
                        # B
