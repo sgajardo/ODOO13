@@ -46,5 +46,6 @@ class HrPayslipEmployees(models.TransientModel):
             ('date_stop', '<=', datetime.combine(payslip_run.date_end, datetime.max.time())),
         ]).unlink()
         contracts = self.employee_ids._get_contracts(payslip_run.date_start, payslip_run.date_end, states=['open', 'close'])
-        contracts.write({'date_generated_to': datetime.combine(payslip_run.date_start, datetime.min.time())})
+        date_generated = datetime.combine(payslip_run.date_start, datetime.min.time())
+        contracts.write({'date_generated_from': date_generated, 'date_generated_to': date_generated})
         return super(HrPayslipEmployees, self.with_context(default_stats_id=stats_id)).compute_sheet()

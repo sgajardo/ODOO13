@@ -179,6 +179,15 @@
         <field name="independiente">12.59</field>
     </record>
 
+    <record id="hr_afp_uno" model="hr.afp">
+        <field name="codigo">33</field>
+        <field name="rut"> </field>
+        <field name="name">UNO</field>
+        <field name="rate">10.69</field>
+        <field name="sis">1.99</field>
+        <field name="independiente">12.68</field>
+    </record>
+
     <record id="hr_afp_no" model="hr.afp">
         <field name="codigo">00</field>
         <field name="rut"> </field>
@@ -918,6 +927,8 @@ elif employee.afp_id.name == 'PLANVITAL':
 	tasa = payslip.stats_id.tasa_afp_planvital
 elif employee.afp_id.name == 'PROVIDA':
 	tasa = payslip.stats_id.tasa_afp_provida
+elif employee.afp_id.name == 'PROVIDA':
+	tasa = payslip.stats_id.tasa_afp_uno
 else:
 	tasa = 0
 
@@ -1124,6 +1135,8 @@ elif employee.afp_id.name == 'PLANVITAL':
 	tasa = payslip.stats_id.tasa_sis_planvital
 elif employee.afp_id.name == 'PROVIDA':
 	tasa = payslip.stats_id.tasa_sis_provida
+elif employee.afp_id.name == 'UNO':
+	tasa = payslip.stats_id.tasa_sis_uno
 else:
 	tasa = 0
 

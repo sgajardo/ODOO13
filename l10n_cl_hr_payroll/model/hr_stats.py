@@ -74,18 +74,21 @@ class HrStats(models.Model):
     tasa_afp_modelo = fields.Float('Tasa AFP Modelo')
     tasa_afp_planvital = fields.Float('Tasa AFP PlanVital')
     tasa_afp_habitat = fields.Float('Tasa AFP Habitat')
+    tasa_afp_uno = fields.Float('Tasa AFP Uno')
     tasa_sis_cuprum = fields.Float('Tasa SIS Cuprum')
     tasa_sis_capital = fields.Float('Tasa SIS Capital')
     tasa_sis_provida = fields.Float('Tasa SIS Provida')
     tasa_sis_planvital = fields.Float('Tasa SIS PlanVital')
     tasa_sis_habitat = fields.Float('Tasa SIS Habitat')
     tasa_sis_modelo = fields.Float('Tasa SIS Modelo')
+    tasa_sis_uno = fields.Float('Tasa SIS Uno')
     tasa_independiente_cuprum = fields.Float('Tasa Independientes Cuprum')
     tasa_independiente_capital = fields.Float('Tasa Independientes Capital')
     tasa_independiente_provida = fields.Float('Tasa Independientes Provida')
     tasa_independiente_planvital = fields.Float('Tasa Independientes PlanVital')
     tasa_independiente_habitat = fields.Float('Tasa Independientes Habitat')
     tasa_independiente_modelo = fields.Float('Tasa Independientes Modelo')
+    tasa_independiente_uno = fields.Float('Tasa Independientes Uno')
     tope_anual_apv = fields.Float('Tope Anual APV')
     tope_mensual_apv = fields.Float('Tope Mensual APV')
     tope_imponible_afp = fields.Float('Tope Imponible AFP')
@@ -259,12 +262,16 @@ class HrStats(models.Model):
             self.tasa_afp_modelo = clear_string(letters[7].select("strong")[23].get_text())
             self.tasa_sis_modelo = clear_string(letters[7].select("strong")[24].get_text())
 
+            self.tasa_afp_uno = clear_string(letters[7].select("strong")[26].get_text())
+            self.tasa_sis_uno = clear_string(letters[7].select("strong")[27].get_text())
+
             self.tasa_independiente_capital = clear_string(letters[7].select("strong")[10].get_text())[:5]
             self.tasa_independiente_cuprum = clear_string(letters[7].select("strong")[13].get_text())
             self.tasa_independiente_habitat = clear_string(letters[7].select("strong")[16].get_text())
             self.tasa_independiente_planvital = clear_string(letters[7].select("strong")[19].get_text())
             self.tasa_independiente_provida = clear_string(letters[7].select("strong")[22].get_text())
             self.tasa_independiente_modelo = clear_string(letters[7].select("strong")[25].get_text())
+            self.tasa_independiente_uno = clear_string(letters[7].select("strong")[28].get_text())
 
             """ Mutual de Seguridad """
             if self.env.company.mutualidad_id:

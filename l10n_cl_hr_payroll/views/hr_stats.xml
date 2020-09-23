@@ -150,6 +150,20 @@
 													<field name="tasa_independiente_modelo"/>
 												</td>
 											</tr>
+											<tr>
+												<td>
+													<strong>Uno</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_uno"/>
+												</td>
+												<td>
+													<field name="tasa_sis_uno"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_uno"/>
+												</td>
+											</tr>
 										</tbody>
 									</table>
 								</group>
