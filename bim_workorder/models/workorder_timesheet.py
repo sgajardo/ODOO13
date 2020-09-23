@@ -18,7 +18,8 @@ class WorkorderTimesheet(models.Model):
 
     name = fields.Char(string='Detalle')
     date = fields.Date("Fecha", required=True, default=fields.Date.today)
-    unit_amount = fields.Float('Duracion', default=0.0)
+    unit_amount = fields.Float('Duracion (dias)', default=0.0)
+    unit_execute = fields.Float('Cant Ejecutada', default=0.0)
     resource_id = fields.Many2one('bim.workorder.resources', 'Recurso')
     workorder_id = fields.Many2one('bim.workorder', 'Orden de Trabajo')#, domain=[('allow_timesheets', '=', True)]
     user_id = fields.Many2one('res.users', string="Aprobado por")
@@ -26,34 +27,6 @@ class WorkorderTimesheet(models.Model):
     employee_id = fields.Many2one('hr.employee', "Empleado", check_company=True)
     department_id = fields.Many2one('hr.department', "Department", compute='_compute_department_id', store=True, compute_sudo=True)
     company_id = fields.Many2one('res.company', string="Compañía", required=True, default=lambda self: self.env.company, readonly=True)
-
-    # ~ @api.onchange('workorder_id')
-    # ~ def onchange_workorder_id(self):
-        # ~ # force domain on task when project is set
-        # ~ if self.workorder_id:
-            # ~ if self.workorder_id != self.resource_id.workorder_id:
-                # ~ # reset task when changing project
-                # ~ self.resource_id = False
-            # ~ return {'domain': {
-                # ~ 'resource_id': [('workorder_id', '=', self.workorder_id.id)]
-            # ~ }}
-        # ~ return {'domain': {
-            # ~ 'resource_id': [('workorder_id.allow_timesheets', '=', True)]
-        # ~ }}
-
-
-    # ~ @api.onchange('resource_id')
-    # ~ def _onchange_resource_id(self):
-        # ~ if not self.workorder_id:
-            # ~ self.workorder_id = self.resource_id.workorder_id
-
-    # ~ @api.onchange('employee_id')
-    # ~ def _onchange_employee_id(self):
-        # ~ if self.employee_id:
-            # ~ self.user_id = self.employee_id.user_id
-        # ~ else:
-            # ~ self.user_id = self._default_user()
-
 
 
     # ----------------------------------------------------

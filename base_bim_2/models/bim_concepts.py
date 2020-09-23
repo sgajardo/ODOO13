@@ -12,7 +12,17 @@ from odoo.tools.misc import formatLang, format_date
 class BimConcepts(models.Model):
     _name = 'bim.concepts'
     _order = "sequence, id"
+    #_inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin', 'utm.mixin']
     _description = "Concepto (Capitulos-Subcaputulos-Partidas-Recursos)"
+
+    """
+    @api.constrains('code')
+    def _check_concepts(self):
+        for concept in self:
+            if concept.code and len(
+                    self.search([('code', '=', concept.code),('type', 'in', ['chapter', 'departure']),('budget_id','=',concept.budget_id.id)])) > 1:
+                raise ValidationError(
+                    "Ya existe un concepto con ese código en el presupuesto: " + str(concept.budget_id.name))"""
 
     @api.model
     def default_get(self, default_fields):
@@ -704,6 +714,11 @@ class BimConcepts(models.Model):
         for child in self.child_ids:
             child.update_concept()
         self.update_amount()
+
+    def cert_massive(self):
+        ''' Este metodo es llamado desde el menú contextual
+        en la vista hierarchy para certificación masiva'''
+        return True
 
     def get_resources(self, child_ids, res_ids):
         ''' Este metodo Retorna los ids de los

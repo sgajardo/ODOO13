@@ -29,3 +29,4 @@ from . import bim_ite
 from . import res_partner
 from . import work_order
 from . import bim_list_price_agreed
+from . import ir_config_parameter

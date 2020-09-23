@@ -191,8 +191,16 @@ class bim_project(models.Model):
     stock_location_id = fields.Many2one('stock.location', string='Ubicación Stock')
     country_id = fields.Many2one('res.country', string='Pais')
     street_id = fields.Many2one('res.partner', string='Dirección')
+
+
+
     date_ini = fields.Date('Fecha Inicio', default=fields.Date.today)
     date_end = fields.Date('Fecha de Fin')
+
+    date_ini_real = fields.Date('Fecha Inicio Real')
+    date_end_real = fields.Date('Fecha de Fin Real')
+
+
     expedient = fields.Char('Expediente', translate=True)
     date_contract = fields.Date('Fecha Contrato', help="Fecha de contrato")
     adjudication_date = fields.Date('Fecha de Adjudicación')

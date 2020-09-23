@@ -183,9 +183,13 @@ class BimResourceReportWizard(models.TransientModel):
         worksheet.write_merge(1,1,0,2, "Obra")
         worksheet.write_merge(1,1,3,5, budget.name)
         worksheet.write_merge(1,1,6,8, "Fecha de Impresión")
+        if self.filter_categ:
+            worksheet.write_merge(1,1,9,11, "Filtro Categoria")
         worksheet.write_merge(2,2,0,2, budget.project_id.nombre)
         worksheet.write_merge(2,2,3,5, budget.code)
         worksheet.write_merge(2,2,6,8, datetime.now().strftime('%d-%m-%Y'))
+        if self.filter_categ:
+            worksheet.write_merge(2,2,9,11, self.category_id.name)
 
         # Header table
         worksheet.write_merge(4,4,0,0, "Código", style_border_table_top)

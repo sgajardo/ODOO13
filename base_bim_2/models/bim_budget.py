@@ -218,6 +218,30 @@ class BimBudget(models.Model):
         ('cancel', 'Cancelado')],
         string='Estado', default='draft', copy=True, tracking=True)
 
+    def action_presupuesto(self):
+        self.write({'state': 'done'})
+
+    def action_draft(self):
+        self.write({'state': 'draft'})
+
+    def action_approved(self):
+        self.write({'state': 'approved'})
+
+    def action_reject(self):
+        self.write({'state': 'reject'})
+
+    def action_building(self):
+        self.write({'state': 'building'})
+
+    def action_quality(self):
+        self.write({'state': 'quality'})
+
+    def action_delivery(self):
+        self.write({'state': 'delivery'})
+
+    def action_cancel(self):
+        self.write({'state': 'cancel'})
+
     amount_total_equip = fields.Monetary('Total equipos', compute="_get_amount_total")
     amount_total_labor = fields.Monetary('Total mano de obra', compute="_get_amount_total")
     amount_total_material = fields.Monetary('Total material', compute="_get_amount_total")
@@ -520,7 +544,7 @@ class BimBudget(models.Model):
         head2 = xlwt.easyxf('align: wrap no; font: bold on;')
         sheet = workbook.add_sheet('Rectificaciones')
         # header
-        sheet.write_merge(0, 0, 0, 5, f'Rectificaciones {self.display_name}', head)
+        sheet.write_merge(0, 0, 0, 5, 'Rectificaciones {self.display_name}', head)
         sheet.write(1, 0, 'Recurso', head2)
         sheet.write(1, 1, 'Concepto Presupuesto', head2)
         sheet.write(1, 2, 'Código que está en BIM', head2)
@@ -542,7 +566,7 @@ class BimBudget(models.Model):
         self.product_rectify_ids.create({
             'budget_id': self.id,
             'csv_file': base64.b64encode(stream.getvalue()),
-            'filename': f'Rectificaciones {now.strftime("%d-%m-%y %H:%M")} por {self.env.user.display_name}.xls',
+            'filename': 'Rectificaciones {now.strftime("%d-%m-%y %H:%M")} por {self.env.user.display_name}.xls',
         })
         return True
 

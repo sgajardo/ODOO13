@@ -42,7 +42,7 @@
         'uom',
         'folder_view',
         'hierarchy_view',
-        #~ 'web_digital_sign',
+        'web_digital_sign',
     ],
     'description': """
 BIM 2.0
@@ -132,7 +132,7 @@ BIM 2.0
         'views/bim_part_view.xml',
         'views/hr_employee_view.xml',
         'views/res_partner_view.xml',
-
+        'wizard/bim_budget_compare.xml',
     ],
     'qweb': [
         'static/src/xml/*.xml'

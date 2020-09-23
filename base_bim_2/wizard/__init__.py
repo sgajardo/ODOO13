@@ -21,3 +21,4 @@ from . import bim_paidstate_wizard
 from . import bim_purchase_requisition_space
 from . import copy_measures
 from . import bim_price_massive_wzd
+from . import bim_budget_compare

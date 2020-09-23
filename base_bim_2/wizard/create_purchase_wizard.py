@@ -20,6 +20,7 @@ class CreatePurchaseWizard(models.TransientModel):
                     'bim_req_line_id': line.id,
                     'product_id': line.product_id.id,
                     'quant': line.quant,# - line.qty_purchase
+                    'cost': line.cost,
                     'um_id': line.um_id.id,
                     'analytic_id': line.analytic_id.id,
                     'partner_id': line.partner_id.id,
@@ -75,6 +76,7 @@ class CreatePurchaseWizard(models.TransientModel):
                 })
                 for line in self.line_ids.filtered(lambda l: l.partner_id.id == supplier.id):
                     line_vals = self._prepare_purchase_line(line,req)
+                    print (line_vals)
                     purchase_lines.append((0,0,line_vals))
                 order.order_line = purchase_lines
                 req.write({'purchase_ids': [(4, order.id, None)]})
@@ -86,7 +88,7 @@ class CreatePurchaseWizard(models.TransientModel):
             'product_id': line.product_id.id,
             'product_uom': line.um_id.id or line.product_id.uom_po_id.id,
             'product_qty': line.quant,
-            'price_unit': line.product_id.standard_price,
+            'price_unit': line.cost,
             'taxes_id': [(6, 0, line.product_id.supplier_taxes_id.ids)],
             'date_planned': req.date_prevista,
             'bim_req_line_id': line.bim_req_line_id.id,
@@ -105,6 +107,7 @@ class CreatePurchaseWizardLine(models.TransientModel):
     product_id = fields.Many2one('product.product', 'Producto')
     partner_id = fields.Many2one('res.partner', 'Proveedor')
     quant = fields.Float('Cantidad')
+    cost = fields.Float('Coste')
     um_id = fields.Many2one('uom.uom', 'U.M')
     analytic_id = fields.Many2one('account.analytic.account', 'Cuenta analítica')
     analytic_tag_ids = fields.Many2many('account.analytic.tag', string='Etiquetas analíticas')

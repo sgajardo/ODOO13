@@ -26,6 +26,34 @@
 
                     <button name="print_budget_notes" string="Notas" type="object"/>
 
+                    <!--............................................................................................-->
+
+                    <button name="action_presupuesto" attrs="{'invisible': [('state', '!=', 'draft')]}"
+                            string="Presupuesto" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_approved" attrs="{'invisible': [('state', '!=', 'done')]}"
+                            string="Aprobar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_reject" attrs="{'invisible': [('state', '!=', 'done')]}"
+                            string="Rechazar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_building" attrs="{'invisible': [('state', '!=', 'approved')]}"
+                            string="Construcción" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_quality" attrs="{'invisible': [('state', '!=', 'building')]}"
+                            string="Calidad" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_delivery" attrs="{'invisible': [('state', '!=', 'quality')]}"
+                            string="Entregar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_draft" attrs="{'invisible': [('state', '!=', 'cancel')]}"
+                            string="Borrador" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_cancel"
+                            string="Cancelar" attrs="{'invisible': [('state', '=', 'cancel')]}" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <!--............................................................................................-->
+
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

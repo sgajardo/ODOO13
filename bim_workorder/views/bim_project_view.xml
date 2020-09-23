@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_bim_project_workorder_form_inherit" model="ir.ui.view">
+      <field name='name'>bim.project.workorder.form.inherited</field>
+      <field name='model'>bim.project</field>
+      <field name="inherit_id" ref="base_bim_2.view_form_bim_project"/>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+            <xpath expr="//notebook" position="inside">
+                <page string="Instaladores">
+                    <group>
+                        <field name="install_location_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="name" required="1"/>
+                                <field name="location_id" required="1" domain="[('usage','=','internal')]" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="project_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+       </field>
+    </record>
+
+</odoo>

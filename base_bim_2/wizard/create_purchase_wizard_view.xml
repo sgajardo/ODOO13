@@ -25,6 +25,7 @@
                                 <field name="analytic_tag_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags"/>
                                 <field name="bim_req_line_id" invisible="1"/>
                                 <field name="quant"/>
+                                <field name="cost"/>
                                 <field name="partner_id" required="1"
                                     options='{"no_create": 1, "no_open": 1}' context="{'res_partner_search_mode': 'supplier'}"/>
                             </tree>

@@ -30,7 +30,6 @@ class BimPurchaseRequisition(models.Model):
         project = self.env['bim.project'].browse(active_id)
         return project.warehouse_id.id
 
-
     name = fields.Char('Código', translate=True, default="Nuevo")
     user_id = fields.Many2one('res.users', string='Responsable', track_visibility='onchange', default=lambda self: self.env.user)
     company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True)
@@ -47,6 +46,13 @@ class BimPurchaseRequisition(models.Model):
          ('finalizado', 'Finalizado'),
          ('cancelado', 'Cancelado')],
         'Estado', size=1, default='nuevo', track_visibility='onchange')
+    product_ids = fields.One2many('product.list', 'requisition_id', string='Listado Productos')
+    picking_ids = fields.One2many('stock.picking', 'bim_requisition_id', string='Transferencias')
+    picking_count = fields.Integer('Cantidad Transf', compute="_compute_picking")
+    purchase_ids = fields.One2many('purchase.order', 'bim_requisition_id', string='Compras')
+    purchase_count = fields.Integer('Cantidad Compras', compute="_compute_purchases")
+    amount_total = fields.Float('Total', compute="_compute_total")
+    space_id = fields.Many2one('bim.budget.space', 'Espacio')
 
     @api.onchange('project_id')
     def onchange_project_id(self):
@@ -82,15 +88,6 @@ class BimPurchaseRequisition(models.Model):
     def _compute_total(self):
         for record in self:
             record.amount_total = sum(pd.subtotal for pd in record.product_ids)
-
-    product_ids = fields.One2many('product.list', 'requisition_id', string='Listado Productos')
-    picking_ids = fields.One2many('stock.picking', 'bim_requisition_id', string='Transferencias')
-    picking_count = fields.Integer('Cantidad Transf', compute="_compute_picking")
-    purchase_ids = fields.One2many('purchase.order', 'bim_requisition_id', string='Compras')
-    purchase_count = fields.Integer('Cantidad Compras', compute="_compute_purchases")
-    amount_total = fields.Float('Total', compute="_compute_total")
-    space_id = fields.Many2one('bim.budget.space', 'Espacio')
-
 
     def create_picking(self):
         if not self.project_id.stock_location_id:
@@ -251,7 +248,7 @@ class ProductList(models.Model):
         self.um_id = self.product_id.uom_id.id
         self.analytic_id = self.requisition_id.analytic_id.id
         self.project_id = self.requisition_id.project_id.id
-        self.cost = product_id.standard_price
+        self.cost = self.product_id.standard_price
 
     @api.constrains('product_id')
     def _check_product_id(self):

@@ -173,26 +173,32 @@
 
                         <group string="Fechas">
                             <field name="date_contract"/>
+
                             <field name="date_ini" required="1"/>
+                            <field name="date_ini_real"/>
+
                             <field name="date_end"/>
+                            <field name="date_end_real"/>
                         </group>
                     </group>
                     <notebook>
+                        <!--
                         <page string="Indicadores comparativos">
-                                <button name="compute_indicators" string="Calcular Indicadores" class="oe_highlight" type="object"/>
-                                <field name="indicator_ids" nolabel="1">
-                                    <tree editable="bottom" create="false" delete="false" decoration-danger="projected&lt;0.0">
-                                        <field name="type"/>
+                            <button name="compute_indicators" string="Calcular Indicadores" class="oe_highlight" type="object"/>
+                            <field name="indicator_ids" nolabel="1">
+                                <tree editable="bottom" create="false" delete="false" decoration-danger="projected&lt;0.0">
+                                    <field name="type"/>
 
-                                        <field name="budget"/>
-                                        <field name="real"/>
-                                        <field name="projected"/>
+                                    <field name="budget"/>
+                                    <field name="real"/>
+                                    <field name="projected"/>
 
-                                        <field name="percent"/>
-                                        <field name="currency_id" invisible="1"/>
-                                    </tree>
-                                </field>
+                                    <field name="percent"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </tree>
+                            </field>
                         </page>
+                        -->
 
                         <page string="Notas">
                             <field name="obs" widget="html"/>
@@ -239,6 +245,7 @@
                                 <field name="maintenance" invisible="1"/>
                             </group>
                         </page>
+
                         <page string="Precios Acordados">
                             <field name="price_agreed_ids">
                                 <tree editable="bottom">
@@ -276,10 +283,8 @@
                 <field name="date_ini"/>
                 <field name="date_end"/>
                 <field name="project_state"/>
-
                 <field name="balance"/>
                 <field name="surface"/>
-
                 <field name="state"/>
             </tree>
         </field>

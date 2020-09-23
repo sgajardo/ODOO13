@@ -17,11 +17,13 @@
                 <tr>
                     <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
                     <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="o.budget_id.name"/></th>
+                    <th t-if="o.filter_categ" class="text-center" style="border:1px solid black;">CATEGORIA</th>
                     <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
                 </tr>
                 <tr>
                     <td class="text-center" style="background-color:#E9ECEF;"><span t-field="o.budget_id.project_id"/></td>
                     <td class="text-center" style="background-color:#E9ECEF;"><span t-field="o.budget_id.code"/></td>
+                    <td t-if="o.filter_categ" class="text-center" style="background-color:#E9ECEF;"><span t-field="o.category_id.name"/></td>
                     <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
                 </tr>
             </table>
@@ -59,7 +61,6 @@
                         <td><span t-field="aux.type"/></td>
                         <td><span t-field="aux.uom_id" /></td>
                         <td class="text-right"><span t-esc="aux.amount_compute" /></td>
-<!--                    <td class="text-right"><span t-esc="round(o.get_quantity_aux(aux),3)"/></td>-->
                         <td class="text-right">-</td>
                         <td class="text-right"><span t-esc="o.get_total_aux(aux)" t-options="{'widget': 'monetary', 'display_currency': o.budget_id.currency_id}"/></td>
                       </tr>

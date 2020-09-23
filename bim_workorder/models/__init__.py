@@ -2,3 +2,4 @@
 from . import bim_workorder
 from . import workorder_timesheet
 from . import workorder_purchase_requisition
+from . import bim_project

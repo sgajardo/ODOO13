@@ -9,6 +9,7 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
 
     HierarchyRenderer.include({
         events: _.extend({}, HierarchyRenderer.prototype.events, {
+            'click .oh_contextmenu [data-action="cert_massive"]': 'certMassive',
             'click .oh_contextmenu [data-action="deep_copy"]': 'copyRecord',
             'click .oh_contextmenu [data-action="deep_cut"]': 'cutRecord',
             'click .oh_contextmenu [data-action="deep_paste"]': 'pasteRecord',
@@ -19,6 +20,7 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
         }),
         start: function () {
             var self = this;
+
             var checkParams = this._rpc({
                 model: 'ir.config_parameter',
                 method: 'get_param',
@@ -26,6 +28,7 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
             }).then(function (param) {
                 self.measuresAlwaysOpen = param === 'True';
             });
+
             return Promise.all([checkParams, this._super()]);
         },
         display_children: function (ev) {
@@ -206,6 +209,18 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
                 $a.trigger('click');
             });
         },
+        certMassive: function () {
+            var $a = $(`.oh_title [data-res-id="${this.contextResId}"]`);
+            var res_id = parseInt($a.get()[0].dataset.id);
+            this._rpc({
+                model: 'bim.concepts',
+                method: 'cert_massive',
+                args: [res_id],
+            }).then(function () {
+                $a.trigger('click');
+                $a.trigger('click');
+            });
+        },
         toggleMeasuresVisible: function () {
             if (this.measuresAlwaysOpen) {
                 this.$('.o_bim_measures_visible i').removeClass('fa-check-square-o').addClass('fa-square-o');
@@ -215,7 +230,7 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
             this.measuresAlwaysOpen = !this.measuresAlwaysOpen;
             this._rpc({
                 model: 'ir.config_parameter',
-                method: 'set_param',
+                method: 'set_param_sudo',
                 args: ['bim.measures.always.open', this.measuresAlwaysOpen ? 'True' : 'False'],
             });
         },
