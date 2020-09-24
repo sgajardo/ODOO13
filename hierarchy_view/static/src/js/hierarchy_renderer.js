@@ -134,11 +134,30 @@ odoo.define('hierarchy_view.renderer', function (require) {
                 disable_multiple_selection: true,
                 context: _.extend({}, this.state.context, context),
                 on_saved: function () {
-                    if (!$a.data('childs')) {
-                        $a.get()[0].dataset.childs = true;
-                        $li.find('.oh_title .fa.fa-angle-right').removeClass('fa-angle-right text-muted').addClass('fa-caret-right');
+                    if (!parent_id) {
+                        var controller = self.__parentedParent;
+                        controller.__parentedParent.doAction({
+                            type: 'ir.actions.act_window',
+                            name: controller._title,
+                            res_model: self.state.model,
+                            views: controller.actionViews.map(act_view => [false, act_view.type]),
+                            domain: controller.initialState.domain,
+                        }, {
+                            replace_last_action: true,
+                            additional_context: controller.initialState.context,
+                        });
                     }
-                    self.refresh_record($li);
+                    else {
+                        if ($(ev.target).data('action') === 'create') {
+                            if (!$a.data('childs')) {
+                                $a.get()[0].dataset.childs = true;
+                                $li.find('.oh_title .fa.fa-angle-right').removeClass('fa-angle-right text-muted').addClass('fa-caret-right');
+                            }
+                            self.refresh_record($li);
+                        } else {
+                            self.refresh_record($li.parent().closest('li'));
+                        }
+                    }
                 },
             }).open();
         },

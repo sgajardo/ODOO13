@@ -29,38 +29,11 @@ class ResourceRequisitionwizard(models.TransientModel):
     filter_categ = fields.Boolean(string="Filtro Categoría")
     workorder_ids = fields.Many2many("bim.workorder", string="Ordenes de Trabajo")
 
-    # ~ def load_resources(self):
-        # ~ result = super(ResourceRequisitionwizard, self).load_resources()
-
-        # ~ requisition_id = self._context.get('active_id')
-        # ~ ProductList = self.env['product.list']
-
-        # ~ if self.workorder_ids:
-            # ~ for wo in self.workorder_ids:
-                # ~ for resource in wo.material_ids:
-                    # ~ line_val = {
-                        # ~ 'requisition_id': requisition_id,
-                        # ~ 'product_id': resource.resource_id.product_id.id,
-                        # ~ 'um_id': resource.resource_id.uom_id.id,
-                        # ~ 'quant': resource.qty_ordered,
-                        # ~ 'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
-                    # ~ ProductList.create(line_val)
-
-                # ~ for resource in wo.material_extra_ids:
-                    # ~ line_val = {
-                        # ~ 'requisition_id': requisition_id,
-                        # ~ 'product_id': resource.product_id.id,
-                        # ~ 'um_id': resource.product_id.uom_id.id,
-                        # ~ 'quant': resource.qty_ordered,
-                        # ~ 'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
-                    # ~ ProductList.create(line_val)
-        # ~ return result
-
 
     def load_resources(self):
         if not self.budget_ids:
             raise UserError(_('Por favor seleccione al menos un presupuesto.'))
-
+        product_ids = []
         requisition_id = self._context.get('active_id')
         ProductList = self.env['product.list']
 
@@ -68,22 +41,33 @@ class ResourceRequisitionwizard(models.TransientModel):
         if self.workorder_ids:
             for wo in self.workorder_ids:
                 for resource in wo.material_ids:
-                    line_val = {
-                        'requisition_id': requisition_id,
-                        'product_id': resource.resource_id.product_id.id,
-                        'um_id': resource.resource_id.uom_id.id,
-                        'quant': resource.qty_ordered,
-                        'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
-                    ProductList.create(line_val)
+                    product = resource.resource_id.product_id
+                    if product.id in product_ids:
+                        line_product = ProductList.search([('product_id','=',product.id),('requisition_id','=',requisition_id)])
+                        line_product.write({'quant':line_product.quant+resource.qty_ordered})
+                    else:
+                        product_ids.append(product.id)
+                        line_val = {
+                            'requisition_id': requisition_id,
+                            'product_id': product.id,
+                            'um_id': resource.resource_id.uom_id.id,
+                            'quant': resource.qty_ordered,
+                            'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
+                        ProductList.create(line_val)
 
                 for resource in wo.material_extra_ids:
-                    line_val = {
-                        'requisition_id': requisition_id,
-                        'product_id': resource.product_id.id,
-                        'um_id': resource.product_id.uom_id.id,
-                        'quant': resource.qty_ordered,
-                        'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
-                    ProductList.create(line_val)
+                    if resource.product_id.id in product_ids:
+                        line_product = ProductList.search([('product_id','=',resource.product_id.id),('requisition_id','=',requisition_id)])
+                        line_product.write({'quant':line_product.quant+resource.qty_ordered})
+                    else:
+                        product_ids.append(resource.product_id.id)
+                        line_val = {
+                            'requisition_id': requisition_id,
+                            'product_id': resource.product_id.id,
+                            'um_id': resource.product_id.uom_id.id,
+                            'quant': resource.qty_ordered,
+                            'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
+                        ProductList.create(line_val)
         #.................#
         else:
             concept_ids = []
@@ -96,13 +80,18 @@ class ResourceRequisitionwizard(models.TransientModel):
             for resource in resources:
                 if resource.resource_type == 'M':
                     quantity = self.get_quantity(concepts,resource)
-                    val = {
-                        'requisition_id': requisition_id,
-                        'product_id': resource.id,
-                        'um_id': resource.uom_id.id,
-                        'quant': quantity,
-                        'analytic_id': self.project_id.analytic_id.id or False  }
-                    ProductList.create(val)
+                    if resource.id in product_ids:
+                        line_product = ProductList.search([('product_id','=',resource.id),('requisition_id','=',requisition_id)])
+                        line_product.write({'quant':line_product.quant+quantity})
+                    else:
+                        product_ids.append(resource.id)
+                        val = {
+                            'requisition_id': requisition_id,
+                            'product_id': resource.id,
+                            'um_id': resource.uom_id.id,
+                            'quant': quantity,
+                            'analytic_id': self.project_id.analytic_id.id or False  }
+                        ProductList.create(val)
 
     @api.onchange('budget_ids')
     def onchange_budgets_id(self):

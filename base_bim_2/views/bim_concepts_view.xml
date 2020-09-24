@@ -38,7 +38,7 @@
 
                 <field name="quantity" sum="qty"/>
                 <field name="quantity_cert" sum="qty_cert" invisible="context.get('budget_type') != 'certification'"/>
-                <field name="qty_execute" sum="qty_exec" invisible="context.get('budget_type') != 'execution'"/>
+                <field name="qty_execute" sum="qty_exec" invisible="context.get('budget_type') != 'execution' and context.get('type') != 'departure'"/>
 
                 <field name="percent_cert" invisible="context.get('budget_type') != 'certification'"/>
                 <field name="amount_compute" options="{'text-danger': 'amount_type == &quot;fixed&quot;'}"/>

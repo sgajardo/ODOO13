@@ -7,7 +7,8 @@
             <form string="Ordenes de Trabajo" delete="0">
               <header>
                   <button name="action_confirm" string="Confirmar" class="oe_highlight" type="object" states="draft"/>
-                  <button name="action_delivery" string="Entrega Completa" class="oe_highlight" type="object" states="done"/>
+                  <button name="action_close" string="Terminar" class="oe_highlight" type="object" states="done"/>
+                  <button name="action_delivery" string="Entrega Completa" class="oe_highlight" type="object" states="close"/>
                   <button name="action_cancel" string="Cancelar" class="oe_highlight" type="object" states="done,delivered"/>
                   <field name="state" widget="statusbar"/>
               </header>
@@ -38,6 +39,10 @@
                           <field name="priority"/>
                           <field name="supply"/>
                           <field name="user_id" readonly="1"/>
+<!--
+                          <field name="qty_labor_execute"/>
+                          <field name="qty_material_execute"/>
+-->
                           <field name="modify_name" invisible="1"/>
                        </group>
                   </group>
@@ -65,6 +70,9 @@
                                 <field name="qty_certif"/>
                                 <field name="qty_execute"/>
                                 <field name="qty_worder"/>
+                                <field name="qty_execute_mo" string="Ejecutado"/>
+                                <field name="amt_execute_mo"/>
+                                <field name="amt_execute_mt"/>
                                 <field name="workorder_id" invisible="1"/>
                                 <field name="budget_id" invisible="1"/>
                                 <field name="space_id" invisible="1"/>
@@ -203,6 +211,8 @@
          <field name="arch" type="xml">
             <tree decoration-danger="state=='cancel'" decoration-primary="state=='done'">
                 <field name="name"/>
+                <field name="project_id"/>
+                <field name="budget_id"/>
                 <field name="object_id" string="Edificio (Objeto)"/>
                 <field name="space_id" string="Piso (Espacio)"/>
                 <field name="priority"/>
@@ -210,14 +220,12 @@
                 <field name="order_ids" widget="many2many_tags"/>
                 <field name="picking_ids" widget="many2many_tags"/>
                 <field name="restriction_ids" widget="many2many_tags"/>
+                <field name="amount_labor"/>
+                <field name="amount_material"/>
                 <field name="date_start"/>
                 <field name="date_end"/>
                 <field name="advance" widget="percentage"/>
                 <field name="note"/>
-                <!--<field name="project_id"/>
-                <field name="budget_id"/>
-                <field name="speciality_id"/>
-                <field name="user_id"/>-->
                 <field name="state"/>
             </tree>
         </field>
@@ -245,8 +253,8 @@
                 <field name="vendor_second_id"/>
                 <field name="order_ids" widget="many2many_tags" readonly="1"/>
                 <field name="supply"/>
-                <field name="picking_in"/>
-                <field name="picking_out"/>
+                <field name="picking_in" widget="many2many_tags"/>
+                <field name="picking_out" widget="many2many_tags"/>
                 <field name="difficulty" invisible="1"/>
                 <field name="date_start" invisible="1"/>
                 <field name="date_stop" invisible="1"/>
@@ -258,7 +266,7 @@
                 <field name="resource_type" invisible="1"/>
                 <field name="workorder_concept_id" invisible="1"/>
                 <button name="open_purchase_view" string="Ver Pedidos de Compra" type="object" icon="fa-shopping-basket"/>
-                <button name="open_picking_view" string="Ver Pedidos de Compra" type="object" icon="fa-truck"/>
+                <button name="open_picking_view" string="Ver Ordenes de Entrega" type="object" icon="fa-truck"/>
             </tree>
         </field>
     </record>
@@ -284,8 +292,8 @@
                 <field name="vendor_second_id"/>
                 <field name="order_ids" widget="many2many_tags" readonly="1"/>
                 <field name="supply"/>
-                <field name="picking_in"/>
-                <field name="picking_out"/>
+                <field name="picking_in" widget="many2many_tags"/>
+                <field name="picking_out" widget="many2many_tags"/>
                 <field name="difficulty" invisible="1"/>
                 <field name="date_start" invisible="1"/>
                 <field name="date_stop" invisible="1"/>

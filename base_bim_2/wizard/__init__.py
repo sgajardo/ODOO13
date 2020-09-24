@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from . import bim_project_stock_location
 from . import create_purchase_wizard
 from . import load_employees
@@ -22,3 +21,4 @@ from . import bim_purchase_requisition_space
 from . import copy_measures
 from . import bim_price_massive_wzd
 from . import bim_budget_compare
+from . import bim_gantt_export

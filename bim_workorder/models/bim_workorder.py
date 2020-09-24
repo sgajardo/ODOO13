@@ -40,6 +40,10 @@ class BimWorkorder(models.Model):
     note = fields.Text('Comentarios')
     priority = fields.Char(string='Prioridad')
     supply = fields.Char(string='Abastecimiento')
+    amount_labor = fields.Float(string='Coste MO', compute="_get_total_timesheet")
+    amount_material = fields.Float(string='Coste MAT', compute="_get_total_inventory")
+    #qty_labor_execute = fields.Float(string='MO Ejecutada', compute="_get_total_timesheet")
+    #qty_material_execute = fields.Float(string='MAT Ejecutado', compute="_get_total_inventory")
     #priority = fields.Selection([
     #    ('1', '1'),
     #    ('2', '2'),
@@ -53,6 +57,7 @@ class BimWorkorder(models.Model):
     state = fields.Selection([
         ('draft', 'Borrador'),
         ('done', 'Aprobado'),
+        ('close', 'Terminado'),
         ('delivered', 'Entregado'),
         ('cancel', 'Cancelado')],
         string='Estado', default='draft', tracking=True)
@@ -79,9 +84,24 @@ class BimWorkorder(models.Model):
         stock_picking = self.env['stock.picking']
         for record in self:
             # Movimiento de Entrada
-            picks = [pick.id for order in record.order_ids for pick in order.picking_ids]
+            picks = [pick.id for order in record.order_ids for pick in order.picking_ids if pick.picking_type_id.code == 'incoming']
             record.picking_ids = picks and [(6,0,picks)] or []
 
+    @api.depends('labor_ids','labor_extra_ids','concept_ids')
+    def _get_total_timesheet(self):
+        for record in self:
+            #total_execute = sum(line.qty_execute for line in record.labor_ids)
+            #total_execute += sum(line.qty_execute for line in record.labor_extra_ids)
+            #record.qty_labor_execute = total_execute
+            record.amount_labor = sum(line.amt_execute_mo for line in record.concept_ids)
+
+    @api.depends('material_ids','material_extra_ids','concept_ids')
+    def _get_total_inventory(self):
+        for record in self:
+            #total_execute = sum(move.quantity_done for line in record.material_ids for pick in line.picking_out for move in pick.move_ids_without_package)
+            #total_execute += sum(move.quantity_done for line in record.material_extra_ids for pick in line.picking_out for move in pick.move_ids_without_package)
+            #record.qty_material_execute = total_execute
+            record.amount_material = sum(line.amt_execute_mt for line in record.concept_ids)
 
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS
@@ -122,6 +142,9 @@ class BimWorkorder(models.Model):
 
     def action_delivery(self):
         return self.write({'state': 'delivered'})
+
+    def action_close(self):
+        return self.write({'state': 'close'})
 
     def action_cancel(self):
         return self.write({'state': 'cancel'})
@@ -356,6 +379,26 @@ class BimWorkorderConcepts(models.Model):
     _description = "Partidas y Mediciones Orden de Trabajo BIM"
 
     @api.depends('concept_id')
+    def _get_execute(self):
+        res_obj = self.env['bim.workorder.resources']
+        for record in self:
+            exe_qty_mo = 0
+            exe_amt_mo = exe_amt_mt = 0
+            if record.concept_id:
+                lines = res_obj.search(['|',('concept_id','=',record.concept_id.id),('departure_id','=',record.concept_id.id)])
+                lines_mo = lines.filtered(lambda x:x.qty_execute > 0)
+                lines_mt = lines.filtered(lambda x:x.picking_out)
+
+                #exe_qty_mt = sum(move.quantity_done for line in lines_mt for pick in line.picking_out for move in pick.move_ids_without_package)
+                exe_qty_mo = sum(line.qty_execute for line in lines_mo)
+                exe_amt_mo = sum(line.price_unit for line in lines_mo)
+                exe_amt_mt = sum(move.quantity_done * move.price_unit for line in lines_mt for pick in line.picking_out for move in pick.move_ids_without_package) #price_unit en move guarda el precio con el q se compro
+
+            record.qty_execute_mo = exe_qty_mo
+            record.amt_execute_mo = exe_amt_mo
+            record.amt_execute_mt = exe_amt_mt
+
+    @api.depends('concept_id')
     def _get_concept_quantity(self):
         for record in self:
             qty_budget = qty_execute = qty_certif = 0
@@ -372,6 +415,10 @@ class BimWorkorderConcepts(models.Model):
     qty_budget = fields.Integer(string='Cant Presupuestada', compute="_get_concept_quantity")
     qty_certif = fields.Integer(string='Cant Certificada', compute="_get_concept_quantity")
     qty_execute = fields.Integer(string='Cant a Ejecutar', compute="_get_concept_quantity")
+    qty_execute_mo = fields.Float(string='Cant.Eje MO', compute="_get_execute")
+    #qty_execute_mt = fields.Float(string='Cant.Eje MT', compute="_get_execute")
+    amt_execute_mo = fields.Float(string='Total MO', compute="_get_execute")
+    amt_execute_mt = fields.Float(string='Total MT', compute="_get_execute")
     qty_worder = fields.Integer(string='Cant OT')
     workorder_id = fields.Many2one('bim.workorder', string="Orden")
     budget_id = fields.Many2one('bim.budget',related='workorder_id.budget_id', string="Presupuesto")
@@ -436,21 +483,23 @@ class BimWorkorderResources(models.Model):
     deviance_real = fields.Float(string='Desviación real', compute="_get_factors")
     qty_available = fields.Float(string='Stock', compute="_get_material_stock")
     qty_ordered = fields.Float(string='Cant a Pedir')
-    price_unit = fields.Float(string='Costo')
+    price_unit = fields.Float(string='Costo') #Verificar uso ******
     order_assign = fields.Boolean(string='Sol Cotización')
     order_ids = fields.Many2many('purchase.order', string="N° ODC")
     order_agree_id = fields.Many2one('purchase.requisition', string="Acuerdo ODC")
     vendor_first_id = fields.Many2one('res.partner', string="Proveedor #1")
     vendor_second_id = fields.Many2one('res.partner', string="Proveedor #2")
-    category_id = fields.Many2one('product.category', string="Categoria")#, related='resource_id.product_id.categ_id'
+    category_id = fields.Many2one('product.category', string="Categoria")
     workorder_id = fields.Many2one('bim.workorder', string="Orden")
     workorder_concept_id = fields.Many2one('bim.workorder.concepts', string="Partida/Medición")
     budget_id = fields.Many2one('bim.budget',related='workorder_id.budget_id', string="Presupuesto")
     space_id = fields.Many2one('bim.budget.space',related='workorder_id.space_id', string="Espacio")
-    concept_id = fields.Many2one('bim.concepts', string="Partida",related='workorder_concept_id.concept_id') #domain="[('budget_id', '=', budget_id),('type', '=', 'departure')]"
+    concept_id = fields.Many2one('bim.concepts', string="Partida",related='workorder_concept_id.concept_id')
     resource_id = fields.Many2one('bim.concepts', string="Recurso")
-    picking_in = fields.Char(string="Ref Recepción", compute='_compute_pickings')
-    picking_out = fields.Char(string="Ref Entrega Instaladores", compute='_compute_pickings')
+    #picking_in = fields.Char(string="Ref Recepción", compute='_compute_pickings')
+    picking_in = fields.Many2many('stock.picking', string="Recepciones", compute='_compute_pickings')
+    picking_out = fields.Many2many('stock.picking', string="Entrega Instaladores", compute='_compute_pickings')
+    #picking_out = fields.Char(string="Ref Entrega Instaladores", compute='_compute_pickings')
     resource_type = fields.Selection(related='resource_id.type', string="Tipo Recurso")
     product_type = fields.Selection(related='product_id.resource_type', string="Tipo Producto")
     note = fields.Text('Notas')
@@ -529,19 +578,19 @@ class BimWorkorderResources(models.Model):
     @api.depends('order_ids')
     def _compute_pickings(self):
         for record in self:
-            stock_picking = record.order_ids.mapped('picking_ids')
-            # Movimiento de Entrada
             project = record.budget_id.project_id
-            picks_in = [pick.name for order in record.order_ids for pick in order.picking_ids]
-            picking_in_refs = ','.join(picks_in) if picks_in else '-'
+            stock_picking = record.order_ids.mapped('picking_ids')
+
+            # Movimiento de Entrada
+            picks_in = stock_picking.filtered(lambda p: p.picking_type_id.code == 'incoming')
 
             # Movimientos internos
-            picks_out = stock_picking.filtered(lambda p: p.location_dest_id.id in project.install_location_ids.mapped('location_id').ids)
-            picking_out_refs = ','.join(picks_out.mapped('name')) if picks_out else '-'
+            installer_location_ids = project.install_location_ids.mapped('location_id').ids
+            picks_out = stock_picking.filtered(lambda p: p.picking_type_id.code == 'internal' and p.location_dest_id.id in installer_location_ids)
 
             # valores
-            record.picking_in = picking_in_refs
-            record.picking_out = picking_out_refs
+            record.picking_in = picks_in
+            record.picking_out = picks_out
 
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS

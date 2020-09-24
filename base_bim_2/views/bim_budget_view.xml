@@ -52,6 +52,8 @@
                     <button name="action_cancel"
                             string="Cancelar" attrs="{'invisible': [('state', '=', 'cancel')]}" icon='fa-angle-right' class="oe_highlight" type="object"/>
 
+                    <button name="export_gantt" type="object" string="Exportar Gantt" class="btn-secondary"/>
+
                     <!--............................................................................................-->
 
                     <field name="state" widget="statusbar"/>

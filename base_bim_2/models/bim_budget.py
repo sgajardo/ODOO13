@@ -626,6 +626,16 @@ class BimBudget(models.Model):
         self.concept_ids.filtered(lambda c: not c.parent_id).unlink()
         return super().unlink()
 
+    def export_gantt(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Exportar Gantt',
+            'res_model': 'bim.gantt.export',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_budget_id': self.id},
+        }
+
 
 class BimBudgetStage(models.Model):
     _name = 'bim.budget.stage'

@@ -133,6 +133,7 @@ BIM 2.0
         'views/hr_employee_view.xml',
         'views/res_partner_view.xml',
         'wizard/bim_budget_compare.xml',
+        'wizard/bim_gantt_export.xml',
     ],
     'qweb': [
         'static/src/xml/*.xml'

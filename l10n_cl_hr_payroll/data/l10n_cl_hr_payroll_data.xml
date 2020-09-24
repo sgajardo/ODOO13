@@ -927,7 +927,7 @@ elif employee.afp_id.name == 'PLANVITAL':
 	tasa = payslip.stats_id.tasa_afp_planvital
 elif employee.afp_id.name == 'PROVIDA':
 	tasa = payslip.stats_id.tasa_afp_provida
-elif employee.afp_id.name == 'PROVIDA':
+elif employee.afp_id.name == 'UNO':
 	tasa = payslip.stats_id.tasa_afp_uno
 else:
 	tasa = 0
