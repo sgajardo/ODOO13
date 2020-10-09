@@ -28,7 +28,7 @@
                     </tr>
                 </table>
 
-                <div class="row">
+                <div class="row" id="row_execute">
                     <table class="table table-sm main_table" style="font-size:10px;width:100%;">
                         <thead>
                             <tr>
@@ -50,7 +50,7 @@
                             <!-- CAPITULOS -->
                             <t t-set="chapters" t-value="budget.concept_ids.filtered(lambda c: not c.parent_id)"/>
                             <t t-foreach="chapters" t-as="chapter" class="active">
-                                <t t-if="o.filter_ok">
+                                <t t-if="o.filter_ok" id="filter_active">
                                     <t t-set="qty_filter" t-value="o.get_execute_filter(chapter)"/>
                                     <t t-if="qty_filter > 0">
                                         <tr style="background-color: #E5E5E5;" class="parent_row">
@@ -81,7 +81,7 @@
                                     </t>
                                 </t>
 
-                                <t t-if="not o.filter_ok">
+                                <t t-if="not o.filter_ok" id="filter_inactive">
                                     <tr style="background-color: #E5E5E5;" class="parent_row">
                                         <td class="text-left">
                                             <i t-attf-class="fa fa-{{'th-large text-success' if chapter.type == 'chapter' else 'th-list text-warning' if chapter.type == 'departure' else 'male text-success'}} mr-2 float-left"/><em><strong><span t-field="chapter.code"/></strong></em>
@@ -102,7 +102,7 @@
                                             <td><span t-field="child.name"/></td>
                                             <td class="text-center"><span t-field="child.quantity"/></td>
                                             <td class="text-right"><span t-field="child.balance"/></td>
-                                            <td class="text-center">-</td> <!-- <span t-field="child.qty_execute"/> -->
+                                            <td class="text-center">-</td>
                                             <td class="text-right"><span t-esc="o.get_execute(child)" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                         </tr>
 
@@ -114,21 +114,14 @@
                                                 </td>
                                                 <td><span t-field="resource.name"/></td>
                                                 <td class="text-center"><span t-esc="round(o.recursive_quantity(resource, resource.parent_id),3)"/></td>
-                                                <td class="text-right"><span t-field="resource.balance" /></td>
-                                                <td class="text-center"><span t-field="resource.qty_execute"/></td>
+                                                <td class="text-right"><span t-field="resource." /></td>
+                                                <td class="text-center"><span t-field="resource."/></td>
                                                 <td class="text-right"><span t-esc="o.get_execute(resource)" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                             </tr>
                                         </t>-->
                                     </t>
                                 </t>
                             </t>
-<!--
-                            <tr style="background-color: #BFBFBF; font-size: 12px;">
-                                <td colspan="1" style="text-align:center;"><strong>TOTAL</strong></td>
-                                <td colspan="4"></td>
-                                <td colspan="1" style="text-align:right;"><strong><span t-esc="total" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
-                            </tr>
--->
                         </tbody>
                     </table>
                 </div>

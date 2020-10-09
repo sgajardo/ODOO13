@@ -21,7 +21,7 @@ class WorkorderTimesheet(models.Model):
     unit_amount = fields.Float('Duracion (dias)', default=0.0)
     unit_execute = fields.Float('Cant Ejecutada', default=0.0)
     resource_id = fields.Many2one('bim.workorder.resources', 'Recurso')
-    workorder_id = fields.Many2one('bim.workorder', 'Orden de Trabajo')#, domain=[('allow_timesheets', '=', True)]
+    workorder_id = fields.Many2one('bim.workorder', 'Orden de Trabajo')
     user_id = fields.Many2one('res.users', string="Aprobado por")
     job_id = fields.Many2one('hr.job', string="Puesto de Trabajo")
     employee_id = fields.Many2one('hr.employee', "Empleado", check_company=True)

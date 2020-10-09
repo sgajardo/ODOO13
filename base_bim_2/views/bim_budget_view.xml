@@ -99,6 +99,7 @@
                             <field name="currency_id" required="1"/>
                             <field name="concept_ids" invisible="1"/>
                             <field name="type" required="1"/>
+                            <field name="gantt_type"/>
                       </group>
                        <group>
 <!--                        <field name="balance" widget="monetary"/>-->
@@ -108,7 +109,7 @@
                             <field name="date_end" required="1"/>
                             <field name="stage_ids" invisible="1"/>
                             <field name="template_id" options='{"no_create": 1}'/>
-                            <field name="order_mode" widget="radio"/>
+                            <field name="order_mode" widget="radio" invisible="1"/>
                       </group>
                     </group>
 

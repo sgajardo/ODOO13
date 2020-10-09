@@ -15,7 +15,7 @@ odoo.define('hierarchy_view.view', function (require) {
         accesskey: 'h',
         display_name: _lt('Hierarchy'),
         icon: 'fa-sitemap',
-        withSearchBar: false,
+        // withSearchBar: false,
         searchMenuTypes: [],
         config: _.extend({}, BasicView.prototype.config, {
             Controller: HierarchyController,

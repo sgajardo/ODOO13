@@ -39,10 +39,6 @@
                           <field name="priority"/>
                           <field name="supply"/>
                           <field name="user_id" readonly="1"/>
-<!--
-                          <field name="qty_labor_execute"/>
-                          <field name="qty_material_execute"/>
--->
                           <field name="modify_name" invisible="1"/>
                        </group>
                   </group>
@@ -84,8 +80,7 @@
                         <separator string="Mano de Obra Presupuestada"/>
                         <field name="labor_ids">
                             <tree editable="bottom" create="0">
-                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' domain="[('type','in',['labor']),('budget_id','=',budget_id)]"/>
-<!--                            <field name="job_id" options='{"no_create": 1, "no_open": 1}'/>-->
+                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['labor']),('budget_id','=',budget_id)]"/>
                                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                                 <field name="name" invisible="1"/>
                                 <field name="duration_cmpt"/>
@@ -108,7 +103,6 @@
                         <field name="labor_extra_ids">
                             <tree editable="bottom">
                                 <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['H'])]"/>
-<!--                            <field name="job_id" options='{"no_create": 1, "no_open": 1}'/>-->
                                 <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida" attrs="{'required':[('product_id','!=',False)]}"/>
                                 <field name="name" invisible="1"/>
                                 <field name="duration_cmpt"/>
@@ -134,7 +128,7 @@
                         <separator string="Materiales Presupuestados"/>
                         <field name="material_ids">
                             <tree editable="bottom" create="0">
-                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
+                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
                                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                                 <field name="efficiency_cmpt"/>
                                 <field name="duration_cmpt" string="Cant Calculada"/>
@@ -215,6 +209,7 @@
                 <field name="budget_id"/>
                 <field name="object_id" string="Edificio (Objeto)"/>
                 <field name="space_id" string="Piso (Espacio)"/>
+                <field name="note"/>
                 <field name="priority"/>
                 <field name="supply"/>
                 <field name="order_ids" widget="many2many_tags"/>
@@ -225,7 +220,6 @@
                 <field name="date_start"/>
                 <field name="date_end"/>
                 <field name="advance" widget="percentage"/>
-                <field name="note"/>
                 <field name="state"/>
             </tree>
         </field>
@@ -238,7 +232,7 @@
          <field name="model">bim.workorder.resources</field>
          <field name="arch" type="xml">
             <tree editable="bottom" create="0">
-                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
+                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                 <field name="name" invisible="1"/>
                 <field name="efficiency_cmpt"/>

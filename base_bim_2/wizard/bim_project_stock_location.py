@@ -188,3 +188,9 @@ class BimProjectStockLocationLines(models.TransientModel):
             }
             self.product_id = False
             return {'warning': warning}
+
+        if self.product_id and self.wizard_id.type == 'out_stock':
+            self.qty = self.product_id.qty_available
+
+
+

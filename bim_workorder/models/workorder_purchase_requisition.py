@@ -14,6 +14,7 @@ class BimProductList(models.Model):
     _inherit = 'product.list'
 
     workorder_resource_id = fields.Many2one('bim.workorder.resources', string="Recurso")
+    workorder_departure_id = fields.Many2one('bim.concepts', string="Concepto/Partida")
 
     @api.onchange('obs')
     def onchange_obs(self):
@@ -46,7 +47,8 @@ class PurchaseOrder(models.Model):
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    workorder_resource_id = fields.Many2one('bim.workorder.resources', string="Recurso")
+    workorder_resource_id = fields.Many2one('bim.workorder.resources', string="Recurso OT")
+    workorder_departure_id = fields.Many2one('bim.concepts', string="Concepto/Partida")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -58,8 +60,19 @@ class PurchaseOrderLine(models.Model):
                 resource.workorder_id.write({'order_ids': [(4, vals['order_id'], None)]})
         return super(PurchaseOrderLine, self).create(vals_list)
 
+    def _prepare_stock_moves(self, picking):
+        res = super(PurchaseOrderLine, self)._prepare_stock_moves(picking)
+        res[0]['workorder_departure_id'] = self.workorder_departure_id and self.workorder_departure_id.id or False
+        res[0]['workorder_resource_id'] = self.workorder_resource_id and self.workorder_resource_id.id or False
+        return res
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     bim_workorder_id = fields.Many2one('bim.workorder','Orden de Trabajo')
+
+class StockMove(models.Model):
+    _inherit = 'stock.move'
+
+    workorder_departure_id = fields.Many2one('bim.concepts', string="Concepto/Partida")
+    workorder_resource_id = fields.Many2one('bim.workorder.resources', string="Recurso OT")

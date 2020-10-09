@@ -20,11 +20,12 @@ class WorkorderInstallerWizard(models.TransientModel):
         pick = self.env['stock.picking'].browse(context['active_id'])
         lines = []
         for line in pick.move_ids_without_package:
-            #if not line.done and line.quant > line.qty_purchase:
             lines.append((0,0,{
                 'product_id': line.product_id.id,
                 'quantity': line.product_uom_qty,
                 'uom_id': line.product_uom.id,
+                'cost': line.price_unit,
+                'departure_id': line.workorder_departure_id.id,
             }))
         if not lines:
             raise UserError('No hay líneas nuevas para procesar')
@@ -58,10 +59,11 @@ class WorkorderInstallerWizard(models.TransientModel):
             if not line.quantity:
                 continue
             move_lines.append([0, False, {
+                'workorder_departure_id': line.departure_id and line.departure_id.id or False,
                 'product_id': line.product_id.id,
                 'product_uom_qty': line.quantity,
                 'product_uom': line.uom_id.id,
-                'price_unit': line.product_id.lst_price,
+                'price_unit': line.cost,
                 'name': line.name }])
 
         picking_type = picking_type_obj.search([
@@ -81,6 +83,8 @@ class WorkorderInstallerWizard(models.TransientModel):
             'origin': project.name,
             'partner_id': project.customer_id.id,
             'location_dest_id': location_dest_id,
+            'bim_workorder_id': pick.bim_workorder_id and pick.bim_workorder_id.id or False,
+            'bim_requisition_id': pick.bim_requisition_id and pick.bim_requisition_id.id or False,
             'bim_concept_id': pick.bim_concept_id and pick.bim_concept_id.id or False,
             'bim_project_id': project.id,
             'bim_space_id': pick.bim_space_id and pick.bim_space_id.id or False,
@@ -108,9 +112,11 @@ class WorkorderInstallerLineWizard(models.TransientModel):
 
     name = fields.Char('Detalle',related='product_id.display_name')
     quantity = fields.Float('Cantidad')
+    cost = fields.Float('Costo')
     uom_id = fields.Many2one('uom.uom', 'U.M')
     product_id = fields.Many2one("product.product", string="Producto")
     wizard_id = fields.Many2one("workorder.installer.wzd", string="Parent")
+    departure_id = fields.Many2one("bim.concepts", string="Partida")
 
 
 

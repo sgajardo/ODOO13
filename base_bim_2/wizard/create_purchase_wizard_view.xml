@@ -1,50 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        <record id="create_purchase_wizard_form" model="ir.ui.view">
-            <field name="name">create.purchase.wizard.form</field>
-            <field name="model">create.purchase.wizard</field>
-            <field name="arch" type="xml">
-                <form string="Crear Orden de Compra">
-                    <p class="oe_grey">
-                        Seleccione un proveedor por cada línea para generar ordenes de compra (Solo se generará un pedido para la linea que tenga proveedor)
-                    </p>
-                    <group>
-                        <field name="filter_categ"/>
-<!--
-                        <field name="category_id" options="{'no_create': True, 'no_open': True }"
-                               attrs="{'invisible': [('filter_categ', '=', False)],'required': [('filter_categ', '=', True)]}"/>
--->
-                    </group>
-                    <group>
-                        <field name="line_ids" nolabel="1">
-                            <tree editable="bottom" create="false">
-                                <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
-                                <field name="um_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
-                                <field name="analytic_id"/>
-                                <field name="analytic_tag_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags"/>
-                                <field name="bim_req_line_id" invisible="1"/>
-                                <field name="quant"/>
-                                <field name="cost"/>
-                                <field name="partner_id" required="1"
-                                    options='{"no_create": 1, "no_open": 1}' context="{'res_partner_search_mode': 'supplier'}"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <footer>
-                        <button string='Generar OC' name="create_purchase" type="object" class="btn-primary"/>
-                        <button string="Cancelar" class="btn-default" special="cancel"/>
-                    </footer>
-               </form>
-            </field>
-        </record>
 
-        <record id="action_create_purchase_wizard" model="ir.actions.act_window">
-            <field name="name">Crear Orden de Compra</field>
-            <field name="res_model">create.purchase.wizard</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="create_purchase_wizard_form"/>
-            <field name="target">new</field>
-        </record>
-    </data>
+    <record id="create_purchase_wizard_form" model="ir.ui.view">
+        <field name="name">create.purchase.wizard.form</field>
+        <field name="model">create.purchase.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Crear Orden de Compra">
+                <p><b>Considere lo siguiente para la ejecución de este proceso:</b></p>
+                <p class="text-muted"><i>* Debe seleccionar uno o mas proveedores en cada linea de lo contrario no se generará registro relacionado.</i></p>
+                <p class="text-muted"><i>* Si selecciona 1 proveedor en la linea, se creara automaticamente un Pedido de Compra.</i></p>
+                <p class="text-muted"><i>* Si selecciona 2 o mas proveedores en una linea se creará un acuerdo de compra con la inclusion de 1 cotizacion por cada proveedor.</i></p>
+                <group>
+                    <field name="filter_categ"/>
+                </group>
+                <group>
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom" create="0">
+                            <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="um_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="analytic_id"/>
+                            <field name="analytic_tag_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags"/>
+                            <field name="seller_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags" context="{'res_partner_search_mode': 'supplier'}"/>
+                            <field name="bim_req_line_id" invisible="1"/>
+                            <field name="quant"/>
+                            <field name="cost"/>
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button string="Procesar" name="create_purchase" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-default" special="cancel"/>
+                </footer>
+           </form>
+        </field>
+    </record>
+
+    <record id="action_create_purchase_wizard" model="ir.actions.act_window">
+        <field name="name">Crear Orden de Compra</field>
+        <field name="res_model">create.purchase.wizard</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="create_purchase_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
 </odoo>
+

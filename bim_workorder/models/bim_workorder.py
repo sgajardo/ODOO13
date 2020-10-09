@@ -70,12 +70,11 @@ class BimWorkorder(models.Model):
         for rec in self:
             rec.requisition_count = len(rec.requisition_ids)
 
-    @api.depends('concept_ids','concept_ids.qty_worder','concept_ids.qty_execute','concept_ids.concept_id','concept_ids.space_id','concept_ids.budget_id','concept_ids.workorder_id')
+    @api.depends('concept_ids')
     def _get_advance_percent(self):
         timesheet = self.env['workorder.timesheet']
         for record in self:
-            lines = timesheet.search([('workorder_id','=',record.id)])
-            qty_exe = sum(line.unit_execute for line in lines)
+            qty_exe = sum(line.qty_execute_mo for line in record.concept_ids)
             qty_ot = sum(line.qty_worder for line in record.concept_ids)
             record.advance = (qty_exe / qty_ot) if qty_ot > 0 else 0
 
@@ -90,17 +89,11 @@ class BimWorkorder(models.Model):
     @api.depends('labor_ids','labor_extra_ids','concept_ids')
     def _get_total_timesheet(self):
         for record in self:
-            #total_execute = sum(line.qty_execute for line in record.labor_ids)
-            #total_execute += sum(line.qty_execute for line in record.labor_extra_ids)
-            #record.qty_labor_execute = total_execute
             record.amount_labor = sum(line.amt_execute_mo for line in record.concept_ids)
 
     @api.depends('material_ids','material_extra_ids','concept_ids')
     def _get_total_inventory(self):
         for record in self:
-            #total_execute = sum(move.quantity_done for line in record.material_ids for pick in line.picking_out for move in pick.move_ids_without_package)
-            #total_execute += sum(move.quantity_done for line in record.material_extra_ids for pick in line.picking_out for move in pick.move_ids_without_package)
-            #record.qty_material_execute = total_execute
             record.amount_material = sum(line.amt_execute_mt for line in record.concept_ids)
 
     # -------------------------------------------------------------------------
@@ -304,6 +297,12 @@ class BimWorkorder(models.Model):
             product_lines = []
 
             for line in material_lines:
+                partner_ids = []
+                if line.vendor_first_id:
+                    partner_ids.append(line.vendor_first_id.id)
+                #if line.vendor_second_id:
+                #    partner_ids.append(line.vendor_second_id.id)
+
                 resource = line.resource_id
                 product_lines.append((0,0,{
                     'product_id': resource.product_id.id,
@@ -311,21 +310,28 @@ class BimWorkorder(models.Model):
                     'quant': line.qty_ordered,
                     'cost': line.price_unit,
                     'obs': line.note,
-                    'partner_id': line.vendor_first_id.id or line.vendor_second_id.id,
+                    'partner_ids': partner_ids and [(6,0,partner_ids)] or [],
                     'analytic_id': project.analytic_id.id or False,
                     'workorder_resource_id': line.id,
+                    'workorder_departure_id': line.concept_id.id,
                 }))
 
             for line in extra_mat_lines:
+                partner_ids = []
+                if line.vendor_first_id:
+                    partner_ids.append(line.vendor_first_id.id)
+                #if line.vendor_second_id:
+                #    partner_ids.append(line.vendor_second_id.id)
                 product_lines.append((0,0,{
                     'product_id': line.product_id.id,
                     'um_id': line.product_id.uom_id.id,
                     'quant': line.qty_ordered,
                     'cost': line.price_unit,
                     'obs': line.note,
-                    'partner_id': line.vendor_first_id.id or line.vendor_second_id.id,
+                    'partner_ids': partner_ids and [(6,0,partner_ids)] or [],
                     'analytic_id': project.analytic_id.id or False,
                     'workorder_resource_id': line.id,
+                    'workorder_departure_id': line.departure_id.id,
                 }))
 
             if not product_lines:
@@ -385,14 +391,14 @@ class BimWorkorderConcepts(models.Model):
             exe_qty_mo = 0
             exe_amt_mo = exe_amt_mt = 0
             if record.concept_id:
-                lines = res_obj.search(['|',('concept_id','=',record.concept_id.id),('departure_id','=',record.concept_id.id)])
+                lines_with = res_obj.search([('workorder_concept_id','=',record.id)])
+                lines_out = res_obj.search([('workorder_id','=',record.workorder_id.id),('departure_id','=',record.concept_id.id)])
+                lines = lines_with + lines_out
                 lines_mo = lines.filtered(lambda x:x.qty_execute > 0)
                 lines_mt = lines.filtered(lambda x:x.picking_out)
-
-                #exe_qty_mt = sum(move.quantity_done for line in lines_mt for pick in line.picking_out for move in pick.move_ids_without_package)
-                exe_qty_mo = sum(line.qty_execute for line in lines_mo)
-                exe_amt_mo = sum(line.price_unit for line in lines_mo)
-                exe_amt_mt = sum(move.quantity_done * move.price_unit for line in lines_mt for pick in line.picking_out for move in pick.move_ids_without_package) #price_unit en move guarda el precio con el q se compro
+                exe_qty_mo = lines_mo and max([line.qty_execute for line in lines_mo]) or 0.0 #sum(line.qty_execute for line in lines_mo)#
+                exe_amt_mo = sum(line.price_cost * line.duration_real  for line in lines_mo)
+                exe_amt_mt = sum(line.total_picking_out for line in lines_mt)
 
             record.qty_execute_mo = exe_qty_mo
             record.amt_execute_mo = exe_amt_mo
@@ -416,7 +422,6 @@ class BimWorkorderConcepts(models.Model):
     qty_certif = fields.Integer(string='Cant Certificada', compute="_get_concept_quantity")
     qty_execute = fields.Integer(string='Cant a Ejecutar', compute="_get_concept_quantity")
     qty_execute_mo = fields.Float(string='Cant.Eje MO', compute="_get_execute")
-    #qty_execute_mt = fields.Float(string='Cant.Eje MT', compute="_get_execute")
     amt_execute_mo = fields.Float(string='Total MO', compute="_get_execute")
     amt_execute_mt = fields.Float(string='Total MT', compute="_get_execute")
     qty_worder = fields.Integer(string='Cant OT')
@@ -483,7 +488,8 @@ class BimWorkorderResources(models.Model):
     deviance_real = fields.Float(string='Desviación real', compute="_get_factors")
     qty_available = fields.Float(string='Stock', compute="_get_material_stock")
     qty_ordered = fields.Float(string='Cant a Pedir')
-    price_unit = fields.Float(string='Costo') #Verificar uso ******
+    price_cost = fields.Float(string='Costo Producto',compute='_compute_cost_price')
+    price_unit = fields.Float(string='Menor Costo')
     order_assign = fields.Boolean(string='Sol Cotización')
     order_ids = fields.Many2many('purchase.order', string="N° ODC")
     order_agree_id = fields.Many2one('purchase.requisition', string="Acuerdo ODC")
@@ -496,12 +502,12 @@ class BimWorkorderResources(models.Model):
     space_id = fields.Many2one('bim.budget.space',related='workorder_id.space_id', string="Espacio")
     concept_id = fields.Many2one('bim.concepts', string="Partida",related='workorder_concept_id.concept_id')
     resource_id = fields.Many2one('bim.concepts', string="Recurso")
-    #picking_in = fields.Char(string="Ref Recepción", compute='_compute_pickings')
     picking_in = fields.Many2many('stock.picking', string="Recepciones", compute='_compute_pickings')
     picking_out = fields.Many2many('stock.picking', string="Entrega Instaladores", compute='_compute_pickings')
-    #picking_out = fields.Char(string="Ref Entrega Instaladores", compute='_compute_pickings')
+    total_picking_out = fields.Float(string="Total Entrega Instaladores", compute='_compute_pickings')
     resource_type = fields.Selection(related='resource_id.type', string="Tipo Recurso")
-    product_type = fields.Selection(related='product_id.resource_type', string="Tipo Producto")
+    reason = fields.Char(string='Motivo')
+    user_id = fields.Many2one('res.users', string="Aprobado por")
     note = fields.Text('Notas')
     supply = fields.Selection([
         ('quotation', 'Cotización'),
@@ -514,13 +520,22 @@ class BimWorkorderResources(models.Model):
         string='Tipo', default='budget_out', tracking=True)
     #Extra
     departure_id = fields.Many2one('bim.concepts', string="Otra Partida", domain="[('budget_id','=',budget_id),('type','=','departure')]")
-    reason = fields.Char(string='Motivo')
-    user_id = fields.Many2one('res.users', string="Aprobado por")
     product_id = fields.Many2one('product.product', string="Recurso adicional")
+    product_type = fields.Selection(related='product_id.resource_type', string="Tipo Producto")
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
+
+    @api.depends('product_id','resource_id')
+    def _compute_cost_price(self):
+        for record in self:
+            cost = 0
+            if record.resource_id:
+                cost = record.resource_id.product_id.standard_price
+            elif record.product_id:
+                cost = record.product_id.standard_price
+            record.price_cost = cost
 
     @api.depends('type')
     def _compute_name(self):
@@ -573,24 +588,29 @@ class BimWorkorderResources(models.Model):
         for record in self:
             lines = timesheet.search([('resource_id','=',record.id)])
             record.duration_real = sum(line.unit_amount for line in lines)
-            record.qty_execute = sum(line.unit_execute for line in lines)
+            record.qty_execute = sum(line.unit_execute for line in lines) #lines and max([line.unit_execute for line in lines]) or 0.0
 
     @api.depends('order_ids')
     def _compute_pickings(self):
         for record in self:
             project = record.budget_id.project_id
-            stock_picking = record.order_ids.mapped('picking_ids')
+            departure = record.concept_id if record.type == 'budget_in' else record.departure_id
+            product = record.resource_id.product_id if record.type == 'budget_in' else record.product_id
 
+            stock_picking = record.order_ids.mapped('picking_ids')
             # Movimiento de Entrada
             picks_in = stock_picking.filtered(lambda p: p.picking_type_id.code == 'incoming')
-
             # Movimientos internos
             installer_location_ids = project.install_location_ids.mapped('location_id').ids
             picks_out = stock_picking.filtered(lambda p: p.picking_type_id.code == 'internal' and p.location_dest_id.id in installer_location_ids)
-
             # valores
             record.picking_in = picks_in
             record.picking_out = picks_out
+            record.total_picking_out = sum(
+                move.quantity_done * move.price_unit
+                for pick in picks_out for move in pick.move_ids_without_package
+                if move.workorder_departure_id and move.workorder_departure_id.id == departure.id)
+
 
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS
@@ -614,7 +634,6 @@ class BimWorkorderResources(models.Model):
 
     @api.onchange('product_id','departure_id','efficiency_extra')
     def onchange_qty_ordered_extra(self):
-        #qty_orde =red = (resource.quantity * line_parent.qty_worder) - self._get_product_stock(resource.product_id)
         qty_ordered = self.duration_cmpt - self.qty_available
         self.qty_ordered = qty_ordered > 0 and qty_ordered or 0
 
@@ -653,6 +672,13 @@ class BimWorkorderResources(models.Model):
         else:
             action = {'type': 'ir.actions.act_window_close'}
         return action
+
+    def unlink(self):
+        for record in self:
+            if record.order_ids or record.picking_out:
+                raise ValidationError('No puede eliminar un material que posee Ordenes asociadas.')
+        #self.order_ids..unlink()
+        return super().unlink()
 
 class BimWorkorderRestriction(models.Model):
     _name = 'bim.workorder.restriction'

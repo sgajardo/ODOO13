@@ -217,6 +217,9 @@ class BimBudget(models.Model):
         ('delivery', 'Entregado'),
         ('cancel', 'Cancelado')],
         string='Estado', default='draft', copy=True, tracking=True)
+    gantt_type = fields.Selection([('begin', 'Inicio Calculado'),
+                                   ('end', 'Término Calculado'),
+                                   ('time', 'Duración Calculada')], 'Programación', default='end', required=True)
 
     def action_presupuesto(self):
         self.write({'state': 'done'})
@@ -712,7 +715,7 @@ class BimBudgetSpace(models.Model):
         return 'S'+str(len(budget.space_ids)+1)
 
     name = fields.Char("Nombre", size=100)
-    code = fields.Char("Código",readonly=True,default=_get_code)
+    code = fields.Char("Código", default=_get_code)
     budget_id = fields.Many2one('bim.budget', "Presupuesto")
     object_id = fields.Many2one('bim.object', "Objeto")
     project_id = fields.Many2one('bim.project', "Obra",related='budget_id.project_id')

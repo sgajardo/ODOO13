@@ -19,7 +19,8 @@ class CreatePurchaseWizard(models.TransientModel):
             'bim_req_line_id': line.bim_req_line_id.id,
             'account_analytic_id': line.analytic_id.id,
             'analytic_tag_ids': line.analytic_tag_ids,
-            'workorder_resource_id': line.bim_req_line_id.workorder_resource_id.id
+            'workorder_resource_id': line.bim_req_line_id.workorder_resource_id.id,
+            'workorder_departure_id': line.bim_req_line_id.workorder_departure_id.id
             }
 
 
@@ -27,6 +28,7 @@ class ResourceRequisitionwizard(models.TransientModel):
     _inherit = "resource.requisition.wzd"
 
     filter_categ = fields.Boolean(string="Filtro Categoría")
+    category_id = fields.Many2one('product.category', "Categoría")
     workorder_ids = fields.Many2many("bim.workorder", string="Ordenes de Trabajo")
 
 
@@ -40,7 +42,9 @@ class ResourceRequisitionwizard(models.TransientModel):
         # ... Agregado ...#
         if self.workorder_ids:
             for wo in self.workorder_ids:
-                for resource in wo.material_ids:
+                material_list = self.filter_categ and wo.material_ids.filtered(lambda m: m.resource_id.product_id.categ_id.id == self.category_id.id) or wo.material_ids
+                #for resource in wo.material_ids:
+                for resource in material_list:
                     product = resource.resource_id.product_id
                     if product.id in product_ids:
                         line_product = ProductList.search([('product_id','=',product.id),('requisition_id','=',requisition_id)])
@@ -55,7 +59,9 @@ class ResourceRequisitionwizard(models.TransientModel):
                             'analytic_id': resource.budget_id.project_id.analytic_id.id or False  }
                         ProductList.create(line_val)
 
-                for resource in wo.material_extra_ids:
+                material_extra = self.filter_categ and wo.material_extra_ids.filtered(lambda m: m.product_id.categ_id.id == self.category_id.id) or wo.material_extra_ids
+                #for resource in wo.material_extra_ids:
+                for resource in material_extra:
                     if resource.product_id.id in product_ids:
                         line_product = ProductList.search([('product_id','=',resource.product_id.id),('requisition_id','=',requisition_id)])
                         line_product.write({'quant':line_product.quant+resource.qty_ordered})
@@ -77,6 +83,9 @@ class ResourceRequisitionwizard(models.TransientModel):
 
             concepts = self.env['bim.concepts'].browse(concept_ids)
             resources = self.get_resources(concepts)
+            if self.filter_categ:
+                resources = resources.filtered(lambda p: p.categ_id.id == self.category_id.id)
+
             for resource in resources:
                 if resource.resource_type == 'M':
                     quantity = self.get_quantity(concepts,resource)
@@ -89,6 +98,7 @@ class ResourceRequisitionwizard(models.TransientModel):
                             'requisition_id': requisition_id,
                             'product_id': resource.id,
                             'um_id': resource.uom_id.id,
+                            'cost': resource.standard_price,
                             'quant': quantity,
                             'analytic_id': self.project_id.analytic_id.id or False  }
                         ProductList.create(val)

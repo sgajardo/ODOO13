@@ -142,12 +142,24 @@ class BimstockReportWizard(models.TransientModel):
             quantity = sum(line.product_uom_qty for line in lines)
         return quantity
 
+    def get_work_out(self,product,concept,lines):
+        quantity = 0
+        if lines:
+            for line in lines:
+                if line.type == 'budget_in':
+                    if line.resource_id.product_id.id == product.id:
+                        quantity += line.duration_real
+                elif line.product_id == product.id:
+                    quantity += line.duration_real
+        return quantity
+
     def print_xls(self):
         self.ensure_one()
         project = self.project_id
         location = project.stock_location_id
-        domain = [('bim_project_id','=',project.id)]
+        domain = [('bim_project_id','=',project.id),('picking_type_id.code','!=','incoming')]
         part_domain = [('project_id','=',project.id)]
+        workorder_active = False
 
         if self.display_type == 'summary':
             header = ["Código","Nombre","Inventario General","Inventario Ubicación","Presupuesto","Partida","Uom","Salidas","Coste","Importe"]
@@ -159,6 +171,11 @@ class BimstockReportWizard(models.TransientModel):
             header = ["Código","Nombre","Inventario General","Inventario Ubicación","Presupuesto","Partida","Uom","Salidas","Coste","Importe"]
         else:
             header = ["Código","Nombre","Movimiento/Parte","Presupuesto","Partida","Objeto de Obra","Espacio","Proveedor","Descripción","Fecha","Inventario General","Inventario Ubicación","Uom","Cantidad","Coste","Importe","Cantidad","Coste","Importe","Cantidad","Importe"]
+
+        # Verificamos si esta activo Orden de Trabajo
+        if 'bim_workorder' in self.env.registry._init_modules:
+            workorder_active = True
+            workorders = self.env['bim.workorder'].search([('project_id','=',project.id)])
 
         # Buscamos los picking de la Obra
         pickings = self.env['stock.picking'].search(domain)
@@ -208,14 +225,44 @@ class BimstockReportWizard(models.TransientModel):
                                 ws.write(row, 1, product.display_name)
                                 ws.write(row, 2, product.qty_available or 0)
                                 ws.write(row, 3, qty_location or 0)
-                                ws.write(row, 4, concept.name)
-                                ws.write(row, 5, concept.budget_id.name)
+                                ws.write(row, 4, concept.budget_id.name)
+                                ws.write(row, 5, concept.name)
                                 ws.write(row, 6, product.uom_id.name)
                                 ws.write(row, 7, part_outs)
                                 ws.write(row, 8, product.standard_price)
                                 ws.write(row, 9, part_outs*product.standard_price)
                                 product_ids.append(product.id)
                                 row += 1
+
+                    # Mano de Obra desde Orden de TRabajo (Si esta instalado bim_workorder)
+                    if workorder_active and workorders:
+                        product_ids = []
+                        bwor_obj = self.env['bim.workorder.resources']
+                        for word in workorders:
+                            for bwoc in word.concept_ids:
+                                lines_with = bwor_obj.search([('workorder_concept_id','=',bwoc.id),('workorder_id','=',bwoc.workorder_id.id)])
+                                lines_out = bwor_obj.search([('workorder_id','=',bwoc.workorder_id.id),('departure_id','=',bwoc.concept_id.id)])
+                                lines = lines_with + lines_out
+                                lines_mo = lines.filtered(lambda x:x.qty_execute > 0)
+
+                                for line in lines_mo:
+                                    product = line.resource_id.product_id if line.type == 'budget_in' else line.product_id
+                                    if not product.id in product_ids:
+                                        concept = line.concept_id if line.type == 'budget_in' else line.departure_id
+                                        work_outs = self.get_work_out(product,concept,lines_mo)
+                                        qty_location = Quants._get_available_quantity(product,location)
+                                        ws.write(row, 0, product.default_code or '')
+                                        ws.write(row, 1, product.display_name)
+                                        ws.write(row, 2, product.qty_available or 0)
+                                        ws.write(row, 3, qty_location or 0)
+                                        ws.write(row, 4, concept and concept.budget_id.name or '')
+                                        ws.write(row, 5, concept and concept.name or '')
+                                        ws.write(row, 6, product.uom_id.name)
+                                        ws.write(row, 7, work_outs)
+                                        ws.write(row, 8, product.standard_price)
+                                        ws.write(row, 9, work_outs*product.standard_price)
+                                        product_ids.append(product.id)
+                                        row += 1
                 # Equipos
                 if self.equipment:
                     product_ids = []
@@ -229,8 +276,8 @@ class BimstockReportWizard(models.TransientModel):
                                 ws.write(row, 1, product.display_name)
                                 ws.write(row, 2, product.qty_available or 0)
                                 ws.write(row, 3, qty_location or 0)
-                                ws.write(row, 4, concept.name)
-                                ws.write(row, 5, concept.budget_id.name)
+                                ws.write(row, 4, concept.budget_id.name)
+                                ws.write(row, 5, concept.name)
                                 ws.write(row, 6, product.uom_id.name)
                                 ws.write(row, 7, part_outs)
                                 ws.write(row, 8, product.standard_price)
@@ -251,8 +298,8 @@ class BimstockReportWizard(models.TransientModel):
                                 ws.write(row, 1, product.display_name)
                                 ws.write(row, 2, product.qty_available or 0)
                                 ws.write(row, 3, qty_location or 0)
-                                ws.write(row, 4, concept.name)
-                                ws.write(row, 5, concept.budget_id.name)
+                                ws.write(row, 4, concept.budget_id.name)
+                                ws.write(row, 5, concept.name)
                                 ws.write(row, 6, product.uom_id.name)
                                 ws.write(row, 7, self.get_stock_out(product,location,concept))
                                 ws.write(row, 8, product.standard_price)
@@ -284,14 +331,26 @@ class BimstockReportWizard(models.TransientModel):
                 for pick in pickings:
                     for move in pick.move_lines:
                         qty_location = Quants._get_available_quantity(move.product_id,location)
-                        qty_budget = self.get_quantity(move.product_id,pick.bim_concept_id,pick.bim_space_id)
+                        budget = pick.bim_concept_id and pick.bim_concept_id.budget_id or False
+                        departure = pick.bim_concept_id and pick.bim_concept_id or False
+                        coste_real = move.product_id.standard_price
+                        if workorder_active:
+                            if not budget:
+                                budget = move.workorder_departure_id and move.workorder_departure_id.budget_id or False
+                            if not departure:
+                                departure = move.workorder_departure_id and move.workorder_departure_id or False
+                            if move.workorder_departure_id:
+                                coste_real = move.price_unit
+
+                        qty_budget = self.get_quantity(move.product_id,departure,pick.bim_space_id)
                         quantity_dif = qty_budget-move.product_uom_qty
                         amount_dif = (qty_budget*move.product_id.standard_price)-(move.product_uom_qty*move.product_id.standard_price)
+
                         ws.write(row, 0, move.product_id.default_code or '')
                         ws.write(row, 1, move.product_id.display_name)
                         ws.write(row, 2, move.reference)
-                        ws.write(row, 3, pick.bim_concept_id and pick.bim_concept_id.budget_id.name or '')
-                        ws.write(row, 4, pick.bim_concept_id and pick.bim_concept_id.name or '')
+                        ws.write(row, 3, budget and budget.name or '')
+                        ws.write(row, 4, departure and departure.name or '')
                         ws.write(row, 5, pick.bim_object_id and pick.bim_object_id.desc or '')
                         ws.write(row, 6, pick.bim_space_id and pick.bim_space_id.name or '')
                         ws.write(row, 7, move.product_id.seller_ids and move.product_id.seller_ids[0].name.display_name or '')
@@ -300,12 +359,12 @@ class BimstockReportWizard(models.TransientModel):
                         ws.write(row, 10, move.product_id.qty_available or 0)
                         ws.write(row, 11, qty_location or 0)
                         ws.write(row, 12, move.product_id.uom_id.name)
-                        ws.write(row, 13, qty_budget)               #Presupuesto
+                        ws.write(row, 13, qty_budget)                                #Presupuesto
                         ws.write(row, 14, move.product_id.standard_price)            #Presupuesto
                         ws.write(row, 15, qty_budget*move.product_id.standard_price) #Presupuesto
-                        ws.write(row, 16, move.product_uom_qty)
-                        ws.write(row, 17, move.product_id.standard_price)
-                        ws.write(row, 18, move.product_uom_qty*move.product_id.standard_price)
+                        ws.write(row, 16, move.product_uom_qty)             #Ejecutado
+                        ws.write(row, 17, coste_real)                       #Ejecutado
+                        ws.write(row, 18, move.product_uom_qty*coste_real)  #Ejecutado
                         if quantity_dif < 0:
                             ws.write(row, 19, quantity_dif,style_negative)
                         else:
@@ -340,12 +399,12 @@ class BimstockReportWizard(models.TransientModel):
                             ws.write(row, 10, product.qty_available or 0)
                             ws.write(row, 11, qty_location or 0)
                             ws.write(row, 12, line.product_uom.name)
-                            ws.write(row, 13, qty_budget)          #Presupuesto
-                            ws.write(row, 14, product.standard_price)     #Presupuesto
+                            ws.write(row, 13, qty_budget)                        #Presupuesto
+                            ws.write(row, 14, product.standard_price)            #Presupuesto
                             ws.write(row, 15, qty_budget*product.standard_price) #Presupuesto
-                            ws.write(row, 16, line.product_uom_qty)
-                            ws.write(row, 17, line.price_unit)
-                            ws.write(row, 18, line.price_subtotal)
+                            ws.write(row, 16, line.product_uom_qty)    #Ejecutado
+                            ws.write(row, 17, line.price_unit)         #Ejecutado
+                            ws.write(row, 18, line.price_subtotal)     #Ejecutado
                             if quantity_dif < 0:
                                 ws.write(row, 19, quantity_dif,style_negative)
                             else:
@@ -355,6 +414,52 @@ class BimstockReportWizard(models.TransientModel):
                             else:
                                 ws.write(row, 20, amount_dif)
                             row += 1
+
+                # Mano de Obra desde Orden de TRabajo (Si esta instalado bim_workorder)
+                if workorder_active and workorders:
+                    bwor_obj = self.env['bim.workorder.resources']
+                    for word in workorders:
+                        for bwoc in word.concept_ids:
+                            lines_with = bwor_obj.search([('workorder_concept_id','=',bwoc.id),('workorder_id','=',bwoc.workorder_id.id)])
+                            lines_out = bwor_obj.search([('workorder_id','=',bwoc.workorder_id.id),('departure_id','=',bwoc.concept_id.id)])
+                            lines = lines_with + lines_out
+                            lines_mo = lines.filtered(lambda x:x.qty_execute > 0)
+
+                            for line in lines_mo:
+                                product = line.resource_id.product_id if line.type == 'budget_in' else line.product_id
+                                concept = line.concept_id if line.type == 'budget_in' else line.departure_id
+                                qty_location = Quants._get_available_quantity(product,location)
+                                qty_budget = self.get_quantity(product,concept,word.space_id)
+                                quantity_dif = qty_budget-line.qty_execute
+                                amount_dif = (qty_budget*product.standard_price)-line.duration_real*product.standard_price
+                                ws.write(row, 0, product.default_code or '')
+                                ws.write(row, 1, product.display_name)
+                                ws.write(row, 2, word.name)
+                                ws.write(row, 3, concept and concept.budget_id.name or '')
+                                ws.write(row, 4, concept and concept.name or '')
+                                ws.write(row, 5, word.object_id and word.object_id.desc or '')
+                                ws.write(row, 6, word.space_id and word.space_id.name or '')
+                                ws.write(row, 7, '')
+                                ws.write(row, 8, line.reason or '')
+                                ws.write(row, 9, datetime.strftime(line.date_start,'%Y-%m-%d'))
+                                ws.write(row, 10, product.qty_available or 0)
+                                ws.write(row, 11, qty_location or 0)
+                                ws.write(row, 12, product.uom_id.name)
+                                ws.write(row, 13, qty_budget)                        #Presupuesto
+                                ws.write(row, 14, product.standard_price)            #Presupuesto
+                                ws.write(row, 15, qty_budget*product.standard_price) #Presupuesto
+                                ws.write(row, 16, line.duration_real)                            #Ejecutado
+                                ws.write(row, 17, product.standard_price)                      #Ejecutado
+                                ws.write(row, 18, line.duration_real*product.standard_price)     #Ejecutado
+                                if quantity_dif < 0:
+                                    ws.write(row, 19, quantity_dif,style_negative)
+                                else:
+                                    ws.write(row, 19, quantity_dif)
+                                if amount_dif < 0:
+                                    ws.write(row, 20, amount_dif,style_negative)
+                                else:
+                                    ws.write(row, 20, amount_dif)
+                                row += 1
 
             # Equipos (Partes)
             if self.equipment:
@@ -379,12 +484,12 @@ class BimstockReportWizard(models.TransientModel):
                             ws.write(row, 10, product.qty_available or 0)
                             ws.write(row, 11, qty_location or 0)
                             ws.write(row, 12, line.product_uom.name)
-                            ws.write(row, 13, qty_budget) #Presupuesto
-                            ws.write(row, 14, product.standard_price)      #Presupuesto
+                            ws.write(row, 13, qty_budget)                         #Presupuesto
+                            ws.write(row, 14, product.standard_price)             #Presupuesto
                             ws.write(row, 15, qty_budget*product.standard_price)  #Presupuesto
-                            ws.write(row, 16, line.product_uom_qty)
-                            ws.write(row, 17, line.price_unit)
-                            ws.write(row, 18, line.price_subtotal)
+                            ws.write(row, 16, line.product_uom_qty)    #Ejecutado
+                            ws.write(row, 17, line.price_unit)         #Ejecutado
+                            ws.write(row, 18, line.price_subtotal)     #Ejecutado
                             if quantity_dif < 0:
                                 ws.write(row, 19, quantity_dif,style_negative)
                             else:

@@ -50,7 +50,9 @@ class BimPurchaseRequisition(models.Model):
     picking_ids = fields.One2many('stock.picking', 'bim_requisition_id', string='Transferencias')
     picking_count = fields.Integer('Cantidad Transf', compute="_compute_picking")
     purchase_ids = fields.One2many('purchase.order', 'bim_requisition_id', string='Compras')
+    purchase_requisition_ids = fields.Many2many('purchase.requisition', string='Acuerdo de Compra')
     purchase_count = fields.Integer('Cantidad Compras', compute="_compute_purchases")
+    agree_count = fields.Integer('Cantidad Acuerdos', compute="_compute_purchase_requisitions")
     amount_total = fields.Float('Total', compute="_compute_total")
     space_id = fields.Many2one('bim.budget.space', 'Espacio')
 
@@ -84,6 +86,10 @@ class BimPurchaseRequisition(models.Model):
     def _compute_purchases(self):
         for req in self:
             req.purchase_count = len(req.purchase_ids)
+
+    def _compute_purchase_requisitions(self):
+        for req in self:
+            req.agree_count = len(req.purchase_requisition_ids)
 
     def _compute_total(self):
         for record in self:
@@ -123,6 +129,15 @@ class BimPurchaseRequisition(models.Model):
         action = self.env.ref('purchase.purchase_rfq').read()[0]
         if len(purchases) > 0:
             action['domain'] = [('id', 'in', purchases.ids)]
+        else:
+            action = {'type': 'ir.actions.act_window_close'}
+        return action
+
+    def action_view_agreement(self):
+        agreements = self.mapped('purchase_requisition_ids')
+        action = self.env.ref('purchase_requisition.action_purchase_requisition').read()[0]
+        if len(agreements) > 0:
+            action['domain'] = [('id', 'in', agreements.ids)]
         else:
             action = {'type': 'ir.actions.act_window_close'}
         return action
@@ -239,7 +254,8 @@ class ProductList(models.Model):
     company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True)
     analytic_id = fields.Many2one('account.analytic.account', 'Cuenta analítica')
     analytic_tag_ids = fields.Many2many('account.analytic.tag', string='Etiquetas analíticas')
-    partner_id = fields.Many2one('res.partner','Proveedor')
+    partner_ids = fields.Many2many('res.partner', string='Proveedor')
+    #partner_id = fields.Many2one('res.partner','Proveedor')
     requisition_id = fields.Many2one('bim.purchase.requisition', 'Requisition', ondelete='cascade')
     project_id = fields.Many2one('bim.project', string="Obra")
 
@@ -261,9 +277,3 @@ class ProductList(models.Model):
                 raise UserError(_('No puede eliminar una Lineas en este diferente a Nuevo!'))
         return super(ProductList, self).unlink()
 
-    # @api.model
-    # def create(self, values):
-    #     res = super(ProductList, self).create(values)
-    #     if 'requisition_id' in values:
-    #         res['analytic_id'] = self.requisition_id.analytic_id
-    #     return res

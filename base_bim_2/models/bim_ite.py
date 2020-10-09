@@ -12,26 +12,12 @@ class BimIte(models.Model):
     name = fields.Char('Código', translate=True, default="Nuevo")
     desc = fields.Char('Descripción')
     obs = fields.Text('Notas')
-    company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company,
-                                 required=True)
-
-    amount = fields.Float('Total',
-                             required=True, readonly=True)
-
-    """
-    ite_material = fields.Float('Materiales')
-    ite_mo = fields.Float('Mano de Obra')
-    ite_eq = fields.Float('Equipos')
-    ite_sc = fields.Float('Subcontrato')
-    ite_otros = fields.Float('Otros')
-    total = fields.Float('Total')
-    """
-
-    val_a = fields.Float("A")
-    val_b = fields.Float("B")
-    val_c = fields.Float("C")
-    val_d = fields.Float("D")
-
+    val_n = fields.Float("N")
+    val_x = fields.Float("X")
+    val_y = fields.Float("Y")
+    val_z = fields.Float("Z")
+    company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True)
+    amount = fields.Float('Total', required=True, readonly=True)
     line_ids = fields.One2many(comodel_name="bim.ite.line", inverse_name="ite_ide", string="Líneas")
 
     @api.model
@@ -40,7 +26,7 @@ class BimIte(models.Model):
             vals['name'] = self.env['ir.sequence'].next_by_code('bim.ite') or "Nuevo"
         return super(BimIte, self).create(vals)
 
-    @api.onchange('line_ids','val_a','val_b','val_c','val_d')
+    @api.onchange('line_ids','val_n','val_x','val_y','val_z')
     def onchange_lines_ids(self):
         for record in self:
             record.amount = sum(x.amount for x in record.line_ids)
@@ -61,20 +47,20 @@ class BimIteLine(models.Model):
     _description = 'Líneas de ITE'
 
     code = fields.Char("Código")
-    name = fields.Char("Nombre")
+    name = fields.Char("Descripción")
+    concept = fields.Char("Concepto")
     sequence = fields.Integer(string='Sequence', default=10)
-    formula = fields.Char("Fórmulas/Valor", default="1")
-
+    formula = fields.Char("Fórmulas/Valor")
     product_id = fields.Many2one(comodel_name="product.product", string="Producto")
-
     price = fields.Float("Precio")
-
-    amount = fields.Float('Sub Total', help="Monto", compute='cal_amount')
-    qty_calc = fields.Float('Cantidad', help="Monto", compute='cal_amount')
-
-    product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id')
-    product_uom = fields.Many2one('uom.uom', string='Unit of Measure',
-                                  domain="[('category_id', '=', product_uom_category_id)]")
+    amount = fields.Float('Importe', help="Monto", compute='_compute_amount')
+    qty_calc = fields.Float('Cantidad', help="Cantidad", compute='_compute_quantity')
+    ite_ide = fields.Many2one(comodel_name="bim.ite", string="Bim Ite")
+    product_uom = fields.Many2one('uom.uom', string='UdM')
+    type = fields.Selection([
+        ('product','Producto'),
+        ('concept','Partida')],
+        string='Tipo')
 
     @api.onchange('name')
     def _onchange_name(self):
@@ -82,17 +68,14 @@ class BimIteLine(models.Model):
             self.product_uom = self.product_id.uom_id.id
             self.price = self.product_id.standard_price
 
-    @api.depends('price', 'formula')
-    def cal_amount(self):
-        for record in self:
-            formula = record.formula
-            _formula = formula.replace("A",str(record.ite_ide.val_a)).replace("a",str(record.ite_ide.val_a)).replace("B",str(record.ite_ide.val_b)).replace("b",str(record.ite_ide.val_c)).replace("C",str(record.ite_ide.val_c)).replace("c",str(record.ite_ide.val_c))
-            qty = float(eval(_formula))
-            record.qty_calc = qty
-            record.amount = qty * record.price
-
-
-
+    # ~ @api.depends('price', 'formula')
+    # ~ def compute_amount(self):
+        # ~ for record in self:
+            # ~ formula = record.formula
+            # ~ _formula = formula.replace("A",str(record.ite_ide.val_a)).replace("a",str(record.ite_ide.val_a)).replace("B",str(record.ite_ide.val_b)).replace("b",str(record.ite_ide.val_c)).replace("C",str(record.ite_ide.val_c)).replace("c",str(record.ite_ide.val_c))
+            # ~ qty = float(eval(_formula))
+            # ~ record.qty_calc = qty
+            # ~ record.amount = qty * record.price
 
     @api.onchange('product_id')
     def onchange_product_id(self):
@@ -102,5 +85,21 @@ class BimIteLine(models.Model):
         else:
             self.code = "00"
 
+    @api.depends('price', 'formula', 'ite_ide')
+    def _compute_quantity(self):
+        for record in self:
+            if record.formula:
+                N = n = record.ite_ide.val_n
+                X = x = record.ite_ide.val_x
+                Y = y = record.ite_ide.val_y
+                Z = z = record.ite_ide.val_z
+                record.qty_calc = eval(str(record.formula))
+            else:
+                record.qty_calc = 1
 
-    ite_ide = fields.Many2one(comodel_name="bim.ite", string="Bim Ite")
+    @api.depends('price', 'formula', 'ite_ide')
+    def _compute_amount(self):
+        for record in self:
+            record.amount = 1
+
+

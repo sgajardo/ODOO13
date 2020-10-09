@@ -23,8 +23,9 @@ class CreatePurchaseWizard(models.TransientModel):
                     'cost': line.cost,
                     'um_id': line.um_id.id,
                     'analytic_id': line.analytic_id.id,
-                    'partner_id': line.partner_id.id,
-                    'analytic_tag_ids': line.analytic_tag_ids.ids
+                    #'partner_id': line.partner_id.id,
+                    'analytic_tag_ids': line.analytic_tag_ids.ids,
+                    'seller_ids': line.partner_ids.ids,
                 }))
         if not lines:
             raise UserError('No hay líneas nuevas para comprar')
@@ -33,13 +34,19 @@ class CreatePurchaseWizard(models.TransientModel):
 
     line_ids = fields.One2many('create.purchase.wizard.line','wizard_id','Líneas')
     filter_categ = fields.Boolean(string="Agrupar por Categoría")
-    #category_id = fields.Many2one('product.category', "Categoría")
 
     def create_purchase(self):
         self.ensure_one()
-        suppliers = self.line_ids.mapped('partner_id')
+        if not self.line_ids.mapped('seller_ids'):
+            raise UserError('No hay líneas con Proveedor asignado')
+
+        lines_purchase = self.line_ids.filtered(lambda i: len(i.seller_ids) == 1)
+        lines_requisition = self.line_ids.filtered(lambda i: len(i.seller_ids) > 1)
+        suppliers = lines_purchase.mapped('seller_ids')
+
         context = self._context
         PurchaseOrd = self.env['purchase.order']
+        PurchaseReq = self.env['purchase.requisition']
         req = self.env['bim.purchase.requisition'].browse(context['active_id'])
         purchases = []
         if req.project_id.warehouse_id:
@@ -52,7 +59,7 @@ class CreatePurchaseWizard(models.TransientModel):
             for categ in self.line_ids.mapped('product_id.categ_id'):
                 for supplier in suppliers:
                     purchase_lines = []
-                    for line in self.line_ids.filtered(lambda l: l.partner_id.id == supplier.id and l.product_id.categ_id.id == categ.id):
+                    for line in lines_purchase.filtered(lambda l: l.seller_ids.id == supplier.id and l.product_id.categ_id.id == categ.id):
                         line_vals = self._prepare_purchase_line(line,req)
                         purchase_lines.append((0,0,line_vals))
                     if purchase_lines:
@@ -74,12 +81,37 @@ class CreatePurchaseWizard(models.TransientModel):
                         'date_order': fields.Datetime.now(),
                         'picking_type_id': picking_type
                 })
-                for line in self.line_ids.filtered(lambda l: l.partner_id.id == supplier.id):
+                for line in lines_purchase.filtered(lambda l: l.seller_ids.id == supplier.id):
                     line_vals = self._prepare_purchase_line(line,req)
-                    print (line_vals)
                     purchase_lines.append((0,0,line_vals))
                 order.order_line = purchase_lines
                 req.write({'purchase_ids': [(4, order.id, None)]})
+
+        # Acuerdo de Compra
+        if lines_requisition:
+            items = [tuple(i.seller_ids.sorted().ids) for i in lines_requisition if i.seller_ids]
+            list_partner = []
+            for item in set(items):
+                agree_lines = []
+                for line in lines_requisition.filtered(lambda l: tuple(l.seller_ids.sorted().ids) == item):
+                    vals_agree = self._prepare_agreement_line(line,req)
+                    agree_lines.append((0,0,vals_agree))
+
+                agree = PurchaseReq.create({
+                        'origin': req.name,
+                        'ordering_date': fields.Datetime.now(),
+                        'line_ids': agree_lines
+                    })
+                agree.action_in_progress()
+                for seller_id in item:
+                    purchase_order = PurchaseOrd.create({
+                        'partner_id': seller_id,
+                        'origin': agree.name,
+                        'date_order': fields.Datetime.now(),
+                        'requisition_id': agree.id
+                    })
+                    purchase_order._onchange_requisition_id()
+                req.write({'purchase_requisition_ids': [(4, agree.id, None)]})
         return True
 
     def _prepare_purchase_line(self,line,req):
@@ -96,6 +128,17 @@ class CreatePurchaseWizard(models.TransientModel):
             'analytic_tag_ids': line.analytic_tag_ids
             }
 
+    def _prepare_agreement_line(self,line,req):
+        return {
+            'product_id': line.product_id.id,
+            'product_uom_id': line.um_id.id or line.product_id.uom_po_id.id,
+            'product_qty': line.quant,
+            'price_unit': line.cost,
+            'schedule_date': req.date_prevista,
+            #'requisition_id': ,
+            'account_analytic_id': line.analytic_id.id,
+            'analytic_tag_ids': line.analytic_tag_ids
+            }
 
 
 class CreatePurchaseWizardLine(models.TransientModel):
@@ -105,9 +148,11 @@ class CreatePurchaseWizardLine(models.TransientModel):
     wizard_id = fields.Many2one('create.purchase.wizard', 'Wizard')
     bim_req_line_id = fields.Many2one('product.list', 'Linea Requisicion')
     product_id = fields.Many2one('product.product', 'Producto')
-    partner_id = fields.Many2one('res.partner', 'Proveedor')
+    #partner_id = fields.Many2one('res.partner', 'Proveedor')
     quant = fields.Float('Cantidad')
     cost = fields.Float('Coste')
     um_id = fields.Many2one('uom.uom', 'U.M')
     analytic_id = fields.Many2one('account.analytic.account', 'Cuenta analítica')
     analytic_tag_ids = fields.Many2many('account.analytic.tag', string='Etiquetas analíticas')
+    seller_ids = fields.Many2many('res.partner', string='Proveedores')#
+

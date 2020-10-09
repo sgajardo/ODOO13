@@ -7,29 +7,30 @@
         <field name="arch" type="xml">
             <form string="ITE" delete="0">
                 <sheet>
-                    <div class="oe_title">
+                    <div class="o_address_format">
                        <h1>
-                           <field name="name" required="1"/>
+                           <field name="name" required="1" class="oe_inline" colspan="1"/>
+                           <field name="desc" placeholder="Descripción" required="1" class="oe_inline" style="margin-left: 30px" colspan="3"/>
                        </h1>
                     </div>
+
                     <group>
                         <group>
-                            <field name="desc" required="1"/>
-                            <field name="amount" force_save="1"/>
-                            <!--
-                            <field name="ite_material" />
-                            <field name="ite_mo" />
-                            <field name="ite_eq" />
-                            <field name="ite_sc" />
-                            <field name="ite_otros" />
-                            <field name="total" />
-                            -->
+                            <div class="oe_grey" colspan="4">
+                                <p><strong>- X :</strong> Base1 / Radio</p>
+                                <p><strong>- Y :</strong> Base2 / Ancho</p>
+                                <p><strong>- Z :</strong> Altura</p>
+                                <p><strong>Otros Operadores Disponibles</strong></p>
+                                <p><strong>- X² :</strong> X**2 ó pow(x,2)</p>
+                                <p><strong>- π :</strong> pi ó 3.14</p>
+                            </div>
                         </group>
                         <group>
-                            <field name="val_a" required="1"/>
-                            <field name="val_b" required="1"/>
-                            <field name="val_c" required="1"/>
-                            <field name="val_d" required="1"/>
+                            <field name="val_n" required="1"/>
+                            <field name="val_x" required="1"/>
+                            <field name="val_y" required="1"/>
+                            <field name="val_z" required="1"/>
+                            <field name="amount" force_save="1"/>
                         </group>
                     </group>
 
@@ -38,13 +39,14 @@
                             <field name="line_ids">
                                 <tree editable="bottom" create="1" delete="1">
                                     <field name="sequence" widget="handle" />
-                                    <field name="product_id" options="{'no_create': True}"/>
+                                    <field name="type" required="1"/>
+                                    <field name="product_id" options="{'no_create': True}" attrs="{'invisible': ['|',('type','=',False),('type','=','concept')],'required': [('type','=','product')]}"/>
+                                    <field name="concept" attrs="{'invisible': ['|',('type','=',False),('type','=','product')],'required': [('type','=','concept')]}"/>
                                     <field name="code" required="1"/>
                                     <field name="name" required="1"/>
-                                    <field name="product_uom_category_id" invisible="1"/>
-                                    <field name="product_uom" options="{'no_create': True}" required="1"/>
-                                    <field name="formula" required="1"/>
-                                    <field name="qty_calc" required="1" sum="Sum"/>
+                                    <field name="product_uom" options="{'no_create': True}"/>
+                                    <field name="formula" required="1" placeholder="Ej:(x+y)/z"/>
+                                    <field name="qty_calc" sum="Sum"/>
                                     <field name="price" required="1"/>
                                     <field name="amount" sum="Sum"/>
                                 </tree>
@@ -54,7 +56,7 @@
 
 
                     <field name="obs"/>
-          
+
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
@@ -100,7 +102,7 @@
         parent="menu_bim_data"
         action="action_bim_ite"
         sequence="120" />
-    
+
     </data>
 
 </odoo>

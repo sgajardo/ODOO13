@@ -19,6 +19,7 @@
                         <tree editable="bottom" create="0">
                             <field name="product_id" readonly="1" options='{"no_create": 1, "no_open": 1}' force_save="1"/>
                             <field name="uom_id" readonly="1" options='{"no_create": 1, "no_open": 1}' force_save="1"/>
+                            <field name="departure_id" options='{"no_create": 1, "no_open": 1}' force_save="1"/>
                             <field name="quantity"/>
                             <field name="name" invisible="1"/>
                             <field name="wizard_id" invisible="1"/>

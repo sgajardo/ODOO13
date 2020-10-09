@@ -76,6 +76,8 @@ class BimBudgetReportWizard(models.TransientModel):
             if record.type == 'aux':
                 amount = record.amount_execute
                 amount_execute += amount
+            if record.type == 'departure':
+                amount_execute += record.amount_execute
             if record.child_ids:
                 return self.get_execute_aux(record.child_ids,amount_execute)
         return amount_execute

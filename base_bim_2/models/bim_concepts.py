@@ -260,12 +260,12 @@ class BimConcepts(models.Model):
             else:
                 executed = sum(child.amount_execute for child in record.child_ids)
 
-            record.qty_execute = quantity
+            #record.qty_execute = quantity
             record.amount_execute = executed
-            record.balance_execute = quantity * executed
             record.amount_execute_equip = execute_equip
             record.amount_execute_labor = execute_labor
             record.amount_execute_material = execute_material
+            record.balance_execute = execute_equip + execute_labor + execute_material
 
 
 
@@ -309,13 +309,13 @@ class BimConcepts(models.Model):
     attachment_ids = fields.Many2many('ir.attachment', string='Imágenes')
     picking_ids = fields.One2many('stock.picking', 'bim_concept_id', 'Stock')
     part_ids = fields.One2many('bim.part', 'concept_id', 'Partes')
-    bim_predecessor_concept_ids = fields.One2many('bim.predecessor.concept', 'concept_id', 'Antecesores')
+    bim_predecessor_concept_ids = fields.One2many('bim.predecessor.concept', 'concept_id', 'Predecesoras')
     subcon = fields.Boolean("Sub Contrato")
     id_bim = fields.Char("ID BIM")
 
     gantt_type = fields.Selection([('begin', 'Inicio Calculado'),
                                    ('end', 'Término Calculado'),
-                                   ('time', 'Duración Calculada')], default='end')
+                                   ('time', 'Duración Calculada')], default='end', related='budget_id.gantt_type')
     available = fields.Integer('Disponibilidad', default=1)
 
     quantity = fields.Float("Cantidad", default=1, digits='BIM qty')
@@ -342,7 +342,7 @@ class BimConcepts(models.Model):
 
     # Ejecucion
     amount_execute = fields.Float("Precio Ejec", compute="_compute_execute", digits='BIM price')
-    qty_execute = fields.Float("Cant Ejec", compute="_compute_execute", digits='BIM qty')
+    qty_execute = fields.Float("Cant Ejec",  digits='BIM qty')#compute="_compute_execute",
     balance_execute = fields.Monetary(string="Importe Ejec", compute="_compute_execute", store=True)
     amount_execute_equip = fields.Monetary('Ejecutado equipos', compute="_compute_execute")
     amount_execute_labor = fields.Monetary('Ejecutado mano de obra', compute="_compute_execute")
@@ -833,12 +833,6 @@ class BimConcepts(models.Model):
         action['domain'] = [('id', 'in', childs.ids), ('parent_id', '=', self.id), ('type', '=', 'labor')]
         return action
 
-    # ~ def action_view_subcon(self):
-        # ~ childs = self.mapped('child_ids')
-        # ~ action = self.env.ref('base_bim_2.action_bim_concepts').read()[0]
-        # ~ action['domain'] = [('id', 'in', childs.ids),('parent_id', '=', self.id),('type', '=', 'subcon')]
-        # ~ return action
-
     def action_view_departure(self):
         childs = self.mapped('child_ids')
         action = self.env.ref('base_bim_2.action_bim_concepts').read()[0]
@@ -984,5 +978,60 @@ class BimCertificationStage(models.Model):
 class BimPredecessorConcept(models.Model):
     _name = 'bim.predecessor.concept'
     _description = "Tareas Antecesores"
-    name = fields.Many2one('bim.concepts', "Antecesor")
+
+    name = fields.Many2one('bim.concepts', 'Predecesor', required=True)
     concept_id = fields.Many2one('bim.concepts', "Partida")
+    difference = fields.Integer('Días de diferencia', help='Admite valores negativos')
+    pred_type = fields.Selection([('ff', 'Fin a fin'),
+                                  ('fs', 'Fin a inicio'),
+                                  ('sf', 'Inicio a fin'),
+                                  ('ss', 'Inicio a inicio')], 'Tipo', required=True, default='fs')
+
+    _sql_constraints = [
+        ('unique_concept_predecessor', 'unique(name,concept_id)', 'No puede repetir la misma predecesora.')
+    ]
+
+    @api.constrains('name')
+    def _check_loops(self):
+        def in_loop(concept, predecessors, verified):
+            for pred in predecessors:
+                if pred.name in verified:
+                    continue
+                verified += pred.name
+                if concept == pred.name:
+                    return [pred.name]
+                res = in_loop(concept, pred.name.bim_predecessor_concept_ids, verified)
+                if res:
+                    return res + [pred.name]
+            for child in concept.child_ids:
+                if child in verified:
+                    continue
+                verified += child
+                res = in_loop(concept, child.bim_predecessor_concept_ids, verified)
+                if res:
+                    return res + [child]
+            return []
+
+        def get_parents(concept):
+            if not concept.parent_id:
+                return self.name.browse()
+            return concept.parent_id + get_parents(concept.parent_id)
+
+        def get_childs(concept):
+            if not concept.child_ids:
+                return self.name.browse()
+            grand_childs = self.name.browse()
+            for child in concept.child_ids:
+                grand_childs += get_childs(child)
+            return concept.child_ids + grand_childs
+
+        for record in self:
+            loops = in_loop(record.name, record.name.bim_predecessor_concept_ids, self.name.browse())
+            if loops:
+                loops.append(record.name)
+                raise ValidationError('Se está formando un ciclo.\n%s' % ' > '.join(l.display_name for l in loops))
+
+            if record.name in get_parents(record.concept_id):
+                raise ValidationError('No puede escoger un concepto padre')
+            if record.name in get_childs(record.concept_id):
+                raise ValidationError('No puede escoger un concepto hijo')

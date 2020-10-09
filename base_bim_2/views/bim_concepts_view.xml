@@ -27,7 +27,7 @@
                         <field name="width"/>
                         <field name="height"/>
                         <field name="formula"/>
-                        <field name="amount_subtotal" sum="Parcial"/>
+                        <field name="amount_subtotal" sum="Parcial" string="Total Pres"/>
                         <field name="concept_id" invisible="1"/>
                         <field name="budget_id" invisible="1"/>
                     </tree>
@@ -166,14 +166,6 @@
                                 <span class="o_stat_text">Funciones</span>
                             </div>
                         </button>
-<!--
-                        <button name="action_view_subcon" type="object" class="oe_stat_button" icon="fa-edit" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('subcon_amount_count', '=', 0)]}">
-                            <div class="o_form_field o_stat_info">
-                                <span class="o_stat_value"><field name="subcon_amount_count" widget="statinfo" nolabel="1"/></span>
-                                <span class="o_stat_text">Subcontrato</span>
-                            </div>
-                        </button>
--->
 
                         <button name="action_view_part" type="object" class="oe_stat_button" icon="fa-bars" groups="base_bim_2.group_user_bim" attrs="{'invisible': ['|',('type', '!=', 'departure')]}">
                             <div class="o_form_field o_stat_info">
@@ -233,21 +225,25 @@
                             <field name="amount_measure" invisible="1"/>
                             <field name="amount_stage_cert" invisible="1"/>
                             <field name="sequence" invisible="1"/>
+                            <field name="gantt_type" invisible="1"/>
 
                             <field name="type" attrs="{'readonly':[('parent_id','=',False)]}"/>
-                            <field name="gantt_type" string="Programación" required="1"
-                                   attrs="{'invisible': [('type','!=','departure')]}"
-                                   help="Forma en que la partida calulará la programación"/>
                             <field name="acs_date_start"
-                                   attrs="{'invisible': [('type','!=','departure')], 'required': [('gantt_type', 'in', ['end', 'time'])]}"
+                                   attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])],
+                                           'required': [('gantt_type', 'in', ['end', 'time'])],
+                                           'readonly': [('gantt_type', '=', 'begin')]}"
+                                   forcesave="1"
                                    widget="date"
                                    string="Fecha de Inicio"/>
                             <field name="acs_date_end"
-                                   attrs="{'invisible': [('type','!=','departure')], 'required': [('gantt_type', 'in', ['begin', 'time'])]}"
+                                   attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])],
+                                           'required': [('gantt_type', 'in', ['begin', 'time'])],
+                                           'readonly': [('gantt_type', '=', 'end')]}"
+                                   forcesave="1"
                                    widget="date"
                                    string="Fecha de Finalización"/>
                             <field name="duration" string="Duración"
-                                   attrs="{'invisible': [('type','!=','departure')]}"
+                                   attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])]}"
                                    help="Duración Máxima en Días"/>
                             <field name="hito" attrs="{'invisible': [('type','!=','departure')]}"/>
                             <field name="available" attrs="{'invisible': [('type','not in', ['labor', 'equip'])]}"/>
@@ -266,7 +262,6 @@
                             <field name="balance" attrs="{'invisible':[('type','=',False)]}" widget="monetary"/>
                             <field name="id_bim"/>
                       </group>
-
                        <group string="Certificación" attrs="{'invisible':['|',('budget_type','!=','certification'),('to_certify','=',False)]}">
                             <field name="type_cert"  widget="radio" attrs="{'invisible':['|','|',('to_certify','=',False),('auto_certify','=',True),('manual_certify','=',True)]}"/>
                             <field name="amount_fixed_cert" attrs="{'invisible':['|',('type_cert','!=','fixed'),('to_certify','=',False)]}" widget="monetary"/>
@@ -274,6 +269,11 @@
                             <field name="quantity_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="percent_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="balance_cert" widget="monetary"/>
+                      </group>
+                       <group string="Ejecutado" name="execute_mode" attrs="{'invisible':['|',('budget_type','!=','execution'),('type','!=','departure')]}">
+                            <field name="amount_execute" string="Precio Ejecutado" widget="monetary"/>
+                            <field name="qty_execute" string="Cantidad Ejecutado"/>
+                            <field name="balance_execute" string="Importe Ejecutado" widget="monetary"/>
                       </group>
                     </group>
 
@@ -334,19 +334,20 @@
                         <page name="predecessor" string="Antecesores" attrs="{'invisible': [('type','!=','departure')]}">
                             <field name="bim_predecessor_concept_ids">
                                 <tree editable="bottom">
-                                    <field name="name" options="{'no_create_edit': True}" domain="[('budget_id', '=', parent.budget_id)]"/>
+                                    <field name="name" options="{'no_create': True}"
+                                        domain="[('budget_id', '=', parent.budget_id),
+                                                 ('type', 'in', ['chapter', 'departure']),
+                                                 ('child_ids', 'not in', parent.id),
+                                                 ('id', '!=', parent.id)]"/>
+                                    <field name="pred_type"/>
+                                    <field name="difference"/>
                                 </tree>
                             </field>
                         </page>
 
-                        <page name="execute" string="Ejecución" >
+                        <page name="execute" string="Ejecución" attrs="{'invisible': [('type','!=','departure')]}">
                             <group>
-                                <group string="General">
-                                    <field name="amount_execute" widget="monetary" string="Precio Ejecutado"/>
-                                    <field name="qty_execute" string="Cantidad Ejecutado"/>
-                                    <field name="balance_execute" string="Importe Ejecutado"/>
-                                </group>
-                                <group string="Detallado" attrs="{'invisible':[('type','!=','departure')]}">
+                                <group string="Presupuesto" attrs="{'invisible':[('type','!=','departure')]}">
                                     <field name="amount_execute_material"/>
                                     <field name="amount_execute_equip"/>
                                     <field name="amount_execute_labor"/>

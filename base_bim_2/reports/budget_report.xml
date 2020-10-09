@@ -72,7 +72,7 @@
                                                     <td class="text-right"><span t-esc="filter_dep['qty']*filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                                 </tr>
                                                 <!-- PARTIDA EXTRA EN NIVEL PARTIDAS UNICAMENTE-->
-                                                <t t-if="any(ext.id for ext in child.child_ids if ext.type == 'departure') and o.summary_type == 'departure'" t-foreach="child.child_ids" t-as="extra">
+                                                <t t-if="any(ext.id for ext in child.child_ids if ext.type == 'departure') and o.summary_type == 'departure'" t-foreach="child.child_ids.filtered(lambda i:i.type in ['chapter','departure'])" t-as="extra">
                                                     <t t-set="filter_ext" t-value="o.get_quantity_filter(extra)"/>
                                                     <t t-if="filter_ext['qty'] > 0">
                                                         <tr class="extra_row">
@@ -156,7 +156,7 @@
                                             <td class="text-right"><span t-field="child.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                         </tr>
                                         <!-- PARTIDA EXTRA (SOLO DETALLE PARTIDAS)-->
-                                        <t t-if="any(ext.type == 'departure' for ext in child.child_ids) and o.summary_type == 'departure'" t-foreach="child.child_ids" t-as="extra">
+                                        <t t-if="any(ext.type == 'departure' for ext in child.child_ids) and o.summary_type == 'departure'" t-foreach="child.child_ids.filtered(lambda i:i.type in ['chapter','departure'])" t-as="extra">
                                             <tr class="extra_row">
                                                 <td class="text-left">
                                                     <i t-attf-class="fa fa-{{'th-large text-success' if extra.type == 'chapter' else 'percent text-warning' if extra.type == 'aux' else 'th-list text-warning' if extra.type == 'departure' else 'male text-success' if extra.type == 'labor' else 'gears text-danger' if extra.type == 'equip' else 'maxcdn text-warning' if extra.type == 'material' else 'edit text-info'}} mr-2 ml-2 float-left"/><span t-field="child.code"/>

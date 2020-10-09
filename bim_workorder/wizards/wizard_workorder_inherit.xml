@@ -9,6 +9,8 @@
                 <group name="bim_req" position="after">
                     <group>
                         <field name="filter_categ"/>
+                        <field name="category_id" options="{'no_create': True, 'no_open': True }"
+                               attrs="{'invisible': [('filter_categ', '=', False)],'required': [('filter_categ', '=', True)]}"/>
                     </group>
                     <group>
                         <field name="workorder_ids" domain="[('project_id', '=', project_id)]" attrs="{'invisible':[('budget_ids','=',[])]}" widget="many2many_checkboxes"/>

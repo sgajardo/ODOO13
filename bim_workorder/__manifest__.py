@@ -10,7 +10,7 @@
     'category': 'Construction',
     'summary': 'Ordenes de trabajo para BIM',
     'depends': [
-        'base_bim_2','hr'
+        'base_bim_2','hr','purchase_requisition'
     ],
     'description': """
 BIM 2.0
@@ -26,6 +26,8 @@ BIM 2.0
         'wizards/wizard_workorder_inherit.xml',
         'wizards/wizard_installer.xml',
         'views/stock_picking_view.xml',
+        'views/bim_concept_view.xml',
+        'views/bim_report_inherit.xml',
     ],
     'installable': True,
     'auto_install': False,
