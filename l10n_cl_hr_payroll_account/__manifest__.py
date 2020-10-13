@@ -28,7 +28,7 @@
     'license': 'AGPL-3',
     'category': 'Human Resources',
     'summary': 'Centralización de nómina.',
-    'depends': ['account', 'hr_payroll', 'l10n_cl_hr_payroll'],
+    'depends': ['account', 'hr_payroll', 'l10n_cl_hr_payroll', 'analytic'],
     'data': [
         'views/hr_salary_rule.xml',
         'views/hr_contract.xml',

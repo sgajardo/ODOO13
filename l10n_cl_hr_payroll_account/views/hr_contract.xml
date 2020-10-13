@@ -7,7 +7,8 @@
         <field name="arch" type="xml">
             <group name="duration_group" position="after">
                 <group name="accounting" string="Contabilidad">
-                    <field name="account_analytic_account_id"/>
+                    <field name="account_analytic_account_id" groups="analytic.group_analytic_accounting"/>
+                    <field name="account_analytic_tag_id" groups="analytic.group_analytic_tags"/>
                 </group>
             </group>
         </field>

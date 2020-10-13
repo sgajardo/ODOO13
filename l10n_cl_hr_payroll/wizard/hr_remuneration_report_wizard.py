@@ -107,7 +107,7 @@ class HrRemunerationReportWizard(models.TransientModel):
         txt_file = io.StringIO()
         writer = csv.writer(txt_file, delimiter=str(self.type_delimitador), quoting=csv.QUOTE_NONE)
         row = ['RUT', 'NOMBRE', 'CENTRO COSTOS', 'AFP', 'SALUD', 'CARGO', 'DIAS', 'S. BASE', 'S. MES', 'No. HORAS EXTRAS (50%)', 'MONTO HORAS EXTRAS 50%',
-               'No. HORAS EXTRAS (100%)', 'MONTO HORAS EXTRAS 100%', 'TOTAL HABERES', 'TOTAL COSTO EMPRESA']
+               'No. HORAS EXTRAS (100%)', 'MONTO HORAS EXTRAS 100%', 'TOTAL HABERES', 'TOTAL COSTO EMPRESA', 'TOTAL IMPONIBLE']
         rules = self.env['hr.salary.rule'].browse()
         for categ in ['IMPONIBLE', 'NOIMPO', 'DED', 'ODESC', 'COMP', 'PREV', 'SALUD']:
             rules += rules.search([('struct_id', '=', self.env.ref('l10n_cl_hr_payroll.hr_struct_cl').id), ('category_id.code', '=', categ),
@@ -119,7 +119,7 @@ class HrRemunerationReportWizard(models.TransientModel):
             if rule == grat_dupe:
                 # Nos saltamos la gratificación legal repetida.
                 continue
-            row.insert(-2, rule.name.upper())
+            row.insert(-3, rule.name.upper())
         writer.writerow(row)
 
         for p in payslips:
@@ -151,6 +151,8 @@ class HrRemunerationReportWizard(models.TransientModel):
                 # Total haberes
                 int(self.get_rule_value('HAB', p.id)),
                 int(self.get_rule_value('HAB', p.id) + self.get_rule_value('SIS', p.id) + self.get_rule_value('MUT', p.id) + self.get_rule_value('TRABPES', p.id)),
+                # Total imponible
+                int(self.get_rule_value('TOTIM', p.id)),
             ]
             for rule in rules:
                 if rule == grat_dupe:

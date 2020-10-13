@@ -7,13 +7,13 @@
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-    <menuitem
+    <!-- <menuitem
         name="Libro de Remuneraciones"
         parent="hr_payroll.menu_hr_payroll_report"
         sequence="10"
         action="action_salary_books"
         id="menu_salary_books"
-        />
+        /> -->
 
     <record id="view_salary_employee_month" model="ir.ui.view">
         <field name="name">Libro de Remuneraciones</field>

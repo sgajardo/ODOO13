@@ -56,8 +56,10 @@ class HrPayslipRun(models.Model):
                 if line.salary_rule_id.expense:
                     contract = slip.employee_id.contract_id or contract_obj.search([('employee_id', '=', slip.employee_id.id)], limit=1)
                     analytic_account = contract and contract.account_analytic_account_id and contract.account_analytic_account_id.id or None
+                    analytic_tag = contract and contract.account_analytic_tag_id and contract.account_analytic_tag_id.id or None
                 else:
                     analytic_account = None
+                    analytic_tag = None
                 if line.salary_rule_id.account_type:
                     account_type = line.salary_rule_id.account_type
                 else:
@@ -75,6 +77,7 @@ class HrPayslipRun(models.Model):
                         'debit': account_type == 'dcr' and line.total or 0.0,
                         'credit': account_type == 'acr' and line.total or 0.0,
                         'analytic_account_id': analytic_account,
+                        'analytic_tag_ids': [(4, analytic_tag)],
                     })})
                 debit_sum += account_type == 'dcr' and line.total or 0.0
                 credit_sum += account_type == 'acr' and line.total or 0.0
