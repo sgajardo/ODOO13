@@ -68,7 +68,7 @@ class HrPayslipRun(models.Model):
                 if key in vals:
                     vals[key][2][account_type == 'dcr' and 'debit' or 'credit'] += line.total
                 else:
-                    vals.update({key: (0, 0, {
+                    values = {
                         'name': line.name or '',
                         'partner_id': partner,
                         'account_id': account,
@@ -77,8 +77,10 @@ class HrPayslipRun(models.Model):
                         'debit': account_type == 'dcr' and line.total or 0.0,
                         'credit': account_type == 'acr' and line.total or 0.0,
                         'analytic_account_id': analytic_account,
-                        'analytic_tag_ids': [(4, analytic_tag)],
-                    })})
+                    }
+                    if analytic_tag:
+                        values.update({'analytic_tag_ids': [(4, analytic_tag)]})
+                    vals.update({key: (0, 0, values)})
                 debit_sum += account_type == 'dcr' and line.total or 0.0
                 credit_sum += account_type == 'acr' and line.total or 0.0
 

@@ -1,4 +1,5 @@
 from datetime import timedelta
+from calendar import monthrange
 
 from odoo import api, models
 
@@ -11,6 +12,7 @@ class HrEmployee(models.Model):
     def factor_isapre(self, contract, date_from, date_to):
         """ Devuelve un float que representa el factor por el que se debe multiplicar
         el monto adicional isapre, tomando en cuenta los días de ausencia por licencia """
+        days_of_month = False
         if contract.type_id.codigo == 'diario':
             wdf = date_from if date_from >= contract.date_start else contract.date_start
             wdt = date_to if (not contract.date_end or date_to <= contract.date_end) else contract.date_end
@@ -18,9 +20,10 @@ class HrEmployee(models.Model):
         # Si el contrato empieza antes del periodo de nómina y termina después del periodo de nómina: 30 días
         elif contract.date_start <= date_from and (not contract.date_end or contract.date_end >= date_to):
             nod = 30.0
-        # Si el contrato empieza después del periodo de nómina y termina después del periodo: 31 - día que comenzó el contrato
+        # Si el contrato empieza después del periodo de nómina y termina después del periodo: dias del mes - día que comenzó el contrato + 1
         elif contract.date_start > date_from and (not contract.date_end or contract.date_end >= date_to):
-            nod = 31.0 - contract.date_start.day
+            days_of_month = monthrange(date_from.year, date_from.month)[1]
+            nod = days_of_month - contract.date_start.day + 1
         # Si el contrato empieza antes del periodo de nómina y termina antes del periodo: día en que termina el contrato
         elif contract.date_start <= date_from and (contract and contract.date_end < date_to):
             nod = contract.date_end.day
@@ -44,4 +47,4 @@ class HrEmployee(models.Model):
                 if date_from <= actual <= date_to:
                     dias_licencia.add(actual)
                 dt_start += timedelta(days=1)
-        return round((nod - len(dias_licencia)) / 30, 5)
+        return round((nod - len(dias_licencia)) / (days_of_month or 30), 5)
