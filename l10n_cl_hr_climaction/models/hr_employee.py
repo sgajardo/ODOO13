@@ -1,10 +1,11 @@
 from datetime import timedelta
 
-from odoo import api, fields, models
+from odoo import api, models
 
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
+
 
     @api.model
     def factor_isapre(self, contract, date_from, date_to):
@@ -28,19 +29,18 @@ class HrEmployee(models.Model):
             dt_start, dt_end = contract.date_start, contract.date_end or contract.date_start
             nod = (dt_end - dt_start).days + 1
         # Buscamos los días de licencia
-        licencias = self.env['hr.holidays'].search([
+        licencias = self.env['hr.leave'].search([
             ('employee_id', '=', contract.employee_id.id),
             ('date_from', '<=', date_to),
             ('date_to', '>=', date_from),
             ('state', '=', 'validate'),
-            ('type', '=', 'remove'),
             ('holiday_status_id', '=', self.env.ref('l10n_cl_hr_payroll.LC02').id)
         ])
         dias_licencia = set()
         for licencia in licencias:
-            dt_start, dt_end = map(fields.Date.from_string, [licencia.date_from, licencia.date_to])
+            dt_start, dt_end = licencia.date_from.date(), licencia.date_to.date()
             while dt_start <= dt_end:
-                actual = fields.Date.to_string(dt_start)
+                actual = dt_start
                 if date_from <= actual <= date_to:
                     dias_licencia.add(actual)
                 dt_start += timedelta(days=1)
