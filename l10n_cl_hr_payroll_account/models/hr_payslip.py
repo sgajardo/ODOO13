@@ -64,7 +64,7 @@ class HrPayslipRun(models.Model):
                     account_type = line.salary_rule_id.account_type
                 else:
                     raise UserError(_('Debe definir si la regla %s entra por Debe o por Haber') % line.salary_rule_id.name)
-                key = '%s/%s/%s' % (partner, account, account_type)
+                key = '%s/%s/%s/%s' % (partner, account, account_type, analytic_tag)
                 if key in vals:
                     vals[key][2][account_type == 'dcr' and 'debit' or 'credit'] += line.total
                 else:
