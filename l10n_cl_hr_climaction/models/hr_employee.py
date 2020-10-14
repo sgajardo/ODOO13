@@ -19,13 +19,13 @@ class HrEmployee(models.Model):
             nod = 30.0
         # Si el contrato empieza después del periodo de nómina y termina después del periodo: 31 - día que comenzó el contrato
         elif contract.date_start > date_from and (not contract.date_end or contract.date_end >= date_to):
-            nod = 31.0 - int(contract.date_start.split('-')[2])
+            nod = 31.0 - contract.date_start.day
         # Si el contrato empieza antes del periodo de nómina y termina antes del periodo: día en que termina el contrato
         elif contract.date_start <= date_from and (contract and contract.date_end < date_to):
-            nod = int(contract.date_end.split('-')[2])
+            nod = contract.date_end.day
         # Si el contrato empieza después y termina antes del periodo de nómina: días entre el periodo del contrato
         else:
-            dt_start, dt_end = map(fields.Date.from_string, [contract.date_start, contract.date_end])
+            dt_start, dt_end = contract.date_start, contract.date_end or contract.date_start
             nod = (dt_end - dt_start).days + 1
         # Buscamos los días de licencia
         licencias = self.env['hr.holidays'].search([
