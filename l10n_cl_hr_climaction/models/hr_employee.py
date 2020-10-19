@@ -47,4 +47,4 @@ class HrEmployee(models.Model):
                 if date_from <= actual <= date_to:
                     dias_licencia.add(actual)
                 dt_start += timedelta(days=1)
-        return round((nod - len(dias_licencia) / 30), 5)
+        return round((nod - len(dias_licencia)) /  30, 5)
