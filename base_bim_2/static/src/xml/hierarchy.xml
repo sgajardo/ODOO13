@@ -42,11 +42,7 @@
                     <button t-attf-class="dropdown-item{{budget_type === 'budget' ? ' active' : ''}}" type="button" data-type="budget">Presupuesto</button>
                     <button t-attf-class="dropdown-item{{budget_type === 'certification' ? ' active' : ''}}" type="button" data-type="certification">Certificación</button>
                     <button t-attf-class="dropdown-item{{budget_type === 'execution' ? ' active' : ''}}" type="button" data-type="execution">Ejecución</button>
-                    <button t-attf-class="dropdown-item{{budget_type === 'target' ? ' active' : ''}}" type="button" data-type="target">Objetivo</button>
-                    <button t-attf-class="dropdown-item{{budget_type === 'planning' ? ' active' : ''}}" type="button" data-type="planning">Planificación</button>
-                    <button t-attf-class="dropdown-item{{budget_type === 'entire' ? ' active' : ''}}" type="button" data-type="entire">Completo</button>
-                    <button t-attf-class="dropdown-item{{budget_type === 'nature' ? ' active' : ''}}" type="button" data-type="nature">Naturalezas</button>
-                    <button t-attf-class="dropdown-item{{budget_type === 'user' ? ' active' : ''}}" type="button" data-type="user">Usuario</button>
+                    <button t-attf-class="dropdown-item{{budget_type === 'gantt' ? ' active' : ''}}" type="button" data-type="gantt">Programación</button>
                 </div>
             </div>
             <button t-if="widget.initialState.context.default_budget_id"

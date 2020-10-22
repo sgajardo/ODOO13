@@ -52,10 +52,10 @@ class BimBudget(models.Model):
             functions = concepts.filtered(lambda c: c.type == 'aux')
             departures = concepts.filtered(lambda c: c.type == 'departure')
 
-            budget.amount_executed_equip = sum(e.amount_execute_equip for e in departures)    #sum(e.amount_execute for e in equipments)
-            budget.amount_executed_labor = sum(l.amount_execute_labor for l in departures)        #sum(l.amount_execute for l in labors)
-            budget.amount_executed_material = sum(m.amount_execute_material for m in departures)  #sum(m.amount_execute for m in materials)
-            budget.amount_executed_other = sum(f.amount_execute for f in functions)     #sum(f.amount_execute for f in functions)
+            budget.amount_executed_equip = sum(e.amount_execute_equip for e in departures)
+            budget.amount_executed_labor = sum(l.amount_execute_labor for l in departures)
+            budget.amount_executed_material = sum(m.amount_execute_material for m in departures)
+            budget.amount_executed_other = sum(f.amount_execute for f in functions)
 
 
     def _get_value(self, quantity, product):
@@ -179,7 +179,7 @@ class BimBudget(models.Model):
     template_id = fields.Many2one('bim.assets.template', string='Plantilla', tracking=True)
     user_id = fields.Many2one('res.users', string='Responsable', tracking=True, default=lambda self: self.env.user)
     indicator_ids = fields.One2many('bim.budget.indicator', 'budget_id', 'Indicadores comparativos')
-    concept_ids = fields.One2many('bim.concepts', 'budget_id', 'Concepto')
+    concept_ids = fields.One2many('bim.concepts', 'budget_id', 'Concepto', track_visibility='always')
     stage_ids = fields.One2many('bim.budget.stage', 'budget_id', 'Etapas')
     space_ids = fields.One2many('bim.budget.space', 'budget_id', 'Espacios')
     asset_ids = fields.One2many('bim.budget.assets', 'budget_id', string='Haberes y Descuentos')
@@ -188,8 +188,13 @@ class BimBudget(models.Model):
     space_count = fields.Integer('N° Espacios', compute="_get_space_count")
     company_id = fields.Many2one('res.company', string="Compañía", required=True, default=lambda self: self.env.company, readonly=True)
     currency_id = fields.Many2one('res.currency', string="Moneda", required=True, copy=True)
+    pricelist_id = fields.Many2one('product.pricelist', string='Lista de Precios', check_company=True, domain="['|',('company_id','=',False),('company_id','=',company_id)]")
     date_start = fields.Date('Fecha Inicio', required=True, copy=True, default=fields.Date.today)
     date_end = fields.Date('Fecha Fin', copy=True)
+    date_from = fields.Date('Fecha inicio programada', compute='_compute_dates')
+    date_to = fields.Date('Fecha fin programada', compute='_compute_dates')
+    do_compute = fields.Boolean('Hacer cálculos', default=True)
+    # use_programmed = fields.Boolean('Usar fechas programadas')  # En caso de querer usar el check, pero creo que se debería borrar...
     obs = fields.Text('Notas', copy=True)
     incidents = fields.Text('Incidencias', copy=False)
     order_mode = fields.Selection([
@@ -201,11 +206,7 @@ class BimBudget(models.Model):
         ('budget', 'Presupuesto'),
         ('certification', 'Certificación'),
         ('execution', 'Ejecución'),
-        ('target', 'Objetivo'),
-        ('planning', 'Planificación'),
-        ('entire', 'Completo'),
-        ('nature', 'Naturalezas'),
-        ('user', 'Usuario')],
+        ('gantt', 'Programación')],
         string='Tipo', default='budget', tracking=True, copy=True)
     state = fields.Selection([
         ('draft', 'Nuevo'),
@@ -276,6 +277,17 @@ class BimBudget(models.Model):
             self.asset_ids = [(5,)]
             self._create_assets(self.template_id)
 
+    @api.depends('concept_ids')
+    def _compute_dates(self):
+        today = fields.Datetime.today()
+        for record in self:
+            record.date_from = min([c.acs_date_start for c in record.concept_ids if c.acs_date_start], default=record.date_start or today)
+            record.date_to = max([c.acs_date_end for c in record.concept_ids if c.acs_date_end], default=record.date_end or today)
+
+    def set_estimated_dates(self):
+        for record in self:
+            record.date_start = record.date_from
+            record.date_end = record.date_to
 
     #@api.onchange('date_end','date_start')
     #def onchange_date(self):
@@ -306,6 +318,64 @@ class BimBudget(models.Model):
         #    }
         #    self.date_start = False
         #    return {'warning': warning}
+
+
+    def action_budget_send(self):
+        self.ensure_one()
+        wizard = self.env['bim.budget.report.wizard']
+        wizard = wizard.create({
+                'display_type': 'full',
+                'summary_type': 'departure',
+                'total_type': 'normal',
+                'filter_type': 'space',
+                'budget_id': self.id,
+                'project_id': self.project_id.id,
+                'text': True,
+                'filter_ok': False,
+        })
+        data = {
+            'id': [self.id],
+            'docs': self.id,
+            'model': 'bim.budget',
+            'form': {
+                'id': wizard.id,
+                'display_type': 'full',
+                'summary_type': 'departure',
+                'total_type': 'normal',
+                'filter_type': 'space',
+                'budget_id': (self.id, self.name),
+                'project_id': (self.project_id.id, self.project_id.name),
+                'text': True,
+                'filter_ok': False,
+            }
+        }
+        return wizard._print_report(data)
+        template_id = self.env['ir.model.data'].xmlid_to_res_id('base_bim_2.email_template_budget', raise_if_not_found=False)
+        lang = self.env.context.get('lang')
+        template = self.env['mail.template'].browse(template_id)
+        if template.lang:
+            lang = template._render_template(template.lang, 'bim.budget', self.ids[0])
+        ctx = {
+            'default_model': 'bim.budget',
+            'default_res_id': self.ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment',
+            'mark_so_as_sent': True,
+            'custom_layout': "mail.mail_notification_paynow",
+            'proforma': self.env.context.get('proforma', False),
+            'force_email': True,
+            #'model_description': self.with_context(lang=lang).type_name,
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(False, 'form')],
+            'view_id': False,
+            'target': 'new',
+            'context': ctx,
+        }
 
     def action_view_concepts(self):
         concepts = self.mapped('concept_ids')
@@ -629,6 +699,16 @@ class BimBudget(models.Model):
         self.concept_ids.filtered(lambda c: not c.parent_id).unlink()
         return super().unlink()
 
+    def import_gantt(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Importar Gantt',
+            'res_model': 'bim.gantt.import',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_budget_id': self.id},
+        }
+
     def export_gantt(self):
         return {
             'type': 'ir.actions.act_window',
@@ -638,6 +718,17 @@ class BimBudget(models.Model):
             'target': 'new',
             'context': {'default_budget_id': self.id},
         }
+
+    def concept_quantiy_to_cero(self):
+        for record in self:
+            for concept in record.concept_ids:
+                if concept.type == 'departure':
+                    concept.quantity = 0
+                    for measure in concept.measuring_ids:
+                        measure.unlink()
+            record.message_post(
+                body=_("Cantidades en las Partidas llevadas Cero y Mediciones Eliminadas por:  %s") % record.env.user.name)
+
 
 
 class BimBudgetStage(models.Model):
@@ -746,6 +837,7 @@ class BimBudgetSpace(models.Model):
                 name = "[" + record['code'] + '] ' + name
             res.append((record['id'], name))
         return res
+
 
 class BimBudgetAssets(models.Model):
     _name = 'bim.budget.assets'

@@ -90,6 +90,18 @@
                                 <span class="o_stat_text">Mantenimientos</span>
                             </div>
                         </button>
+                        <button type="object" class="oe_stat_button" icon="fa-sticky-note" name="action_view_quants" groups="stock.group_stock_user"  attrs="{'invisible': [('stock_location_id', '=', False)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="inventory_valuation" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text">Valor Inv.</span>
+                            </div>
+                        </button>
+                        <button type="object" class="oe_stat_button" icon="fa-share" name="action_view_outgoings" groups="stock.group_stock_user" attrs="{'invisible': [('stock_location_id', '=', False)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="outgoing_val" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text">Costos de Venta</span>
+                            </div>
+                        </button>
                         <button name="action_view_tasks" type="object" class="oe_stat_button" icon="fa-sticky-note">
                             <div class="o_form_field o_stat_info">
                             <span class="o_stat_value">
@@ -106,18 +118,7 @@
                             <span class="o_stat_text">Tickets</span>
                             </div>
                         </button>
-                        <button type="object" class="oe_stat_button" icon="fa-sticky-note" name="action_view_quants" groups="stock.group_stock_user"  attrs="{'invisible': [('stock_location_id', '=', False)]}">
-                            <div class="o_form_field o_stat_info">
-                                <span class="o_stat_value"><field name="inventory_valuation" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
-                                <span class="o_stat_text">Valor Inv.</span>
-                            </div>
-                        </button>
-                        <button type="object" class="oe_stat_button" icon="fa-share" name="action_view_outgoings" groups="stock.group_stock_user" attrs="{'invisible': [('stock_location_id', '=', False)]}">
-                            <div class="o_form_field o_stat_info">
-                                <span class="o_stat_value"><field name="outgoing_val" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
-                                <span class="o_stat_text">Costos de Venta</span>
-                            </div>
-                        </button>
+
                         <button name="action_view_checklist" type="object" class="oe_stat_button" icon="fa-check" groups="base_bim_2.group_user_bim" >
                             <div class="o_form_field o_stat_info">
                                 <span class="o_stat_value"><field name="checklist_count" widget="statinfo" nolabel="1"/></span>
@@ -153,6 +154,7 @@
 
                         </group>
                         <group string="Datos Secundarios">
+                            <field name="retention"/>
                             <field name="currency_id" invisible="0"/>
                             <field name="balance"/>
                             <field name="surface"/>

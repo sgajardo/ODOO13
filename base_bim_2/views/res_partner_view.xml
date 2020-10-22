@@ -13,7 +13,12 @@
                     <button name="action_view_maintenances" type="object" class="oe_stat_button" icon="fa-wrench">
                                 <field name="maintenance_count" widget="statinfo" string="Mantenimiento"/>
                     </button>
-                </div>
-       </field>
+        </div>
+
+        <field name="industry_id" position="after">
+           <field name="retention_product"  string="Producto de Retención"/>
+        </field>
+
+      </field>
     </record>
 </odoo>

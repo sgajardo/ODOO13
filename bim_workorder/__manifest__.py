@@ -20,6 +20,8 @@ BIM 2.0
     'data': [
         'security/ir.model.access.csv',
         'security/groups.xml',
+        'data/ir_sequence.xml',
+        'wizards/wizard_create_purchase_view.xml',
         'views/bim_workorder_view.xml',
         'views/workorder_timesheet_views.xml',
         'views/bim_project_view.xml',
@@ -28,6 +30,7 @@ BIM 2.0
         'views/stock_picking_view.xml',
         'views/bim_concept_view.xml',
         'views/bim_report_inherit.xml',
+        'views/bim_workorder_installers_view.xml',
     ],
     'installable': True,
     'auto_install': False,

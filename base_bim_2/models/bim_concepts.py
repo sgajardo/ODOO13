@@ -81,13 +81,13 @@ class BimConcepts(models.Model):
             parent = rec.parent_id
 
             if rec.type == 'aux':
-                aux_amount = self.recursive_amount(rec,parent,None)
+                aux_amount = self.recursive_amount(rec, parent, None)
             elif rec.type == 'equip':
-                equip_amount = self.recursive_amount(rec,parent,None)
+                equip_amount = self.recursive_amount(rec, parent, None)
             elif rec.type == 'labor':
-                labor_amount = self.recursive_amount(rec,parent,None)
+                labor_amount = self.recursive_amount(rec, parent, None)
             elif rec.type == 'material':
-                material_amount = self.recursive_amount(rec,parent,None)
+                material_amount = self.recursive_amount(rec, parent, None)
             else:
                 aux_amount = sum(child.aux_amount_count for child in rec.child_ids)
                 equip_amount = sum(child.equip_amount_count for child in rec.child_ids)
@@ -98,7 +98,6 @@ class BimConcepts(models.Model):
             rec.equip_amount_count = equip_amount
             rec.labor_amount_count = labor_amount
             rec.material_amount_count = material_amount
-
 
     @api.depends('parent_id')
     def _get_level(self):
@@ -111,41 +110,41 @@ class BimConcepts(models.Model):
             record.level = level
 
     @api.depends(
-    'certification_stage_ids',
-    'certification_stage_ids.stage_id',
-    'certification_stage_ids.budget_qty',
-    'certification_stage_ids.certif_qty',
-    'certification_stage_ids.certif_percent',
-    'certification_stage_ids.amount_budget',
-    'certification_stage_ids.stage_state')
+        'certification_stage_ids',
+        'certification_stage_ids.stage_id',
+        'certification_stage_ids.budget_qty',
+        'certification_stage_ids.certif_qty',
+        'certification_stage_ids.certif_percent',
+        'certification_stage_ids.amount_budget',
+        'certification_stage_ids.stage_state')
     def _compute_stage(self):
         for record in self:
             record.amount_stage_cert = sum(stage.certif_qty for stage in record.certification_stage_ids if stage.stage_state in ['process', 'approved'])
 
     @api.depends(
-    'measuring_ids',
-    'measuring_ids.qty',
-    'measuring_ids.name',
-    'measuring_ids.length',
-    'measuring_ids.width',
-    'measuring_ids.height',
-    'measuring_ids.formula',
-    'measuring_ids.space_id',
-    'measuring_ids.stage_id')
+        'measuring_ids',
+        'measuring_ids.qty',
+        'measuring_ids.name',
+        'measuring_ids.length',
+        'measuring_ids.width',
+        'measuring_ids.height',
+        'measuring_ids.formula',
+        'measuring_ids.space_id',
+        'measuring_ids.stage_id')
     def _compute_measure(self):
         for record in self:
             record.amount_measure = sum(measure.amount_subtotal for measure in record.measuring_ids if measure.characteristic != 'nulo')
             record.amount_measure_cert = sum(me.amount_subtotal for me in record.measuring_ids if me.stage_id and me.stage_state in ['process', 'approved'] and me.characteristic != 'nulo')
 
     @api.depends(
-    'code','type_cert','parent_id', 'update', 'parent_id.update',
-    'budget_type','quantity_cert','amount_fixed_cert','amount_compute_cert')
+        'code', 'type_cert', 'parent_id', 'update', 'parent_id.update',
+        'budget_type', 'quantity_cert', 'amount_fixed_cert', 'amount_compute_cert')
     def _compute_amount_cert(self):
         for record in self:
             balance_cert = 0
             if record.budget_type == 'certification':
                 amount = record.amount_fixed_cert if record.type_cert == 'fixed' else record.amount_compute_cert
-                balance_cert = round(record.quantity_cert * amount,2)
+                balance_cert = round(record.quantity_cert * amount, 2)
                 if record.type == 'chapter':
                     balance_cert = sum(child.balance_cert for child in record.child_ids)
             record.balance_cert = balance_cert
@@ -157,14 +156,14 @@ class BimConcepts(models.Model):
             record.balance = record.quantity * price
 
     @api.depends(
-    'child_ids.type',
-    'child_ids.update',
-    'child_ids.quantity',
-    'child_ids.currency_id',
-    'child_ids.product_id',
-    'child_ids.amount_fixed',
-    'child_ids.amount_compute',
-    'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
+        'child_ids.type',
+        'child_ids.update',
+        'child_ids.quantity',
+        'child_ids.currency_id',
+        'child_ids.product_id',
+        'child_ids.amount_fixed',
+        'child_ids.amount_compute',
+        'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
         for record in self:
             price_pres = 0
@@ -190,15 +189,14 @@ class BimConcepts(models.Model):
                     if record.type_cert == 'fixed':
                         price_cert = record.amount_fixed_cert if record.amount_fixed_cert != 0 else price_pres
                     else:
-                        price_cert = price_pres if record.type in ['departure','aux'] else sum(l.balance_cert for l in record.child_ids)
+                        price_cert = price_pres if record.type in ['departure', 'aux'] else sum(l.balance_cert for l in record.child_ids)
                     record.set_qty_cert_child()
 
             record.amount_compute = price_pres
             record.amount_compute_cert = price_cert
 
-
-    @api.depends('parent_id','child_ids','child_ids.amount_execute','type',
-    'aux_amount_count','equip_amount_count','labor_amount_count','material_amount_count')
+    @api.depends('parent_id', 'child_ids', 'child_ids.amount_execute', 'type',
+                 'aux_amount_count', 'equip_amount_count', 'labor_amount_count', 'material_amount_count')
     def _compute_execute(self):
         stock_obj = self.env['stock.picking']
         part_obj = self.env['bim.part']
@@ -209,12 +207,12 @@ class BimConcepts(models.Model):
 
             if record.type == 'material':
                 if departure:
-                    pickings = stock_obj.search([('bim_concept_id','=',departure.id)])
+                    pickings = stock_obj.search([('bim_concept_id', '=', departure.id)])
                     for pick in pickings:
                         for move in pick.move_lines:
                             if move.product_id == record.product_id:
                                 quantity += move.product_uom_qty
-                                executed += self._get_value(move.product_uom_qty,move.product_id)
+                                executed += self._get_value(move.product_uom_qty, move.product_id)
 
             elif record.type == 'labor':
                 if departure:
@@ -235,17 +233,17 @@ class BimConcepts(models.Model):
             elif record.type == 'aux':
                 if departure:
                     total_indicators = departure.equip_amount_count + departure.labor_amount_count + departure.material_amount_count
-                    executed = (departure.amount_execute / total_indicators * departure.aux_amount_count) if total_indicators else 0.0 #self.recursive_amount(record,record.parent_id,None)# #
+                    executed = (departure.amount_execute / total_indicators * departure.aux_amount_count) if total_indicators else 0.0  # self.recursive_amount(record,record.parent_id,None)# #
 
             elif record.type == 'departure':
-                pickings = stock_obj.search([('bim_concept_id','=',record.id)])
+                pickings = stock_obj.search([('bim_concept_id', '=', record.id)])
                 for pick in pickings:
                     for move in pick.move_lines:
                         quantity += move.product_uom_qty
-                        executed += self._get_value(move.product_uom_qty,move.product_id)
-                        execute_material += self._get_value(move.product_uom_qty,move.product_id)
+                        executed += self._get_value(move.product_uom_qty, move.product_id)
+                        execute_material += self._get_value(move.product_uom_qty, move.product_id)
 
-                parts = part_obj.search([('concept_id','=',record.id)])
+                parts = part_obj.search([('concept_id', '=', record.id)])
                 for part in parts:
                     for line in part.lines_ids:
                         if line.resource_type == 'Q':
@@ -266,8 +264,6 @@ class BimConcepts(models.Model):
             record.amount_execute_labor = execute_labor
             record.amount_execute_material = execute_material
             record.balance_execute = execute_equip + execute_labor + execute_material
-
-
 
     sequence = fields.Integer('Secuencia', default=1)
     display_name = fields.Char(compute='_compute_display_name', store=True, index=True)
@@ -331,7 +327,7 @@ class BimConcepts(models.Model):
     amount_type = fields.Selection([
         ('compute', 'Calculado'),
         ('fixed', 'Manual'),
-        ('locked','Bloqueado')], string="Tipo precio", default='compute')
+        ('locked', 'Bloqueado')], string="Tipo precio", default='compute')
     type = fields.Selection([
         ('chapter', 'CAPÍTULO'),
         ('departure', 'PARTIDA'),
@@ -342,12 +338,11 @@ class BimConcepts(models.Model):
 
     # Ejecucion
     amount_execute = fields.Float("Precio Ejec", compute="_compute_execute", digits='BIM price')
-    qty_execute = fields.Float("Cant Ejec",  digits='BIM qty')#compute="_compute_execute",
+    qty_execute = fields.Float("Cant Ejec",  digits='BIM qty')  # compute="_compute_execute",
     balance_execute = fields.Monetary(string="Importe Ejec", compute="_compute_execute", store=True)
     amount_execute_equip = fields.Monetary('Ejecutado equipos', compute="_compute_execute")
     amount_execute_labor = fields.Monetary('Ejecutado mano de obra', compute="_compute_execute")
     amount_execute_material = fields.Monetary('Ejecutado material', compute="_compute_execute")
-
 
     # Certificacion
     amount_fixed_cert = fields.Monetary("Precio Cert", digits='BIM price', copy=False)
@@ -365,7 +360,7 @@ class BimConcepts(models.Model):
     # ----------------------------------------------------------------#
     # ---------------- ONCHANGE METHODS ------------------------------#
     # ----------------------------------------------------------------#
-    @api.depends('measuring_ids','amount_measure','amount_measure_cert')
+    @api.depends('measuring_ids', 'amount_measure', 'amount_measure_cert')
     @api.onchange('measuring_ids')
     def onchange_qty(self):
         for record in self:
@@ -466,11 +461,16 @@ class BimConcepts(models.Model):
                         self.amount_fixed = product.price_agreed
                         find = True
                         break
-            if not find:
-                if self.env.company.type_work == 'cost':
+            if not find and self.product_id:
+                if self.env.company.type_work == 'pricelist':
+                    pricelist = self.budget_id.pricelist_id
+                    product_context = dict(self.env.context, partner_id=self.budget_id.project_id.customer_id.id, date=self.budget_id.date_start, uom=self.uom_id.id)
+                    price = pricelist.with_context(product_context).get_product_price(self.product_id, self.quantity or 1.0, self.budget_id.project_id.customer_id)
+                    self.amount_fixed = pricelist.with_context(product_context).get_product_price(self.product_id, self.quantity or 1.0, self.budget_id.project_id.customer_id)
+                elif self.env.company.type_work == 'cost':
                     self.amount_fixed = self.product_id.standard_price
                 else:
-                        self.amount_fixed = self.product_id.lst_price
+                    self.amount_fixed = self.product_id.lst_price
             self.uom_id = self.product_id.uom_id.id
 
     @api.depends('percent_cert', 'type_cert', 'amount_measure_cert', 'quantity_cert')
@@ -502,10 +502,10 @@ class BimConcepts(models.Model):
             # Capitulos
             record.parent_id.quantity_cert = (record.parent_id.quantity * record.parent_id.percent_cert) / 100
 
-
     # --------------------------------------------------------------#
     # ---------------- MODELS METHODS ------------------------------#
     # --------------------------------------------------------------#
+
     def name_get(self):
         reads = self.read(['name', 'code'])
         res = []
@@ -569,41 +569,64 @@ class BimConcepts(models.Model):
     @api.depends('gantt_type', 'child_ids', 'duration',
                  'acs_date_start', 'acs_date_end',
                  'parent_id.acs_date_start', 'parent_id.acs_date_end',
-                 'budget_id.date_start', 'budget_id.date_end')
+                 'budget_id.date_start', 'budget_id.date_end',
+                 'bim_predecessor_concept_ids')
     def _compute_dates(self):
         today = fields.Date.today()
         for record in self:
-            if record.type == 'departure':
-                if record.gantt_type == 'begin':
-                    record.acs_date_end = record.acs_date_end or today
-                    if record.duration and record.parent_id.acs_date_end:
-                        record.acs_date_start = record.parent_id.acs_date_end - timedelta(days=record.duration)
-                elif record.gantt_type == 'end':
-                    record.acs_date_start = record.acs_date_start or today
-                    if record.duration and record.parent_id.acs_date_start:
-                        record.acs_date_end = record.parent_id.acs_date_start + timedelta(days=record.duration)
-                else:
-                    record.acs_date_start = record.acs_date_start or today
-                    record.acs_date_end = record.acs_date_end or today
+            if record.type not in ['chapter', 'departure']:
+                record.acs_date_start = record.parent_id.acs_date_start
+                record.acs_date_end = record.parent_id.acs_date_end
+                continue
+            if not record.budget_id.do_compute:
+                continue
+            # Verificamos si tiene predecesoras
+            date_start = date_end = False
+            for pred in record.bim_predecessor_concept_ids:
+                if pred.pred_type in 'ff':
+                    date_end = pred.name.acs_date_end + timedelta(days=pred.difference)
+                elif pred.pred_type == 'fs':
+                    date_start = pred.name.acs_date_end + timedelta(days=pred.difference)
+                elif pred.pred_type == 'sf':
+                    date_end = pred.name.acs_date_start + timedelta(days=pred.difference)
+                elif pred.pred_type == 'ss':
+                    date_start = pred.name.acs_date_start + timedelta(days=pred.difference)
+
+            if date_start or date_end:
+                if not date_end:
+                    date_end = date_start + timedelta(days=record.duration)
+                elif not date_start:
+                    date_start = date_end - timedelta(days=record.duration)
+
+            if record.gantt_type == 'begin':
+                record.acs_date_end = date_end or record.acs_date_end or today
+                record.acs_date_start = date_start or ((date_end or record.acs_date_end) - timedelta(days=record.duration))
+            elif record.gantt_type == 'end':
+                record.acs_date_start = date_start or record.acs_date_start or today
+                record.acs_date_end = date_end or ((date_start or record.acs_date_start) + timedelta(days=record.duration))
             else:
-                record.acs_date_start = min([d for d in record.child_ids.mapped('acs_date_start') if d], default=today)
-                record.acs_date_end = max([d for d in record.child_ids.mapped('acs_date_end') if d], default=today)
+                record.acs_date_start = date_start or min([d for d in record.child_ids.mapped('acs_date_start') if d], default=today)
+                record.acs_date_end = date_end or max([d for d in record.child_ids.mapped('acs_date_end') if d], default=today)
 
     def _inverse_date_start(self):
         for record in self:
+            if not record.budget_id.do_compute:
+                continue
             if record.acs_date_start and record.duration:
                 record.acs_date_end = record.acs_date_start + timedelta(days=record.duration)
 
     def _inverse_date_end(self):
         for record in self:
+            if not record.budget_id.do_compute:
+                continue
             if record.acs_date_end and record.duration:
                 record.acs_date_start = record.acs_date_end - timedelta(days=record.duration)
 
-    @api.depends('gantt_type', 'child_ids', 'acs_date_start', 'acs_date_end')
+    @api.depends('child_ids', 'acs_date_start', 'acs_date_end')
     def _compute_duration(self):
         for record in self:
-            if record.gantt_type != 'time':
-                child_departures = record.child_ids.filtered_domain([('type', '=', 'departure')])
+            if record.child_ids:
+                child_departures = record.child_ids.filtered_domain([('type', 'in', ['chapter', 'departure'])])
                 if child_departures:
                     record.duration = max(child_departures.mapped('duration'))
                 else:
@@ -660,7 +683,7 @@ class BimConcepts(models.Model):
         amount = amount is None and concept.balance or amount or 0.0
         if parent.type == 'departure':
             amount_partial = amount * parent.quantity
-            return self.recursive_amount(concept,parent.parent_id,amount_partial)
+            return self.recursive_amount(concept, parent.parent_id, amount_partial)
         else:
             return amount * parent.quantity
 
@@ -681,11 +704,11 @@ class BimConcepts(models.Model):
         qty = qty is None and resource.quantity_cert or qty
         if parent.type == 'departure':
             qty_partial = qty * parent.quantity_cert
-            return self.recursive_quantity(resource,parent.parent_id,qty_partial)
+            return self.recursive_quantity(resource, parent.parent_id, qty_partial)
         else:
             return qty * parent.quantity_cert
 
-    def set_recursive_quantity_cert(self, child_ids,qty_cert):
+    def set_recursive_quantity_cert(self, child_ids, qty_cert):
         ''' Este metodo actualiza los Hijos de Partidas
         certificadas con la cantidad afectada'''
         for record in child_ids:
@@ -696,17 +719,17 @@ class BimConcepts(models.Model):
 
             if record.child_ids:
                 qty_cert = qty_afected
-                return self.set_recursive_quantity_cert(record.child_ids,qty_cert)
+                return self.set_recursive_quantity_cert(record.child_ids, qty_cert)
 
     def set_qty_cert_child(self):
         ''' Este metodo es llamado desde xxxxxxx
         para actualizar la cantidad certificada de los Hijos'''
         for record in self:
             if record.to_certify:
-                self.set_recursive_quantity_cert(record.child_ids,0)
+                self.set_recursive_quantity_cert(record.child_ids, 0)
                 for child in record.child_ids:
                     if child.child_ids:
-                        self.set_recursive_quantity_cert(child.child_ids,0)
+                        self.set_recursive_quantity_cert(child.child_ids, 0)
 
     def update_concept(self):
         ''' Este metodo es llamado desde el menú contextual
@@ -761,7 +784,7 @@ class BimConcepts(models.Model):
             if record.product_id and record.type == res_type:
                 res.append(record.product_id.id)
             if record.child_ids:
-                self.get_resource_from_type(record.child_ids,res_type)
+                self.get_resource_from_type(record.child_ids, res_type)
         return res
 
     def move_record(self, action):
@@ -879,6 +902,14 @@ class BimConcepts(models.Model):
             }
 
 
+    def action_view_concept(self):
+        action = self.env.ref('base_bim_2.action_bim_concepts').read()[0]
+        action['domain'] = [('budget_id', '=', self.budget_id.id)]
+        action['context'] = {'default_budget_id': self.budget_id.id}
+        action['context'].update({'budget_type': self.budget_id.type})
+        return action
+
+
 class BimConceptMeasuring(models.Model):
     _name = 'bim.concept.measuring'
     _description = "Medición del Presupuesto"
@@ -924,11 +955,11 @@ class BimConceptMeasuring(models.Model):
     # ~ def onchange_stage(self):
         # ~ if self.stage_id:
             # ~ if self.to_certify:
-                # ~ warning = {
-                # ~ 'title': _('Warning!'),
-                # ~ 'message': _(u'No se puede agregar Etapas en ambiente de Certificacion!'), }
-                # ~ self.stage_id = False
-                # ~ return {'warning': warning}
+            # ~ warning = {
+            # ~ 'title': _('Warning!'),
+            # ~ 'message': _(u'No se puede agregar Etapas en ambiente de Certificacion!'), }
+            # ~ self.stage_id = False
+            # ~ return {'warning': warning}
 
 
 class BimCertificationStage(models.Model):

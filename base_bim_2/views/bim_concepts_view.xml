@@ -48,6 +48,8 @@
                 <field name="balance" optional="hide" sum="bal"/>
                 <field name="balance_cert" optional="hide" sum="cert" invisible="context.get('budget_type') != 'certification'"/>
                 <field name="balance_execute" optional="hide" sum="exe" invisible="context.get('budget_type') != 'execution'"/>
+                <field name="acs_date_start" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
+                <field name="acs_date_end" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
             </hierarchy>
         </field>
     </record>
@@ -73,6 +75,8 @@
                 <field name="amount_compute_cert" invisible="context.get('budget_type') != 'certification'"/>
                 <field name="balance" sum="bal"/>
                 <field name="balance_cert" sum="cert" invisible="context.get('budget_type') != 'certification'"/>
+                <field name="acs_date_start" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
+                <field name="acs_date_end" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
             </folder>
         </field>
     </record>
@@ -179,6 +183,12 @@
                                 <span class="o_stat_value"><field name="picking_count" widget="statinfo" nolabel="1"/></span>
                                 <span class="o_stat_text">Movimientos</span>
                             </div>
+                        </button>
+                        <button
+                            name="action_view_concept"
+                            class="oe_stat_button"
+                            icon="fa-sitemap" type="object"
+                            string="Vista Conceptos">
                         </button>
                         <button
                             name="update_amount"

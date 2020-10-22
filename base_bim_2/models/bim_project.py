@@ -171,13 +171,15 @@ class bim_project(models.Model):
 
     # Datos
     name = fields.Char('Código', translate=True, default="Nuevo", track_visibility='onchange', copy=False)
-    nombre = fields.Char('Nombre', translate=True, track_visibility='onchange', copy=False)
+    nombre = fields.Char('Nombre', translate=True, track_visibility='onchange', copy=True)
     notes = fields.Text(string="Observaciones")
     company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True )
     user_id = fields.Many2one('res.users', string='Supervisor', track_visibility='onchange',  default=lambda self: self.env.user)
     task_ids = fields.One2many('bim.task', 'project_id', 'Tareas')
     ticket_ids = fields.One2many('ticket.bim', 'project_id', 'Ticket')
     obs = fields.Text('Notas')
+
+    retention = fields.Float('Retención %', default=5)
 
     image_1920 = fields.Image("Imagen", max_width=1920, max_height=1920, default=_default_image)
     image_128 = fields.Image("Image 128", max_width=128, max_height=128, store=True, default=_default_image)

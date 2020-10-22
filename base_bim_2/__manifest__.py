@@ -135,6 +135,7 @@ BIM 2.0
         'views/res_partner_view.xml',
         'wizard/bim_budget_compare.xml',
         'wizard/bim_gantt_export.xml',
+        'wizard/bim_gantt_import.xml',
     ],
     'qweb': [
         'static/src/xml/*.xml'

@@ -21,19 +21,7 @@ class bim_paidstate(models.Model):
     project_id = fields.Many2one('bim.project', 'Obra',
         states={'draft': [('readonly', False)]}, required=True, readonly=True,
         change_default=True, index=True)
-    budget_id = fields.Many2one('bim.budget', 'Presupuesto',
-        states={'draft': [('readonly', False)]}, required=True, readonly=True,
-        change_default=True, index=True)
-    stage_id = fields.Many2one('bim.budget.stage', "Etapa",
-        states={'draft': [('readonly', False)]}, readonly=True)
-    state = fields.Selection(
-        [('draft', 'Borrador'),
-         ('validated', 'Validado'),
-         ('invoiced', 'Facturado')],
-        'Estatus', readonly=True, copy=False,
-        index=True, track_visibility='onchange', default='draft')
-    amount = fields.Monetary('Importe', states={'draft': [('readonly', False)]},
-        required=True, readonly=True)
+    amount = fields.Monetary('Importe', compute='_amount_compute')
     progress = fields.Float('% Avance', help="Porcentaje de avance")
     date = fields.Date(string='Fecha', required=True,
         readonly=True, index=True, states={'draft': [('readonly', False)]},
@@ -43,7 +31,19 @@ class bim_paidstate(models.Model):
         track_visibility='always')
     invoice_id = fields.Many2one('account.move', string='Factura', readonly=True)
     maintenance_id = fields.Many2one('bim.maintenance', string='Mantenimiento de Obra', readonly=True)
-    company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True )
+    company_id = fields.Many2one(comodel_name="res.company", string="Compañía", default=lambda self: self.env.company, required=True)
+    lines_ids = fields.One2many('bim.paidstate.line', 'paidstate_id', 'Líneas')
+    state = fields.Selection(
+        [('draft', 'Borrador'),
+         ('validated', 'Validado'),
+         ('invoiced', 'Facturado')],
+        'Estatus', readonly=True, copy=False,
+        index=True, track_visibility='onchange', default='draft')
+
+    @api.depends('lines_ids')
+    def _amount_compute(self):
+        for record in self:
+            record.amount = sum(line.amount for line in record.lines_ids)
 
     @api.model
     def create(self, vals):
@@ -110,8 +110,6 @@ class bim_paidstate(models.Model):
         result['res_id'] = invoice.id
         return result
 
-    lines_ids = fields.One2many('bim.paidstate.line', 'paidstate_id', 'Líneas')
-
     @api.onchange('lines_ids')
     def onchange_lines_ids(self):
         for record in self:
@@ -121,9 +119,74 @@ class BimPaidstateLine(models.Model):
     _description = "Indicadores comparativos"
     _name = 'bim.paidstate.line'
 
-    name = fields.Many2one('bim.object', string='Objeto de Obra', track_visibility='onchange')
-    note = fields.Char('Notas')
-    percent = fields.Float('%', help="Porcentaje dado por el valor real entre valor estimado")
-    amount = fields.Float('Importe', help="Monto")
 
+    name = fields.Char('Descripcion')
+    quantity = fields.Integer('Cantidad', default=1)
+    percent = fields.Float('%', help="Porcentaje dado por el valor real entre valor estimado")
+    amount = fields.Float('Importe', compute='_amount_compute')
+    price_unit = fields.Float("Precio",compute='_price_compute')
     paidstate_id = fields.Many2one('bim.paidstate', 'Estado Pago', ondelete="cascade")
+    project_id = fields.Many2one('bim.project', 'Obra', related='paidstate_id.project_id')
+    budget_id = fields.Many2one('bim.budget', 'Presupuesto', required=True)
+    stage_id = fields.Many2one('bim.budget.stage', "Etapa")
+    #object_id = fields.Many2one('bim.object', string='Objeto de Obra')
+    type = fields.Selection([
+        ('fixed', 'Manual'),
+        ('all', 'Acumulado'),
+        ('stage', 'Etapas'),],
+        string="En base a", default='fixed')
+
+    @api.onchange('budget_id')
+    def onchange_budget_id(self):
+        budget_list = []
+        if self.paidstate_id:
+            budget_list.append(self.paidstate_id.project_id.id)
+        return {'domain': {'budget_id': [('project_id','in',budget_list)]}}
+
+    @api.onchange('budget_id','stage_id')
+    def onchange_name(self):
+        name_list = []
+        if self.budget_id:
+            name_list.append(self.budget_id.name)
+        if self.stage_id:
+            name_list.append(self.stage_id.name)
+        self.name = name_list and '-'.join(name_list) or ''
+
+
+    @api.depends('paidstate_id','stage_id', 'quantity','price_unit')
+    def _amount_compute(self):
+        for record in self:
+            record.amount = record.quantity * record.price_unit
+
+    @api.depends('paidstate_id','stage_id', 'type','budget_id')
+    def _price_compute(self):
+        for record in self:
+            amount_stage = amount_all = accumulated =0
+            if record.budget_id:
+                #paid = record.paidstate_id
+                budget = record.budget_id
+                print (budget)
+                #print (paid)
+                print (self._context)
+                prev_paid = self.search([('budget_id','=',budget.id)])#('id','!=',paid.id),
+                accumulated = sum(paid.amount for paid in prev_paid)
+
+                if record.type == 'stage':
+                    for concept in budget.concept_ids.filtered(lambda c: c.type_cert == 'stage'):
+                        amount_stage += sum(csta.amount_certif for csta in concept.certification_stage_ids if csta.stage_id.id == record.stage_id.id)
+
+                    for concept in budget.concept_ids.filtered(lambda c: c.type_cert == 'measure'):
+                        meas_ids = [me.id for me in concept.measuring_ids if me.stage_id and me.stage_state in ['process']]
+                        if meas_ids:
+                            stages = self.env['bim.concept.measuring'].browse(meas_ids)
+                            for stage in stages:
+                                #qty_total += stage.amount_subtotal
+                                amount_stage += stage.amount_subtotal * concept.amount_compute_cert
+                    #for meas in concept.measuring_ids:
+                    #    if meas.stage_state in ['approved']:
+                    #        qty_total += meas.amount_subtotal
+                    #        mnt_total += meas.amount_subtotal * concept.amount_compute_cert
+                else:
+                    for concept in record.budget_id.concept_ids.filtered(lambda c: not c.parent_id and c.balance_cert > 0):
+                        amount_all += concept.balance_cert
+            record.price_unit = amount_stage if record.type == 'stage' else amount_all - accumulated

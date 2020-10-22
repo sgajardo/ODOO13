@@ -209,8 +209,7 @@ class BimGanttExport(models.TransientModel):
     _description = 'Exportador de proyectos Gantt'
 
     budget_id = fields.Many2one('bim.budget', 'Presupuesto', required=True)
-    gantt_type = fields.Selection([('ms', 'Microsoft Project'),
-                                   ('gp', 'Gantt Project')], 'Tipo de Gantt', default='ms', required=True)
+    gantt_type = fields.Selection([('ms', 'Microsoft Project')], 'Tipo de Gantt', default='ms', required=True)
 
     def print_xml(self):
         if self.gantt_type == 'gp':
@@ -278,8 +277,8 @@ class BimGanttExport(models.TransientModel):
             'ID': '0',
             'Name': self.budget_id.project_id.name,
             'CreateDate': self.budget_id.project_id.create_date.strftime(dt_format),
-            'Start': datetime.datetime.combine(self.budget_id.date_start, datetime.time(9, 0)).strftime(dt_format),
-            'Finish': datetime.datetime.combine(self.budget_id.date_end, datetime.time(9, 0)).strftime(dt_format),
+            'Start': datetime.datetime.combine(self.budget_id.date_from, datetime.time(9, 0)).strftime(dt_format),
+            'Finish': datetime.datetime.combine(self.budget_id.date_to, datetime.time(9, 0)).strftime(dt_format),
             'WBS': '0',
             'OutlineNumber': '0',
             'OutlineLevel': '0',
@@ -297,8 +296,8 @@ class BimGanttExport(models.TransientModel):
             'ID': '1',
             'Name': self.budget_id.name,
             'CreateDate': self.budget_id.create_date.strftime(dt_format),
-            'Start': datetime.datetime.combine(self.budget_id.date_start, datetime.time(9, 0)).strftime(dt_format),
-            'Finish': datetime.datetime.combine(self.budget_id.date_end, datetime.time(9, 0)).strftime(dt_format),
+            'Start': datetime.datetime.combine(self.budget_id.date_from, datetime.time(9, 0)).strftime(dt_format),
+            'Finish': datetime.datetime.combine(self.budget_id.date_to, datetime.time(9, 0)).strftime(dt_format),
             'WBS': '1',
             'OutlineNumber': '1',
             'OutlineLevel': '1',
