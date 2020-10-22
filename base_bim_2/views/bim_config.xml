@@ -104,7 +104,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <h2>Configuración Mantenimiento</h2>
                     <div class="row mt16 o_settings_container">
                         <div class="col-12 col-lg-6 o_setting_box">
@@ -143,12 +143,14 @@
                                 <div class="text-muted">
                                     Configurar Retenciones
                                 </div>
+<!--
                                 <div class="content-group">
                                     <div class="row mt16">
                                         <label for="retention_product" string="" class="col-lg-3 o_light_label"/>
                                         <field name="retention_product" widget="selection"/>
                                     </div>
                                 </div>
+-->
                             </div>
                         </div>
                     </div>
