@@ -14,8 +14,8 @@ class ResCompany(models.Model):
     paidstate_product_mant = fields.Many2one('product.product', 'Estado Pago Mantenimiento', help="Producto que se utilizará para facturar el estado de pago del mantenimiento de la obra. Dejar precios en cero")
     stock_location_mobile = fields.Many2one('stock.location', 'Ubicación Almacen Movil', help="Ubicación que se usará por defecto para la entrada de mercancia en el Almacen Movil")
 
-    retention_product = fields.Many2one('product.product', 'Producto Retención',
-                                             help="Producto que se utilizará para facturar la retención")
+    # ~ retention_product = fields.Many2one('product.product', 'Producto Retención',
+                                             # ~ help="Producto que se utilizará para facturar la retención")
 
     type_work = fields.Selection([
         ('cost', 'Coste'),
