@@ -73,6 +73,8 @@ class WorkorderInstallerWizard(models.TransientModel):
             picking_type = picking_type_obj.search([
             ('default_location_src_id', '=', location_dest_id),
             ('code', '=', 'internal')],limit=1)
+            if not picking_type:
+                picking_type = project.warehouse_id.int_type_id
 
         dicc = {}
         dicc.update({
@@ -94,11 +96,12 @@ class WorkorderInstallerWizard(models.TransientModel):
         picking = self.env['stock.picking'].create(dicc)
         if company.validate_stock:
             if picking.state == 'draft':
-                picking.action_confirm()
-                if picking.state != 'assigned':
-                    picking.action_assign()
-                    if picking.state != 'assigned':
-                        picking.action_force_assign()
+                picking._check_company()
+                picking.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
+                picking.mapped('move_lines').filtered(lambda move: move.state == 'draft')._action_confirm(False)
+                picking.filtered(lambda pick: not pick.immediate_transfer and pick.location_id.usage in ('supplier', 'inventory', 'production') and pick.state == 'confirmed').mapped('move_lines')._action_assign()
+            if picking.state != 'assigned':
+                picking.action_assign()
             for move in picking.move_lines.filtered(lambda m: m.state not in ['done', 'cancel']):
                 for move_line in move.move_line_ids:
                     move_line.qty_done = move_line.product_uom_qty
@@ -106,6 +109,27 @@ class WorkorderInstallerWizard(models.TransientModel):
         pick.message_post(body=_('La Entrega a Instaladores REF: %s ha sido creada') % picking.name)
         pick.purchase_id.picking_ids = [(4,picking.id,None)]
         return {'type': 'ir.actions.act_window_close'}
+
+            #validacion
+            # ~ if picking_out.state == 'draft':
+                # ~ picking_out.action_confirm()
+                # ~ if picking_out.state != 'assigned':
+                    # ~ picking_out.action_assign()
+                    # ~ if picking_out.state != 'assigned':
+                        # ~ picking_out.action_force_assign()
+            # ~ for move in picking_out.move_lines.filtered(lambda m: m.state not in ['done', 'cancel']):
+                # ~ for move_line in move.move_line_ids:
+                    # ~ move_line.qty_done = move_line.product_uom_qty
+            # ~ picking_out.action_done()
+    # ~ def action_confirm(self):
+        # ~ self._check_company()
+        # ~ self.mapped('package_level_ids').filtered(lambda pl: pl.state == 'draft' and not pl.move_ids)._generate_moves()
+        # ~ # llamar a "_action_confirm" en cada movimiento de borrador
+        # ~ self.mapped('move_lines').filtered(lambda move: move.state == 'draft')._action_confirm()
+        # ~ # llamar  "_action_assign" en cada movimiento confirmado que location_id pasa por alto la reserva
+        # ~ self.filtered(lambda picking: not picking.immediate_transfer and picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
+            # ~ .mapped('move_lines')._action_assign()
+        # ~ return True
 
 class WorkorderInstallerLineWizard(models.TransientModel):
     _name = "workorder.installer.line.wzd"

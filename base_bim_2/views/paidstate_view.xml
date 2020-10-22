@@ -21,34 +21,34 @@
                        <group>
                             <group>
                                 <field name="project_id" options='{"no_open": True, "no_create": True, "no_create_edit": True, "no_quick_create": True}'/>
-                                <field name="budget_id" options='{"no_open": True, "no_create": True, "no_create_edit": True, "no_quick_create": True}' domain="[('project_id', '=', project_id)]"/>
-                                <field name="stage_id" attrs="{'invisible': [('stage_id', '=', False)]}"/>
                                 <field name="date"/>
                                 <field name="invoice_id" attrs="{'invisible': [('state','!=','invoiced')]}" groups="base_bim_2.group_create_invoice_paidstate"/>
                                 <field name="maintenance_id" attrs="{'invisible': [('maintenance_id', '=', False)]}"/>
-
                             </group>
                             <group>
                                 <field name="amount"/>
                                 <field name="progress"/>
-                                <field name="company_id" groups="base.group_multi_company"/>
                                 <field name="currency_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
                             </group>
                        </group>
 
                         <notebook>
-                        <page string="Líneas">
+                            <page string="Líneas">
                                 <field name="lines_ids" nolabel="1">
                                     <tree editable="bottom">
-                                        <field name="name" options='{"no_create": 1}'/>
-                                        <field name="note"/>
-                                        <field name="percent"/>
+                                        <field name="type"/>
+                                        <field name="budget_id" options='{"no_open": True, "no_create": True}'/>
+                                        <field name="stage_id" options='{"no_open": True, "no_create": True}' attrs="{'invisible': [('type', '=', 'all')],'required': [('type', '=', 'stage')]}" domain="[('budget_id','=',budget_id)]"/>
+                                        <field name="name"/>
+                                        <field name="quantity"/>
+                                        <field name="price_unit"/>
                                         <field name="amount" sum="Suma"/>
+                                        <field name="project_id" invisible="1"/>
                                     </tree>
                                 </field>
-                        </page>
+                            </page>
                         </notebook>
-
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
