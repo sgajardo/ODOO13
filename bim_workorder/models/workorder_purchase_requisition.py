@@ -24,7 +24,6 @@ class BimProductList(models.Model):
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
-    bim_workorder_id = fields.Many2one('bim.workorder','Orden de Trabajo')
     def button_confirm(self):
         result = super(PurchaseOrder, self).button_confirm()
         for order in self:
@@ -43,14 +42,6 @@ class PurchaseOrder(models.Model):
                         pick.bim_workorder_id = workorder.id
                         pick.bim_space_id = workorder.space_id.id
                         pick.bim_object_id = workorder.object_id.id
-
-            elif order.bim_workorder_id:
-                for pick in order.picking_ids:
-                    workorder = order.bim_workorder_id
-                    pick.bim_project_id = workorder.project_id.id
-                    pick.bim_workorder_id = workorder.id
-                    pick.bim_space_id = workorder.space_id.id
-                    pick.bim_object_id = workorder.object_id.id
         return result
 
 class PurchaseOrderLine(models.Model):
@@ -62,6 +53,7 @@ class PurchaseOrderLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            print (vals)
             if vals.get('workorder_resource_id'):
                 resource = self.env['bim.workorder.resources'].browse(vals['workorder_resource_id'])
                 resource.write({'order_ids': [(4, vals['order_id'], None)]})
@@ -78,7 +70,6 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     bim_workorder_id = fields.Many2one('bim.workorder','Orden de Trabajo')
-    bim_mass_stock_installer_id = fields.Many2one('bim.workorder.stock.installers','Entrega Masiva Instaladores')
 
 class StockMove(models.Model):
     _inherit = 'stock.move'

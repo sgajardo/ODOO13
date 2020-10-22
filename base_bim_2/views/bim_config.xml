@@ -30,7 +30,7 @@
                                         <field name="paidstate_product" widget="selection"/>
                                     </div>
                                     <div class="row mt16">
-                                        <label for="paidstate_product_mant" string="Producto Mantencion" class="col-lg-3 o_light_label"/>
+                                        <label for="paidstate_product_mant" string="Producto Mantenimiento" class="col-lg-3 o_light_label"/>
                                         <field name="paidstate_product_mant" widget="selection"/>
                                     </div>
                                 </div>
@@ -125,28 +125,6 @@
                                     <div class="row mt16">
                                         <label for="template_mant_id" class="col-lg-3 o_light_label"/>
                                         <field name="template_mant_id" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h2>Configuración Retención</h2>
-                    <div class="row mt16 o_settings_container">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane"/>
-                            <div class="o_setting_right_pane">
-                                <span class="o_form_label">RETENCIONES</span>
-                                <span class="fa fa-lg fa-male" title="Values set here are company-specific."
-                                      aria-label="Values set here are company-specific."
-                                      groups="base.group_multi_company" role="img"/>
-                                <div class="text-muted">
-                                    Configurar Retenciones
-                                </div>
-                                <div class="content-group">
-                                    <div class="row mt16">
-                                        <label for="retention_product" string="" class="col-lg-3 o_light_label"/>
-                                        <field name="retention_product" widget="selection"/>
                                     </div>
                                 </div>
                             </div>

@@ -22,4 +22,3 @@ from . import copy_measures
 from . import bim_price_massive_wzd
 from . import bim_budget_compare
 from . import bim_gantt_export
-from . import bim_gantt_import

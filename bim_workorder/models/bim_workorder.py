@@ -24,8 +24,8 @@ class BimWorkorder(models.Model):
     space_id = fields.Many2one('bim.budget.space', string="Espacio", domain="[('budget_id', '=', budget_id)]")
     object_id = fields.Many2one('bim.object', "Objeto", domain="[('project_id', '=', project_id)]")
     speciality_id = fields.Many2one('bim.workorder.speciality', string="Especialidad")
-    #requisition_ids = fields.One2many('bim.purchase.requisition', 'workorder_id', "Solicitud Materiales")
-    order_count = fields.Integer(string='N° Compras', compute="_get_order_count")
+    requisition_ids = fields.One2many('bim.purchase.requisition', 'workorder_id', "Solicitud Materiales")
+    requisition_count = fields.Integer(string='N° Solicitides', compute="_get_requisition_count")
     restriction_ids = fields.One2many('bim.workorder.restriction', 'workorder_id', string="Restricciones", copy=True)
     concept_ids = fields.One2many('bim.workorder.concepts', 'workorder_id', string="Conceptos", copy=True, ondelete="cascade")
     material_ids = fields.One2many('bim.workorder.resources', 'workorder_id', string="Materiales", copy=True, domain=[('resource_type','=','material')])
@@ -65,10 +65,10 @@ class BimWorkorder(models.Model):
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
-    @api.depends('order_ids')
-    def _get_order_count(self):
+    @api.depends('requisition_ids')
+    def _get_requisition_count(self):
         for rec in self:
-            rec.order_count = len(rec.order_ids)
+            rec.requisition_count = len(rec.requisition_ids)
 
     @api.depends('concept_ids')
     def _get_advance_percent(self):
@@ -83,7 +83,7 @@ class BimWorkorder(models.Model):
         stock_picking = self.env['stock.picking']
         for record in self:
             # Movimiento de Entrada
-            picks = [pick.id for order in record.order_ids for pick in order.picking_ids if pick.picking_type_id.code == 'incoming' and pick.state == 'done']
+            picks = [pick.id for order in record.order_ids for pick in order.picking_ids if pick.picking_type_id.code == 'incoming']
             record.picking_ids = picks and [(6,0,picks)] or []
 
     @api.depends('labor_ids','labor_extra_ids','concept_ids')
@@ -116,20 +116,6 @@ class BimWorkorder(models.Model):
                 self.space_id = False
             if self.concept_ids:
                 self.concept_ids = [(5,)]
-
-    @api.onchange('labor_extra_ids')
-    def onchange_extra_labor(self):
-        if self.labor_extra_ids:
-            for extra in self.labor_extra_ids:
-                if extra.sequence == 0:
-                    extra.sequence = len(self.labor_extra_ids)
-
-    @api.onchange('material_extra_ids')
-    def onchange_extra_material(self):
-        if self.material_extra_ids:
-            for extra in self.material_extra_ids:
-                if extra.sequence == 0:
-                    extra.sequence = len(self.material_extra_ids)
 
     # -------------------------------------------------------------------------
     # MODEL METHODS
@@ -172,13 +158,12 @@ class BimWorkorder(models.Model):
             resource_ids = record.get_resources(resources,[],type)
             if type == 'labor':
                 vals = [l.resource_id.id for l in record.labor_ids]
-                sequence = max(record.labor_ids.mapped('sequence')) + 1 if record.labor_ids else 1
             else:
                 vals = [l.resource_id.id for l in record.material_ids]
-                sequence = max(record.material_ids.mapped('sequence')) + 1 if record.material_ids else 1
 
             for res_id in resource_ids:
                 resource = concept_ob.browse(res_id)
+
                 # Cantidad a Ordenar
                 if resource and resource.product_id:
                     qty_ordered = (resource.quantity * line_parent.qty_worder) - self._get_product_stock(resource.product_id)
@@ -187,7 +172,6 @@ class BimWorkorder(models.Model):
                     line = {'workorder_id': record.id,
                             'resource_id': res_id,
                             'type': 'budget_in',
-                            'sequence': sequence,
                             'workorder_concept_id': line_parent.id,
                             'category_id': resource.product_id.categ_id.id,
                             'qty_ordered': qty_ordered > 0 and qty_ordered or 0
@@ -197,7 +181,6 @@ class BimWorkorder(models.Model):
                         purch_vals = self.get_purchase_history(resource.product_id)
                         line.update(purch_vals)
                     lines.append((0, 0, line))
-                    sequence += 1
 
                 # Actualizar las lineas existentes
                 else:
@@ -206,7 +189,6 @@ class BimWorkorder(models.Model):
                             mat.qty_ordered = qty_ordered > 0 and qty_ordered or 0
 
             #Creacion de Nuevas Lineas si existen
-            print (lines)
             if lines:
                 if type == 'labor':
                     record.labor_ids = lines
@@ -383,28 +365,19 @@ class BimWorkorder(models.Model):
             })
         return action
 
-    def action_view_purchases(self):
-        purchases = self.mapped('order_ids')
-        action = self.env.ref('purchase.purchase_rfq').read()[0]
-        if len(purchases) > 0:
-            action['domain'] = [('id', 'in', purchases.ids)]
-        else:
-            action = {'type': 'ir.actions.act_window_close'}
+    def action_view_requisitions(self):
+        action = self.env.ref('base_bim_2.action_bim_purchase_requisition').read()[0]
+        requisitions = self.mapped('requisition_ids')
+        if len(requisitions) > 1:
+            action['domain'] = [('id', 'in', requisitions.ids)]
+        elif requisitions:
+            form_view = [(self.env.ref('base_bim_2.view_form_bim_purchase_requisition').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [(state, view) for state, view in action['views'] if view != 'form']
+            else:
+                action['views'] = form_view
+            action['res_id'] = requisitions.id
         return action
-
-    # ~ def action_view_requisitions(self):
-        # ~ action = self.env.ref('base_bim_2.action_bim_purchase_requisition').read()[0]
-        # ~ requisitions = self.mapped('requisition_ids')
-        # ~ if len(requisitions) > 1:
-            # ~ action['domain'] = [('id', 'in', requisitions.ids)]
-        # ~ elif requisitions:
-            # ~ form_view = [(self.env.ref('base_bim_2.view_form_bim_purchase_requisition').id, 'form')]
-            # ~ if 'views' in action:
-                # ~ action['views'] = form_view + [(state, view) for state, view in action['views'] if view != 'form']
-            # ~ else:
-                # ~ action['views'] = form_view
-            # ~ action['res_id'] = requisitions.id
-        # ~ return action
 
 
 class BimWorkorderConcepts(models.Model):
@@ -418,8 +391,7 @@ class BimWorkorderConcepts(models.Model):
             exe_qty_mo = 0
             exe_amt_mo = exe_amt_mt = 0
             if record.concept_id:
-                #lines_with = res_obj.search([('workorder_concept_id','=',record.id)])
-                lines_with = res_obj.search([('workorder_id','=',record.workorder_id.id),('concept_id','=',record.concept_id.id)])
+                lines_with = res_obj.search([('workorder_concept_id','=',record.id)])
                 lines_out = res_obj.search([('workorder_id','=',record.workorder_id.id),('departure_id','=',record.concept_id.id)])
                 lines = lines_with + lines_out
                 lines_mo = lines.filtered(lambda x:x.qty_execute > 0)
@@ -520,7 +492,6 @@ class BimWorkorderResources(models.Model):
     price_unit = fields.Float(string='Menor Costo')
     order_assign = fields.Boolean(string='Sol Cotización')
     order_ids = fields.Many2many('purchase.order', string="N° ODC")
-    order_confirm_ids = fields.Many2many('purchase.order', string="Ordenes", compute='_compute_purchases')
     order_agree_id = fields.Many2one('purchase.requisition', string="Acuerdo ODC")
     vendor_first_id = fields.Many2one('res.partner', string="Proveedor #1")
     vendor_second_id = fields.Many2one('res.partner', string="Proveedor #2")
@@ -536,7 +507,6 @@ class BimWorkorderResources(models.Model):
     total_picking_out = fields.Float(string="Total Entrega Instaladores", compute='_compute_pickings')
     resource_type = fields.Selection(related='resource_id.type', string="Tipo Recurso")
     reason = fields.Char(string='Motivo')
-    sequence = fields.Integer(string='N°')
     user_id = fields.Many2one('res.users', string="Aprobado por")
     note = fields.Text('Notas')
     supply = fields.Selection([
@@ -621,11 +591,6 @@ class BimWorkorderResources(models.Model):
             record.qty_execute = sum(line.unit_execute for line in lines) #lines and max([line.unit_execute for line in lines]) or 0.0
 
     @api.depends('order_ids')
-    def _compute_purchases(self):
-        for record in self:
-            record.order_confirm_ids = record.order_ids.filtered(lambda o: o.state == 'purchase')
-
-    @api.depends('order_ids')
     def _compute_pickings(self):
         for record in self:
             project = record.budget_id.project_id
@@ -634,10 +599,10 @@ class BimWorkorderResources(models.Model):
 
             stock_picking = record.order_ids.mapped('picking_ids')
             # Movimiento de Entrada
-            picks_in = stock_picking.filtered(lambda p: p.picking_type_id.code == 'incoming' and p.state == 'done')
+            picks_in = stock_picking.filtered(lambda p: p.picking_type_id.code == 'incoming')
             # Movimientos internos
             installer_location_ids = project.install_location_ids.mapped('location_id').ids
-            picks_out = stock_picking.filtered(lambda p: p.state == 'done' and p.picking_type_id.code == 'internal' and p.location_dest_id.id in installer_location_ids)
+            picks_out = stock_picking.filtered(lambda p: p.picking_type_id.code == 'internal' and p.location_dest_id.id in installer_location_ids)
             # valores
             record.picking_in = picks_in
             record.picking_out = picks_out
@@ -658,7 +623,6 @@ class BimWorkorderResources(models.Model):
                 if line.concept_id:
                      depart_list.append(line.concept_id.id)
         return {'domain': {'departure_id': [('id','in',depart_list)]}}
-
 
     @api.onchange('product_id')
     def onchange_purchase(self):

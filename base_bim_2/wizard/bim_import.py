@@ -15,7 +15,7 @@ class BimImportTemp(models.Model):
     _order = 'id desc'
 
     name = fields.Char('Código', translate=True, default="Nuevo", track_visibility='onchange')
-    version = fields.Selection([('8.8', 'Plantilla Excel'), ('bc3', 'BC3')], 'Versión', default='8.8', required=True, track_visibility='onchange')
+    version = fields.Selection([('8.8', 'Presto 8.8'), ('bc3', 'BC3')], 'Versión', default='8.8', required=True, track_visibility='onchange')
     project_id = fields.Many2one('bim.project', 'Proyecto', required=True, track_visibility='onchange', ondelete='cascade')
     create_all_products = fields.Boolean('Crear productos no existentes', track_visibility='onchange')
     product_id = fields.Many2one('product.product', 'Producto por defecto', default=lambda self: self.env.ref('base_bim_2.default_product', raise_if_not_found=False), track_visibility='onchange')
@@ -427,7 +427,7 @@ class BimImportWizard(models.TransientModel):
     _name = 'bim.import.wizard'
     _description = 'Importador de proyectos'
 
-    version = fields.Selection([('8.8', 'Plantilla Excel'), ('bc3', 'BC3')], 'Versión', default='8.8', required=True)
+    version = fields.Selection([('8.8', 'Presto 8.8'), ('bc3', 'BC3')], 'Versión', default='8.8', required=True)
     project_id = fields.Many2one('bim.project', 'Proyecto', required=True)
     create_all_products = fields.Boolean('Crear productos no existentes')
     product_id = fields.Many2one('product.product', 'Producto por defecto', default=lambda self: self.env.ref('base_bim_2.default_product', raise_if_not_found=False))

@@ -3,15 +3,6 @@
     <data noupdate="0">
         <!-- Reporte Presupuesto -->
         <report
-            id="bim_budget_email_full"
-            model="bim.budget"
-            string="Partidas al Correo"
-            name="base_bim_2.bim_budget_email_full"
-            file="base_bim_2.bim_budget_email_full"
-            report_type="qweb-pdf"
-
-        />
-        <report
             id="bim_budget_full"
             model="bim.budget.report.wizard"
             string="Reporte Presupuesto completo"

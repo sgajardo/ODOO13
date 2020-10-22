@@ -39,8 +39,6 @@ class CreatePurchaseWizard(models.TransientModel):
         self.ensure_one()
         if not self.line_ids.mapped('seller_ids'):
             raise UserError('No hay líneas con Proveedor asignado')
-        if any(not line.seller_ids for line in self.line_ids):
-            raise UserError('Existen líneas sin Proveedor asignado')
 
         lines_purchase = self.line_ids.filtered(lambda i: len(i.seller_ids) == 1)
         lines_requisition = self.line_ids.filtered(lambda i: len(i.seller_ids) > 1)

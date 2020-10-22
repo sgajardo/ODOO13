@@ -22,5 +22,11 @@
             </xpath>
        </field>
     </record>
-
+<!--
+    <template id="assets_backend" name="tree icon button" inherit_id="web.assets_backend">
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/bim_workorder/static/src/js/list_button_renderer.js"/>
+        </xpath>
+    </template>
+-->
 </odoo>

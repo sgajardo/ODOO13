@@ -25,7 +25,6 @@
                     <button name="%(base_bim_2.action_bim_ajust_budget)d" string="Modificar" class="oe_highlight" type="action"/>
 
                     <button name="print_budget_notes" string="Notas" type="object"/>
-                    <button name="action_budget_send" type="object" string="Enviar email" groups="base_bim_2.group_user_bim"/>
 
                     <!--............................................................................................-->
 
@@ -53,7 +52,6 @@
                     <button name="action_cancel"
                             string="Cancelar" attrs="{'invisible': [('state', '=', 'cancel')]}" icon='fa-angle-right' class="oe_highlight" type="object"/>
 
-                    <button name="import_gantt" type="object" string="Importar Gantt" class="btn-secondary"/>
                     <button name="export_gantt" type="object" string="Exportar Gantt" class="btn-secondary"/>
 
                     <!--............................................................................................-->
@@ -102,44 +100,13 @@
                             <field name="concept_ids" invisible="1"/>
                             <field name="type" required="1"/>
                             <field name="gantt_type"/>
-                            <field name="company_id" invisible="1"/>
-                            <field name="pricelist_id" groups="product.group_product_pricelist" options="{'no_open':True,'no_create': True}"/>
-                            <field name="do_compute" widget="boolean_toggle"/>
                       </group>
                        <group>
 <!--                        <field name="balance" widget="monetary"/>-->
                            <field name="balace_surface"/>
                             <field name="surface"/>
-                            <newline/>
-                            <label for=""/>
-                            <div class="row">
-                                <div class="col text-center">
-                                    <label for="date_start" class="font-weight-bold" string="Estimada"/>
-                                </div>
-                                <div class="col text-center">
-                                    <label for="date_from" class="font-weight-bold" string="Programada"/>
-                                </div>
-                            </div>
-                            <label for="date_start"/>
-                            <div class="row position-relative">
-                                <div class="col text-center">
-                                    <field name="date_start" required="1"/>
-                                </div>
-                                <div class="col text-center">
-                                    <field name="date_from"/>
-                                </div>
-                                <!-- <field name="use_programmed" widget="boolean_toggle" class="position-absolute mx-auto" style="left: 0; right: 0; top: 0.5rem; width: 20px;"/> -->
-                                <button name="set_estimated_dates" type="object" class="btn-link position-absolute mx-auto text-primary oe_read_only" icon="fa-arrow-left" style="left: 0; right: 0; top: 0.5rem;"/>
-                            </div>
-                            <label for="date_end"/>
-                            <div class="row">
-                                <div class="col text-center">
-                                    <field name="date_end" required="1"/>
-                                </div>
-                                <div class="col text-center">
-                                    <field name="date_to"/>
-                                </div>
-                            </div>
+                            <field name="date_start" required="1"/>
+                            <field name="date_end" required="1"/>
                             <field name="stage_ids" invisible="1"/>
                             <field name="template_id" options='{"no_create": 1}'/>
                             <field name="order_mode" widget="radio" invisible="1"/>
@@ -198,12 +165,6 @@
                                     <field name="csv_file" widget="binary" filename="filename"/>
                                 </tree>
                             </field>
-                        </page>
-                        <page name="bim_budget_tools" string="Herramientas" >
-                            <group>
-                                <button name="concept_quantiy_to_cero" type="object" string="Cantidad Partidas a Cero" class="btn-primary mt-2" groups="base_bim_2.group_manager_bim"
-                                confirm="¿Estás seguro que quieres llevar a cero las cantidades en las Partidas? Se eliminarán las Mediciones Asociadas."/>
-                            </group>
                         </page>
                     </notebook>
 

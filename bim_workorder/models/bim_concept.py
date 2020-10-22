@@ -102,8 +102,8 @@ class BimConcepts(models.Model):
             # Original fields
             total_qty = execute_ot + record.qty_execute
             record.amount_execute_equip = execute_equip
-            record.amount_execute_labor = execute_labor + labor_ot
-            record.amount_execute_material = execute_material + material_ot
+            record.amount_execute_labor = execute_labor
+            record.amount_execute_material = execute_material
             record.balance_execute = balance_execute
             record.amount_execute = balance_execute / (total_qty > 0 and total_qty or 1)
 

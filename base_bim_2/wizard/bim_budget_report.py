@@ -336,6 +336,7 @@ class BimBudgetReportWizard(models.TransientModel):
                             qty += 1
         return qty
 
+
    # Retorna partidas contenidos en el concepto
     def get_departures(self, child_ids, dep_ids):
         res = dep_ids
@@ -345,6 +346,7 @@ class BimBudgetReportWizard(models.TransientModel):
             if record.child_ids:
                 self.get_departures(record.child_ids,res)
         return res
+
 
     # ~ def get_departures(self, child_ids):
         # ~ res = []
@@ -776,5 +778,3 @@ class BimBudgetReportWizard(models.TransientModel):
             'target': "self",
             'no_destroy': False,
         }
-
-

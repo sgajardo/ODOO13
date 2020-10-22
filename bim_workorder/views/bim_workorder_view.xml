@@ -14,10 +14,10 @@
               </header>
               <sheet>
                 <div class="oe_button_box" name="button_box">
-                    <button name="action_view_purchases" type="object" class="oe_stat_button" icon="fa-exchange" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('order_count','=',0)]}">
+                    <button name="action_view_requisitions" type="object" class="oe_stat_button" icon="fa-exchange" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('requisition_count','=',0)]}">
                         <div class="o_form_field o_stat_info">
-                            <span class="o_stat_value"><field name="order_count" widget="statinfo" nolabel="1"/></span>
-                            <span class="o_stat_text">Ordenes de Compra</span>
+                            <span class="o_stat_value"><field name="requisition_count" widget="statinfo" nolabel="1"/></span>
+                            <span class="o_stat_text">Solicitudes de Material</span>
                         </div>
                     </button>
                 </div>
@@ -79,8 +79,7 @@
                         <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'H'}"/>
                         <separator string="Mano de Obra Presupuestada"/>
                         <field name="labor_ids">
-                            <tree editable="bottom" create="0" default_order="sequence, id">
-                                <field name="sequence" readonly="1" force_save="1"/>
+                            <tree editable="bottom" create="0">
                                 <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['labor']),('budget_id','=',budget_id)]"/>
                                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                                 <field name="name" invisible="1"/>
@@ -102,8 +101,7 @@
                         </field>
                         <separator string="Mano de Obra No Presupuestada"/>
                         <field name="labor_extra_ids">
-                            <tree editable="bottom" default_order="sequence, id">
-                                <field name="sequence" readonly="1" force_save="1"/>
+                            <tree editable="bottom">
                                 <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['H'])]"/>
                                 <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida" attrs="{'required':[('product_id','!=',False)]}"/>
                                 <field name="name" invisible="1"/>
@@ -126,11 +124,10 @@
                       </page>
                       <page name="materials" string="Recurso Material">
                         <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'M'}"/>
-                        <button name="%(action_workorder_create_purchase)d" class="btn-primary" type="action" string="Crear Orden de Compra" style="margin-left:5px" context="{'order': name}"/>
+                        <button name="create_purchase_requisition" class="btn-primary" type="object" string="Solicitud de Materiales" style="margin-left:5px" context="{'order': name}"/>
                         <separator string="Materiales Presupuestados"/>
                         <field name="material_ids">
-                            <tree editable="bottom" create="0" default_order="sequence, id">
-                                <field name="sequence" readonly="1" force_save="1"/>
+                            <tree editable="bottom" create="0">
                                 <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
                                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                                 <field name="efficiency_cmpt"/>
@@ -160,10 +157,9 @@
                         <button name="action_open_lines" class="oe_link" type="object" string=" -> Ver todo" context="{'show': 'budget'}"/>
                         <separator string="Materiales No Presupuestados"/>
                         <field name="material_extra_ids">
-                            <tree editable="bottom" default_order="sequence, id">
-                                <field name="sequence" readonly="1" force_save="1"/>
+                            <tree editable="bottom">
                                 <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['M'])]" string="Recurso"/>
-                                <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida" attrs="{'required':[('product_id','!=',False)]}"/>
+                                <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida"/>
                                 <field name="efficiency_extra" string="Rendimiento"/>
                                 <field name="duration_cmpt" string="Cant Calculada"/>
                                 <field name="qty_available"/>
@@ -235,8 +231,7 @@
          <field name="name">bim.workorder.resources.budget.tree.view</field>
          <field name="model">bim.workorder.resources</field>
          <field name="arch" type="xml">
-            <tree editable="bottom" create="0" default_order="sequence, id">
-                <field name="sequence" readonly="1"/>
+            <tree editable="bottom" create="0">
                 <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                 <field name="name" invisible="1"/>
@@ -250,8 +245,7 @@
                 <field name="order_agree_id" readonly="1"/>
                 <field name="vendor_first_id"/>
                 <field name="vendor_second_id"/>
-                <field name="order_ids" widget="many2many_tags" invisible="1"/>
-                <field name="order_confirm_ids" widget="many2many_tags" readonly="1"/>
+                <field name="order_ids" widget="many2many_tags" readonly="1"/>
                 <field name="supply"/>
                 <field name="picking_in" widget="many2many_tags"/>
                 <field name="picking_out" widget="many2many_tags"/>
@@ -275,8 +269,7 @@
          <field name="name">bim.workorder.resources.extra.tree.view</field>
          <field name="model">bim.workorder.resources</field>
          <field name="arch" type="xml">
-            <tree editable="bottom" create="0" default_order="sequence, id">
-                <field name="sequence" readonly="1"/>
+            <tree editable="bottom" create="0">
                 <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['M'])]"/>
                 <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida"/>
                 <field name="efficiency_extra" string="Rendimiento"/>
@@ -291,8 +284,7 @@
                 <field name="order_agree_id" readonly="1"/>
                 <field name="vendor_first_id"/>
                 <field name="vendor_second_id"/>
-                <field name="order_ids" widget="many2many_tags" invisible="1"/>
-                <field name="order_confirm_ids" widget="many2many_tags" readonly="1"/>
+                <field name="order_ids" widget="many2many_tags" readonly="1"/>
                 <field name="supply"/>
                 <field name="picking_in" widget="many2many_tags"/>
                 <field name="picking_out" widget="many2many_tags"/>
