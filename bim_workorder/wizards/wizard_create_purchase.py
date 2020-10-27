@@ -74,7 +74,7 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
                             'picking_type_id': picking_type
                         })
                         order.order_line = purchase_lines
-                        workorder.write({'order_ids': [(4, order.id, None)]})
+                        workorder.write({'purchase_ids': [(4, order.id, None)]})
 
         else:
             for supplier in suppliers:

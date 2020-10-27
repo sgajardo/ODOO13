@@ -42,10 +42,13 @@
                     </p>
                 </div>
             </field>
+            <field name="report_template" ref="bim_budget_full"/>
             <field name="report_name">${(object.name or '').replace('/','_')}</field>
             <field name="lang">${object.project_id.customer_id.lang}</field>
             <field name="user_signature" eval="False"/>
             <field name="auto_delete" eval="True"/>
         </record>
+
+
     </data>
 </odoo>

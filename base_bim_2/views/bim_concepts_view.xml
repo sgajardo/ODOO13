@@ -48,8 +48,8 @@
                 <field name="balance" optional="hide" sum="bal"/>
                 <field name="balance_cert" optional="hide" sum="cert" invisible="context.get('budget_type') != 'certification'"/>
                 <field name="balance_execute" optional="hide" sum="exe" invisible="context.get('budget_type') != 'execution'"/>
-                <field name="acs_date_start" widget="date" attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])]}" invisible="context.get('budget_type') != 'gantt'"/>
-                <field name="acs_date_end" widget="date" attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])]}" invisible="context.get('budget_type') != 'gantt'"/>
+                <field name="acs_date_start" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
+                <field name="acs_date_end" widget="date" invisible="context.get('budget_type') != 'gantt'"/>
             </hierarchy>
         </field>
     </record>
@@ -236,7 +236,7 @@
                             <field name="amount_stage_cert" invisible="1"/>
                             <field name="sequence" invisible="1"/>
                             <field name="gantt_type" invisible="1"/>
-                            <field name="export_tmp_id" invisible="1"/>
+
                             <field name="type" attrs="{'readonly':[('parent_id','=',False)]}"/>
                             <field name="acs_date_start"
                                    attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])],

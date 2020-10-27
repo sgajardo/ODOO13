@@ -33,10 +33,6 @@
                                         <label for="paidstate_product_mant" string="Producto Mantencion" class="col-lg-3 o_light_label"/>
                                         <field name="paidstate_product_mant" widget="selection"/>
                                     </div>
-                                    <div class="row mt16">
-                                        <label for="retention_product" string="Producto de Retención" class="col-lg-3 o_light_label"/>
-                                        <field name="retention_product" widget="selection"/>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -108,7 +104,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <h2>Configuración Mantenimiento</h2>
                     <div class="row mt16 o_settings_container">
                         <div class="col-12 col-lg-6 o_setting_box">
@@ -135,6 +131,7 @@
                         </div>
                     </div>
 
+<!--
                     <h2>Configuración Retención</h2>
                     <div class="row mt16 o_settings_container">
                         <div class="col-12 col-lg-6 o_setting_box">
@@ -156,6 +153,7 @@
                             </div>
                         </div>
                     </div>
+-->
 
                     <h2>Configuración Recursos Humanos</h2>
                     <div class="row mt16 o_settings_container">

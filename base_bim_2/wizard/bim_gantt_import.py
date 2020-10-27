@@ -20,10 +20,13 @@ class BimGanttImport(models.TransientModel):
     budget_id = fields.Many2one('bim.budget', 'Presupuesto')
     filename = fields.Char('Nombre archivo XML')
     xml_file = fields.Binary('Archivo XML', required=True)
-    gantt_type = fields.Selection([('ms', 'Microsoft Project')], 'Tipo de Gantt', default='ms', required=True)
+    gantt_type = fields.Selection([('ms', 'Microsoft Project'),
+                                   ('gp', 'Gantt Project')], 'Tipo de Gantt', default='ms', required=True)
 
     def print_xml(self):
-        if self.gantt_type == 'ms':
+        if self.gantt_type == 'gp':
+            raise ValidationError('Aún no está implementado Gantt Project')
+        elif self.gantt_type == 'ms':
             return self.load_gantt_ms()
         else:
             raise ValidationError('Debe escoger algún formato de gantt para importar.')
@@ -42,7 +45,7 @@ class BimGanttImport(models.TransientModel):
             if wbs and wbs.text in ['0', '1']:
                 continue
             concept_id = int(task.find('uid').text)
-            concept = self.budget_id.concept_ids.filtered_domain([('export_tmp_id', '=', concept_id), ('type', 'in', ['chapter','departure'])])
+            concept = self.budget_id.concept_ids.filtered_domain([('id', '=', concept_id)])
             if not concept:
                 errors.append('<p>El archivo XML contiene la tarea de ID %d, de nombre %s, y no se encuentra en el presupuesto.</p>' % (concept_id, task.find('name').text))
                 continue
@@ -50,7 +53,7 @@ class BimGanttImport(models.TransientModel):
             predecessors = task.find_all('predecessorlink')
             for pred in predecessors:
                 pred_concept_id = int(pred.find('predecessoruid').text)
-                pred_concept = self.env['bim.concepts'].search([('budget_id', '=', self.budget_id.id),('export_tmp_id', '=', pred_concept_id), ('type', 'in', ['chapter','departure'])])
+                pred_concept = self.budget_id.concept_ids.filtered_domain([('id', '=', pred_concept_id)])
                 if not pred_concept:
                     pred_name = 'N/A'
                     for ptask in tasks:
@@ -60,7 +63,7 @@ class BimGanttImport(models.TransientModel):
                     errors.append('<p>El archivo XML indica tener la tarea de ID %d de nombre %s como predecesora de la tarea de ID %d y nombre %s, y esta predecesora no existe en el presupuesto.</p>' % (pred_concept_id, pred_name, concept_id, task.find('name').text))
                     continue
                 predecessors_vals.append((0, 0, {
-                    'name': pred_concept.id,
+                    'name': pred_concept_id,
                     'difference': (float(pred.find('linklag').text) / 600 / working_hours) if working_hours else 0,
                     'pred_type': MS_PREDECESSOR_MAPPING.get(pred.find('type').text)
                 }))

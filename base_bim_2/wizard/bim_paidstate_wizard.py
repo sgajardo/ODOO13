@@ -5,47 +5,51 @@ import xlwt
 from io import BytesIO
 import base64
 from datetime import datetime
-from odoo.exceptions import RedirectWarning, UserError, ValidationError
+
 class BimPaidstateWizard(models.TransientModel):
     _name = 'bim.paidstate.wizard'
     _description = 'Asistente Estado de Pago'
 
-    def _default_budgets(self):
-        project_id = self.env['bim.paidstate'].browse(self._context.get('active_id')).project_id
-        budgets = self.env['bim.budget'].search([('project_id','=',project_id.id)])
-        paidstate_id = self.env['bim.paidstate'].browse(self._context.get('active_id'))
-        list =[]
-        for budget in budgets:
-            found = False
-            for line in paidstate_id.lines_ids:
-                if line.budget_id.id == budget.id:
-                    found = True
-                    break
-            if not found and budget.balance_certified_residual > 0:
-                list.append(budget.id)
-        if len(list) == 0:
-            raise UserError('No hay Prespuestos Certificados para Cargar')
+    def _default_budget(self):
+        return self.env['bim.paidstate'].browse(self._context.get('active_id')).budget_id
 
-        return list
+    def _default_currency(self):
+        record = self.env['bim.paidstate'].browse(self._context.get('active_id'))
+        return record.currency_id or record.budget_id.currency_id
 
-    def _default_paidstate_id(self):
-        return self.env['bim.paidstate'].browse(self._context.get('active_id')).id
 
-    paidstate_id = fields.Many2one('bim.paidstate', required=True, default=_default_paidstate_id)
-    budget_ids = fields.Many2many('bim.budget', string= "Presupuestos", required=True, default=_default_budgets)
+    type = fields.Selection([
+        ('all', 'Acumulado'),
+        ('stage', 'Etapas'),],
+        string="En base a", default='all')
+    budget_id = fields.Many2one('bim.budget', "Presupuesto", required=True, default=_default_budget)
+    stage_id = fields.Many2one('bim.budget.stage', "Etapa")
+    amount = fields.Monetary("Monto Calculado",compute='_amount_compute')
+    currency_id = fields.Many2one('res.currency', string='Moneda', required=True, default=_default_currency)
 
+    @api.depends('stage_id', 'type','budget_id')
+    def _amount_compute(self):
+        date = fields.Date.today()
+        paid_id = self._context.get('active_id')
+        for record in self:
+            budget = record.budget_id
+            amount_stage = amount_all = 0
+            prev_paid = self.env['bim.paidstate'].search([('id','!=',paid_id),('budget_id','=',budget.id)])#,('date','<',date)
+            accumulated = sum(paid.amount for paid in prev_paid)
+
+            if record.type == 'stage':
+                for concept in budget.concept_ids.filtered(lambda c: c.type_cert == 'stage'):
+                    amount_stage += sum(csta.amount_certif for csta in concept.certification_stage_ids if csta.stage_id.id == record.stage_id.id)#in ['approved']
+            else:
+                for concept in record.budget_id.concept_ids.filtered(lambda c: not c.parent_id and c.balance_cert > 0):
+                    amount_all += concept.balance_cert
+            record.amount = amount_stage if record.type == 'stage' else amount_all - accumulated
 
     def process(self):
-       for budget in self.budget_ids:
-           vals = {
-               'budget_id': budget.id,
-               'price_unit': budget.balance_certified_residual,
-               'paidstate_id': self.paidstate_id.id,
-               'name': budget.name,
-               'loaded': True
-           }
-           self.env['bim.paidstate.line'].create(vals)
-
+        paid = self.env['bim.paidstate'].browse(self._context.get('active_id'))
+        paid.amount = self.amount
+        if self.type == 'stage':
+            paid.stage_id = self.stage_id.id
 
 
 

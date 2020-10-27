@@ -356,7 +356,6 @@ class BimConcepts(models.Model):
         ('measure', 'Medición'),
         ('stage', 'Etapas'),
         ('fixed', 'Manual')], string="Tipo certificación", default='measure', copy=False)
-    export_tmp_id = fields.Integer()
 
     # ----------------------------------------------------------------#
     # ---------------- ONCHANGE METHODS ------------------------------#

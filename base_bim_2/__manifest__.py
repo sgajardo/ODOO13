@@ -39,7 +39,6 @@
         'purchase',
         'stock',
         'sale',
-        'sale_management',
         'uom',
         'folder_view',
         'hierarchy_view',
