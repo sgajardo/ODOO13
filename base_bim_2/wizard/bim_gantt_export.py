@@ -203,13 +203,14 @@ MS_PREDECESSOR_MAPPING = {
     'ss': '3',
 }
 
-
+global_seq = 2
 class BimGanttExport(models.TransientModel):
     _name = 'bim.gantt.export'
     _description = 'Exportador de proyectos Gantt'
 
     budget_id = fields.Many2one('bim.budget', 'Presupuesto', required=True)
     gantt_type = fields.Selection([('ms', 'Microsoft Project')], 'Tipo de Gantt', default='ms', required=True)
+
 
     def print_xml(self):
         if self.gantt_type == 'gp':
@@ -237,6 +238,7 @@ class BimGanttExport(models.TransientModel):
         }
 
     def generate_ms_project(self):
+        global global_seq
         working_hours = self.env.company.working_hours
         xml = BeautifulSoup(features='lxml-xml')
         dt_format = '%Y-%m-%dT%H:%M:%S'
@@ -312,7 +314,9 @@ class BimGanttExport(models.TransientModel):
         for concept in self.budget_id.concept_ids:
             if concept.type not in ['chapter', 'departure'] or concept.parent_id:
                 continue
+            concept.write({'export_tmp_id':  global_seq})
             concepts_tags = generate_concepts_xml(concept, xml, working_hours, dt_format)
+
             for concept_tag in concepts_tags:
                 tasks_root.append(concept_tag)
         root.append(tasks_root)
@@ -362,7 +366,7 @@ class BimGanttExport(models.TransientModel):
             assignment_tag = xml.new_tag('Assignment')
             assignment_vals = {
                 'UID': i,
-                'TaskUID': resource.parent_id.id,
+                'TaskUID': resource.parent_id.export_tmp_id,# resource.parent_id.id,
                 'ResourceUID': products.index(resource.product_id),
                 'Units': resource.available if resource.product_id.resource_type in ['H', 'Q'] else resource.quantity,
                 'Cost': resource.balance,
@@ -378,6 +382,7 @@ class BimGanttExport(models.TransientModel):
         root.append(assignments_root)
 
         xml.append(root)
+        global_seq = 2
         return xml
 
 
@@ -400,13 +405,14 @@ def get_duration(days, workable):
 
 
 def generate_concepts_xml(concept, xml, working_hours, dt_format):
+    global global_seq
     wbs = get_wbs(concept).split('.')
     concept_tag = xml.new_tag('Task')
     start = concept.acs_date_start or fields.Datetime.now()  # Hay que darle alguna fecha
     end = concept.acs_date_end or start
     task_fields = {
-        'UID': concept.id,
-        'ID': concept.id,
+        'UID': global_seq, #concept.id,
+        'ID': global_seq,#concept.id,
         'Name': concept.name,
         'CreateDate': concept.create_date.strftime(dt_format),
         'Start': start.replace(hour=9, minute=0, second=0).strftime(dt_format),
@@ -437,7 +443,9 @@ def generate_concepts_xml(concept, xml, working_hours, dt_format):
 
         concept_tag.append(predecessor_link_tag)
     concepts = [concept_tag]
+    global_seq += 1
     for child in concept.child_ids:
+        child.write({'export_tmp_id': global_seq})
         if child.type in ['chapter', 'departure']:
             concepts.extend(generate_concepts_xml(child, xml, working_hours, dt_format))
     return concepts

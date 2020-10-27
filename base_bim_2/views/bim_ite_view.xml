@@ -22,7 +22,7 @@
                                 <p><strong>- Z :</strong> Altura</p>
                                 <p><strong>Otros Operadores Disponibles</strong></p>
                                 <p><strong>- X² :</strong> X**2 ó pow(x,2)</p>
-                                <p><strong>- π :</strong> pi ó 3.14</p>
+                               <!-- <p><strong>- π :</strong> pi ó 3.14</p>-->
                             </div>
                         </group>
                         <group>
@@ -45,12 +45,14 @@
                                     <field name="concept" attrs="{'invisible': ['|',('type','=',False),('type','=','product')],'required': [('type','=','concept')]}"/>
 -->
                                     <field name="code" required="1"/>
+
+
                                     <field name="name" required="1"/>
                                     <field name="product_uom" options="{'no_create': True}"/>
                                     <field name="formula" required="1" placeholder="Ej:(x+y)/z"/>
                                     <field name="qty_calc"/>
-                                    <field name="price" required="1"/>
-                                    <field name="amount" sum="Sum"/>
+                                    <field name="price" required="1" attrs="{'readonly': [('type','=','concept')]}"/>
+                                    <field name="amount"/>
                                     <field name="parent_id" invisible="1"/>
                                 </tree>
                             </field>

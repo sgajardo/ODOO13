@@ -4,6 +4,7 @@ import base64
 from odoo import api, fields, models, _
 from datetime import datetime
 from odoo.modules.module import get_module_resource
+from odoo.exceptions import UserError
 
 class BimIte(models.Model):
     _description = "Bim ITE"
@@ -38,7 +39,7 @@ class BimIte(models.Model):
     @api.depends('line_ids')
     def _compute_amount(self):
         for record in self:
-            record.amount = sum(x.amount for x in record.line_ids)
+            record.amount = sum(x.amount for x in record.line_ids if (x.type=='product' and not x.parent_id) or x.type == 'concept')
 
     @api.onchange('line_ids')
     def onchange_set_lines(self):
@@ -123,11 +124,14 @@ class BimIteLine(models.Model):
     def _compute_quantity(self):
         for record in self:
             if record.formula:
-                N = n = record.ite_ide.val_n
-                X = x = record.ite_ide.val_x
-                Y = y = record.ite_ide.val_y
-                Z = z = record.ite_ide.val_z
-                record.qty_calc = eval(str(record.formula))
+                try:
+                    N = n = record.ite_ide.val_n
+                    X = x = record.ite_ide.val_x
+                    Y = y = record.ite_ide.val_y
+                    Z = z = record.ite_ide.val_z
+                    record.qty_calc = eval(str(record.formula))
+                except:
+                    raise UserError('Defina una fórmula según la descripción de la ITE. La división por cero no es permitida')
             else:
                 record.qty_calc = 1
 
@@ -135,7 +139,10 @@ class BimIteLine(models.Model):
     def _compute_amount(self):
         for record in self:
             if record.type == 'concept':
-                record.amount =  sum(line.price*line.qty_calc for line in self.ite_ide.line_ids if record.sequence < line.sequence and line.parent_id.id == record.id)
+                price = sum(line.price*line.qty_calc for line in self.ite_ide.line_ids if record.sequence < line.sequence and line.parent_id.id == record.id)
+                record.price = price
+                record.amount = record.qty_calc * price
             else:
                 record.amount = record.price * record.qty_calc
+
 

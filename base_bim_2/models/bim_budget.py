@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 import xlwt
 from odoo import _, api, fields, models
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
+from werkzeug.urls import url_encode
 
 inconsistency = {
     '0': 'No se encontraron inconsistecias en el Presupuesto.',
@@ -176,6 +177,7 @@ class BimBudget(models.Model):
     certified = fields.Monetary(string="Certificado", compute='_compute_amount', help="Importe Certificado del Presupuesto.")
     surface = fields.Float(string="Superficie m2", help="Superficie Construida (m2).", copy=True)
     project_id = fields.Many2one('bim.project', string='Obra', tracking=True)
+
     template_id = fields.Many2one('bim.assets.template', string='Plantilla', tracking=True)
     user_id = fields.Many2one('res.users', string='Responsable', tracking=True, default=lambda self: self.env.user)
     indicator_ids = fields.One2many('bim.budget.indicator', 'budget_id', 'Indicadores comparativos')
@@ -188,7 +190,17 @@ class BimBudget(models.Model):
     space_count = fields.Integer('N° Espacios', compute="_get_space_count")
     company_id = fields.Many2one('res.company', string="Compañía", required=True, default=lambda self: self.env.company, readonly=True)
     currency_id = fields.Many2one('res.currency', string="Moneda", required=True, copy=True)
-    pricelist_id = fields.Many2one('product.pricelist', string='Lista de Precios', check_company=True, domain="['|',('company_id','=',False),('company_id','=',company_id)]")
+    list_price_do = fields.Boolean(compute='_giveme_list_price')
+
+    def _giveme_list_price(self):
+        if self.env.company.type_work == 'pricelist':
+            self.list_price_do = True
+        else:
+            self.list_price_do = False
+
+    pricelist_id = fields.Many2one('product.pricelist', string='Lista de Precios',
+                                   default=lambda s: s.env['product.pricelist'].search([], limit=1),
+                                   check_company=True, domain="['|',('company_id','=',False),('company_id','=',company_id)]")
     date_start = fields.Date('Fecha Inicio', required=True, copy=True, default=fields.Date.today)
     date_end = fields.Date('Fecha Fin', copy=True)
     date_from = fields.Date('Fecha inicio programada', compute='_compute_dates')
@@ -260,8 +272,18 @@ class BimBudget(models.Model):
     amount_executed_labor = fields.Monetary('Ejecutado mano de obra', compute="_compute_execute")
     amount_executed_material = fields.Monetary('Ejecutado material', compute="_compute_execute")
     amount_executed_other = fields.Monetary('Ejecutado otros', compute="_compute_execute")
-
     product_rectify_ids = fields.One2many('bim.product.rectify', 'budget_id', 'Rectificaciones de productos')
+    balance_certified_residual = fields.Float(string='Cantidad a Certificar', compute='compute_balance_certified_residual')
+
+    @api.onchange('concept_ids.balance_cert')
+    def compute_balance_certified_residual(self):
+        for record in self:
+            record._compute_amount()
+            amount = 0
+            in_payment_state = self.env['bim.paidstate.line'].search([('budget_id', '=', record.id), ('loaded', '=', True)])
+            for paidstate in in_payment_state:
+                amount += paidstate.amount
+            record.balance_certified_residual = record.certified - amount
 
     def print_budget_notes(self):
         return self.env.ref('base_bim_2.notes_report_budget').report_action(self)
@@ -270,6 +292,8 @@ class BimBudget(models.Model):
     def onchange_project_id(self):
         if self.project_id:
             self.currency_id = self.project_id.currency_id.id
+            if self.project_id.customer_id.property_product_pricelist:
+                self.pricelist_id = self.project_id.customer_id.property_product_pricelist.id
 
     @api.onchange('template_id')
     def onchange_template_id(self):
@@ -333,26 +357,22 @@ class BimBudget(models.Model):
                 'text': True,
                 'filter_ok': False,
         })
-        data = {
-            'id': [self.id],
-            'docs': self.id,
-            'model': 'bim.budget',
-            'form': {
-                'id': wizard.id,
-                'display_type': 'full',
-                'summary_type': 'departure',
-                'total_type': 'normal',
-                'filter_type': 'space',
-                'budget_id': (self.id, self.name),
-                'project_id': (self.project_id.id, self.project_id.name),
-                'text': True,
-                'filter_ok': False,
-            }
-        }
-        return wizard._print_report(data)
+        pdf = self.env.ref('base_bim_2.bim_budget_full').render_qweb_pdf(wizard.id)
+        b64_pdf = base64.b64encode(pdf[0])
+        ATTACHMENT_NAME = self.name
+        attach_report = self.env['ir.attachment'].create({
+            'name': ATTACHMENT_NAME,
+            'type': 'binary',
+            'datas': b64_pdf,
+            'store_fname': ATTACHMENT_NAME,
+            'res_model': self._name,
+            'res_id': self.id,
+            'mimetype': 'application/pdf'
+        })
         template_id = self.env['ir.model.data'].xmlid_to_res_id('base_bim_2.email_template_budget', raise_if_not_found=False)
         lang = self.env.context.get('lang')
         template = self.env['mail.template'].browse(template_id)
+        template.attachment_ids = [(6,0,[attach_report.id])]
         if template.lang:
             lang = template._render_template(template.lang, 'bim.budget', self.ids[0])
         ctx = {
@@ -362,7 +382,6 @@ class BimBudget(models.Model):
             'default_template_id': template_id,
             'default_composition_mode': 'comment',
             'mark_so_as_sent': True,
-            'custom_layout': "mail.mail_notification_paynow",
             'proforma': self.env.context.get('proforma', False),
             'force_email': True,
             #'model_description': self.with_context(lang=lang).type_name,
@@ -730,7 +749,6 @@ class BimBudget(models.Model):
                 body=_("Cantidades en las Partidas llevadas Cero y Mediciones Eliminadas por:  %s") % record.env.user.name)
 
 
-
 class BimBudgetStage(models.Model):
     _name = 'bim.budget.stage'
     _description = "Etapas de Presupuesto"
@@ -738,6 +756,13 @@ class BimBudgetStage(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin', 'image.mixin']
 
     def action_start(self):
+        no_do = False
+        for line in self.budget_id.stage_ids:
+            if line.state == 'process':
+                no_do = True
+        if no_do:
+            raise UserError('Existe una etapa en estado Actual que tienes que Aprobar.')
+
         self.write({'state':'process'})
         return self.update_concept()
 
@@ -771,6 +796,7 @@ class BimBudgetStage(models.Model):
         ('approved', 'Aprobada'),
         ('cancel', 'Cancelada')],
         string='Estado', default='draft', copy=False, tracking=True)
+    taken = fields.Boolean(default=False)
 
     def update_concept(self):
         ''' Este metodo ACTUALIZA los conceptos que esten certificados
@@ -848,7 +874,6 @@ class BimBudgetAssets(models.Model):
     sequence = fields.Integer('Secuencia')
     asset_id = fields.Many2one('bim.assets', "Haber o Descuento", ondelete='cascade')
     value = fields.Float('Valor')
-    #affects_id = fields.Many2one('bim.budget.assets', "Haber o Descuento Afectado")
     budget_id = fields.Many2one('bim.budget', "Presupuesto", ondelete='cascade')
     total = fields.Float(compute='_compute_total')
     to_invoice = fields.Boolean('Facturar', default=True)
@@ -888,15 +913,6 @@ class BimBudgetAssets(models.Model):
             record.total = value
 
 
-    # ~ @api.onchange('asset_id')
-    # ~ def _onchange_asset(self):
-        # ~ if self.date_end and project_date_end and self.date_end > project_date_end:
-            # ~ warning = {
-                # ~ 'title': _('Warning!'),
-                # ~ 'message': _(u'La fecha de finalización no puede ser mayor a la fecha final de la Obra!'),
-            # ~ }
-            # ~ self.date_end = False
-            # ~ return {'warning': warning}
 
 
 class BimBudgetIndicator(models.Model):

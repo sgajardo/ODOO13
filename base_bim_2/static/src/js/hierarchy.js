@@ -3,6 +3,7 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
 
     var HierarchyRenderer = require('hierarchy_view.renderer');
     var HierarchyController = require('hierarchy_view.controller');
+    var dialogs = require('web.view_dialogs');
     var core = require('web.core');
 
     var QWeb = core.qweb;
@@ -67,6 +68,28 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
                 });
             }
             this._super.apply(this, arguments);
+        },
+        _onRowClicked: function (ev) {
+            if (!ev.target.closest('.o_list_record_selector') && !$(ev.target).prop('special_click')) {
+                var model = this.getParent().model;
+                var res_id = $(ev.currentTarget).data('id');
+                if (res_id) {
+                    var record = model.get(res_id, {raw: true});
+                    if (record.model === 'bim.concept.measuring') {
+                        ev.stopPropagation();
+                        var self = this;
+                        new dialogs.FormViewDialog(self, {
+                            readonly: true,
+                            deletable: false,
+                            res_id: record.res_id,
+                            res_model: record.model,
+                            title: record.data.name,
+                        }).open();
+                    } else {
+                        this._super.apply(this, arguments);
+                    }
+                }
+            }
         },
         _postProcessField: function (widget, node) {
             if (node.tag === 'field' && node.attrs.name === 'measuring_ids') {

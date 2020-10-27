@@ -103,8 +103,12 @@
                             <field name="type" required="1"/>
                             <field name="gantt_type"/>
                             <field name="company_id" invisible="1"/>
-                            <field name="pricelist_id" groups="product.group_product_pricelist" options="{'no_open':True,'no_create': True}"/>
+                            <field name="list_price_do" invisible="1"/>
+                            <field name="pricelist_id"
+                                   attrs="{'required': [('list_price_do','!=',False)]}"
+                                   options="{'no_open':True,'no_create': True}"/>
                             <field name="do_compute" widget="boolean_toggle"/>
+
                       </group>
                        <group>
 <!--                        <field name="balance" widget="monetary"/>-->
