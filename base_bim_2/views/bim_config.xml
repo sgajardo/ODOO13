@@ -33,12 +33,6 @@
                                         <label for="paidstate_product_mant" string="Producto Mantencion" class="col-lg-3 o_light_label"/>
                                         <field name="paidstate_product_mant" widget="selection"/>
                                     </div>
-<!--
-                                    <div class="row mt16">
-                                        <label for="retention_product" string="Producto de Retención" class="col-lg-3 o_light_label"/>
-                                        <field name="retention_product" widget="selection"/>
-                                    </div>
--->
                                 </div>
                             </div>
                         </div>

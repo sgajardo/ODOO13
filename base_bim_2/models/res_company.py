@@ -11,7 +11,6 @@ class ResCompany(models.Model):
     working_hours = fields.Float('Jornada Laboral', help="Indica el número de horas de un día o jornada laboral", default=9.0)
     extra_hour_factor = fields.Float('Factor Hora Extra', digits=(12, 8), help="Indica el factor para el cálculo de la hora extra", default=0.0077777)
     paidstate_product = fields.Many2one('product.product', 'Producto Estado Pago', help="Producto que se utilizará para facturar el estado de pago de la obra. Dejar precios en cero")
-    retention_product = fields.Many2one('product.product', 'Producto de Retención', help="Producto que se utilizará para facturar la retención en el estado de pago de la obra.")
     paidstate_product_mant = fields.Many2one('product.product', 'Estado Pago Mantenimiento', help="Producto que se utilizará para facturar el estado de pago del mantenimiento de la obra. Dejar precios en cero")
     stock_location_mobile = fields.Many2one('stock.location', 'Ubicación Almacen Movil', help="Ubicación que se usará por defecto para la entrada de mercancia en el Almacen Movil")
 
