@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from . import bim_config
 from . import res_company
 from . import bim_project
 from . import bim_department
@@ -12,7 +13,6 @@ from . import uom
 from . import product_template
 from . import account_move
 from . import bim_paidstate
-from . import bim_config
 from . import bim_task
 from . import bim_budget
 from . import bim_concepts
