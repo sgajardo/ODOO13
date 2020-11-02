@@ -297,7 +297,7 @@
                             <field name="attachment_ids" widget="many2many_binary"/>
                         </page>
 
-                        <page string="Recursos" attrs="{'invisible': [('child_ids','=',[])]}">
+                        <page string="Conceptos" attrs="{'invisible': [('child_ids','=',[])]}">
                             <field name="child_ids" readonly="1" widget="many2many_tags" nolabel="1"/>
                         </page>
 

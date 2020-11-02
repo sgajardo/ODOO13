@@ -15,6 +15,9 @@
                     </button>
         </div>
 
+        <field name="industry_id" position="after">
+           <field name="retention_product"  string="Producto de Retención"/>
+        </field>
 
       </field>
     </record>

@@ -68,7 +68,7 @@
                     <field name="name"/>
                     <field name="project_id"/>
                     <field name="date"/>
-                    <field name="progress" sum="Avance"/>
+                    <field name="progress"/>
                     <field name="amount" sum="Total"/>
                     <field name="state"/>
                     <field name="currency_id" invisible="1"/>

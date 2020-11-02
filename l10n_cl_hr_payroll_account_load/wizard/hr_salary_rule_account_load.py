@@ -31,14 +31,13 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
         except ValueError:
             raise ValidationError('El archivo Excel no tiene la columna "Tipo (Debe/Haber)"')
         try:
-            account_index = index.index('Codigo')
+            account_index = index.index('Cuenta Contable')
         except ValueError:
             raise ValidationError('El archivo Excel no tiene la columna "Cuenta Contable"')
         for row in range(1, sheet.nrows):
             rule_code = sheet.cell_value(row, rule_code_index)
             acc_type = acc_type_map.get(sheet.cell_value(row, acc_type_index))
-            #~ account_name = sheet.cell_value(row, account_index)
-            account_name = '%.0f' % sheet.cell_value(row, account_index) if isinstance(sheet.cell_value(row, account_index), float) else sheet.cell_value(row, account_index)
+            account_name = sheet.cell_value(row, account_index)
             account = accounts.get(account_name)
             if not account and account_name:
                 account = account_obj.search([('code', '=', account_name)])
@@ -50,8 +49,8 @@ class HrSalaryRuleAccountLoad(models.TransientModel):
             if rule_code and acc_type and account:
                 rule = rule_obj.search([('code', '=', rule_code)], limit=1)
                 if not rule:
-                    raise ValidationError('La regla salarial con código %s no existe' % str(rule_code))
+                    raise ValidationError('La regla salarial con código %s no existe' % rule_code)
                 rule.write({'account_type': acc_type, 'account_id': account.id})
         if account_errors:
-            raise ValidationError('Las siguientes cuentas contables no existen: \n%s' % '\n'.join(map(str, account_errors)))
+            raise ValidationError('Las siguientes cuentas contables no existen: \n%s' % '\n'.join(account_errors))
         return {'type': 'ir.actions.act_window_close'}

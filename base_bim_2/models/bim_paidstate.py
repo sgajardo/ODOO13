@@ -16,7 +16,7 @@ class bim_paidstate(models.Model):
         states={'draft': [('readonly', False)]}, required=True, readonly=True,
         change_default=True, index=True)
     amount = fields.Monetary('Importe', compute='_amount_compute')
-    progress = fields.Float('% Avance', help="Porcentaje de avance", compute='compute_progress')
+    progress = fields.Float('% Avance', help="Porcentaje de avance", compute='compute_progress', store=True)
     date = fields.Date(string='Fecha', required=True,
         readonly=True, index=True, states={'draft': [('readonly', False)]},
         copy=False, default=fields.Datetime.now)

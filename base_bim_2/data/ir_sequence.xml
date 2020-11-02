@@ -132,5 +132,13 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <record id="seq_bim_massive_certification" model="ir.sequence">
+            <field name="name">Certificación Masiva</field>
+            <field name="code">bim.massive.certification</field>
+             <field name="prefix">CM/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

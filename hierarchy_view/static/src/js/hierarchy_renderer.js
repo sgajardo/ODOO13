@@ -244,9 +244,12 @@ odoo.define('hierarchy_view.renderer', function (require) {
             this.$('.o_hierarchy_widget').html($table);
         },
         _renderView: function () {
+            var defs = [];
+            this.defs = defs;
             this._computeAggregates();
             this.renderSidebar();
-            this.renderListData();
+                this.renderListData();
+            delete this.defs;
             var contextmenu = QWeb.render('HierarchyContextMenu');
             this.$el.append(contextmenu);
             this.$contextmenu = this.$('.oh_contextmenu');

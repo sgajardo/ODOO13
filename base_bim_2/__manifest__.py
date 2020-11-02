@@ -113,6 +113,7 @@ BIM 2.0
         'views/bim_checklist_views.xml',
         'views/bim_mobile_warehouse_view.xml',
         'views/work_order_views.xml',
+        'views/bim_massive_certification_view.xml',
         'reports/reports.xml',
         'reports/budget_report.xml',
         'reports/summary_report.xml',
@@ -137,6 +138,7 @@ BIM 2.0
         'wizard/bim_budget_compare.xml',
         'wizard/bim_gantt_export.xml',
         'wizard/bim_gantt_import.xml',
+
     ],
     'qweb': [
         'static/src/xml/*.xml'

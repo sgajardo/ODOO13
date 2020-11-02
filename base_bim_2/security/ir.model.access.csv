@@ -56,3 +56,4 @@ access_bim_price_massive_wzd,bim.price.massive.wzd,model_bim_price_massive_wzd,b
 access_bim_list_price_agreed,bim.list.price.agreed,model_bim_list_price_agreed,base_bim_2.group_user_bim,1,1,1,1
 access_bim_product_rectify,access_bim_product_rectify,model_bim_product_rectify,base_bim_2.group_user_bim,1,1,1,1
 access_ir_config_parameter,ir.config_parameter,model_ir_config_parameter,base_bim_2.group_user_bim,1,1,1,1
+access_bim_massive_certification,bim.massive.certification,model_bim_massive_certification,base_bim_2.group_user_bim,1,1,1,1

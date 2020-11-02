@@ -222,7 +222,7 @@ class bim_project(models.Model):
     paidstate_ids = fields.One2many('bim.paidstate','project_id','Estados de Pago')
     paidstatus_count = fields.Integer('Cantidad EP', compute="_compute_paidstate")
     paidstate_product = fields.Many2one('product.product', string='Producto Estado Pago', default=lambda self: self.env.company.paidstate_product)
-    retetion_product = fields.Many2one('product.product', string='Producto para Retención')
+    retetion_product = fields.Many2one('product.product', string='Producto para Retención', default=lambda self: self.env.company.retention_product)
     department_id = fields.Many2one('bim.department', string='Departamento')
     maintenance_ids = fields.One2many('bim.maintenance', 'project_id', 'Mantenimientos')
     maintenance_done_count = fields.Integer('Cantidad Mantenimientos Ejecutados', compute="_compute_maintenance")

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+        <record id="view_bim_massive_certification_form" model="ir.ui.view">
+             <field name="name">view.bim.massive.certification.form</field>
+             <field name="model">bim.massive.certification</field>
+             <field name="arch" type="xml">
+                <form>
+                   <header>
+                       <button name="action_ready" type="object"
+                            string="Cargar" class="oe_highlight"
+                            states="draft"/>
+                       <button name="action_convert_to_draft" type="object"
+                            string="Convertir a Borrador" class="oe_highlight"
+                            states="cancelled"/>
+                       <button name="action_massive_certification" type="object"
+                            string="Certificar" class="oe_highlight"
+                            states="ready"/>
+                       <button name="action_cancel" type="object"
+                            string="Cancelar" class="oe_highlight"
+                            states="ready,draft"/>
+                       <field name="state" widget="statusbar" statusbar_visible="draft,ready,done,cancelled"/>
+                    </header>
+                      <sheet>
+                          <div class="oe_title">
+                                <h1>
+                                    <field name="name" readonly="1"/>
+                                </h1>
+                            </div>
+                          <group>
+                              <group>
+                                  <field name="project_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': True}"/>
+                                  <field name="budget_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': True}"/>
+                                  <field name="type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                  <field name="percent" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'measure')]}"/>
+                                  <field name="space_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '!=', 'measure')]}"/>
+                                  <field name="stage_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'fixed')]}"/>
+                              </group>
+                              <group>
+                                  <field name="creation_date"/>
+                                  <field name="certification_date" attrs="{'invisible': [('state', 'in', ['draft','ready'])]}"/>
+                                  <field name="user_id" options="{'no_create': True, 'no_open': True}"/>
+                                  <field name="company_id"/>
+                               </group>
+                          </group>
+                          <field name="note" placeholder="Agrega nota de certificación"/>
+                       </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+         <record id="view_bim_massive_certification_tree" model="ir.ui.view">
+            <field name="name">view.bim.massive.certification.tree</field>
+            <field name="model">bim.massive.certification</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Certificación Masiva">
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="budget_id"/>
+                    <field name="creation_date"/>
+                    <field name="certification_date"/>
+                    <field name="type"/>
+                    <field name="state"/>
+                    <field name="company_id" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="bim_massive_certification_action" model="ir.actions.act_window">
+            <field name="name">Certificación Massiva</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bim.massive.certification</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Cerfifica el primer Presupuesto!
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="bim_massive_certification_submenu"
+                name="Certificación Massiva"
+                parent="menu_bim"
+                action="bim_massive_certification_action"
+                sequence="10"/>
+     </data>
+</odoo>
