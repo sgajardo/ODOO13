@@ -223,6 +223,7 @@
                             <group>
                                 <group>
                                     <field name="paidstate_product" options='{"no_create": 1}'/>
+                                    <field name="retetion_product" options='{"no_create": 1}'/>
                                 </group>
                                 <group>
                                      <field name="analytic_id"  options='{"no_create": 1}' force_save="1"/>

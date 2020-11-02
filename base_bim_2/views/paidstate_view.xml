@@ -8,8 +8,8 @@
                 <form string="Estados de Pagos">
                     <header>
                         <button name="action_validate" string="Validar" type="object" states="draft" class="btn-primary"/>
+                        <button name="%(base_bim_2.bim_paidstate_wizard_action)d" type="action" string="Cargar Monto" states="draft"/>
                         <button name="action_invoice" states="validated" string="Generar Factura" class="btn-primary o_sale_confirm" type="object" groups="base_bim_2.group_create_invoice_paidstate"/>
-                        <button name="%(base_bim_2.bim_paidstate_wizard_action)d" type="action" string="Cargar Monto"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,validated,invoiced"/>
                     </header>
                     <sheet>
@@ -24,9 +24,11 @@
                                 <field name="date"/>
                                 <field name="invoice_id" attrs="{'invisible': [('state','!=','invoiced')]}" groups="base_bim_2.group_create_invoice_paidstate"/>
                                 <field name="maintenance_id" attrs="{'invisible': [('maintenance_id', '=', False)]}"/>
+                                <field name="apply_retention"/>
                             </group>
                             <group>
-                                <field name="amount"/>
+                                <field name="paidstate_company_retention" attrs="{'invisible': [('apply_retention', '=', False)]}"/>
+                                <field name="paidstate_retention" attrs="{'invisible': [('apply_retention', '=', False)]}"/>
                                 <field name="progress"/>
                                 <field name="currency_id"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
@@ -37,18 +39,17 @@
                             <page string="Líneas">
                                 <field name="lines_ids" nolabel="1">
                                     <tree editable="bottom">
-                                        <field name="type"/>
                                         <field name="budget_id" options='{"no_open": True, "no_create": True}'/>
-                                        <field name="stage_id" options='{"no_open": True, "no_create": True}' attrs="{'invisible': [('type', '=', 'all')],'required': [('type', '=', 'stage')]}" domain="[('budget_id','=',budget_id)]"/>
                                         <field name="name"/>
                                         <field name="quantity"/>
-                                        <field name="price_unit"/>
+                                        <field name="price_unit" />
                                         <field name="amount" sum="Suma"/>
                                         <field name="project_id" invisible="1"/>
                                     </tree>
                                 </field>
                             </page>
                         </notebook>
+                        <field name="paidstate_notes" nolabel="1" placeholder="Agrega notas para la facturación..."/>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>

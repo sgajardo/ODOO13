@@ -9,8 +9,8 @@ class ResPartner(models.Model):
 
     # Proyectos ...
 
-    # ~ retention_product = fields.Many2one('product.product', 'Producto Retención',
-                                        # ~ help="Producto que se utilizará para facturar la retención")
+    retention_product = fields.Many2one('product.product', 'Producto Retención',
+                                        help="Producto que se utilizará para facturar la retención")
 
     project_ids = fields.One2many('bim.project', 'customer_id', 'Proyectos')
     project_count = fields.Integer('Proyectos', compute="_get_project_count")
