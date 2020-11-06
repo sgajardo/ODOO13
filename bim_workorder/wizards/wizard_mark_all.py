@@ -10,6 +10,7 @@ class WizardMarkAll(models.TransientModel):
         material_ids = self.env['bim.workorder.resources'].search([('id','in',mat_ids)])
         for material in material_ids:
             material.order_assign = True
+            material.workorder_id.all_marked = True
 
 class WizardUnMarkAll(models.TransientModel):
     _name = 'wizard.unmark.all'
@@ -20,3 +21,4 @@ class WizardUnMarkAll(models.TransientModel):
         material_ids = self.env['bim.workorder.resources'].search([('id', 'in', mat_ids)])
         for material in material_ids:
             material.order_assign = False
+            material.workorder_id.all_marked = False
