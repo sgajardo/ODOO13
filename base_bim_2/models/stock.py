@@ -19,6 +19,7 @@ class StockPicking(models.Model):
     bim_space_id = fields.Many2one('bim.budget.space','Espacio')
     bim_object_id = fields.Many2one('bim.object','Objeto de Obra')
     check_to_rewrite = fields.Boolean('Sobreescribir destino')
+    invoice_guide_number = fields.Char('No. Guía Factura')
 
     @api.onchange('bim_requisition_id')
     def bim_req_change(self):

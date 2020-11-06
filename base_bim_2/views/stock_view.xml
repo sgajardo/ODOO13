@@ -26,26 +26,11 @@
                     <field name="bim_object_id"/>
                 </group>
             </xpath>
+            <field name="origin" position="after">
+                <field name="invoice_guide_number" attrs="{'invisible': [('picking_type_code', '=', 'outgoing')]}"/>
+            </field>
         </field>
     </record>
 
-<!--        <record model="ir.ui.view" id="base_bim_2_quant_search">-->
-<!--            <field name="name">ipiola.base.quant.search</field>-->
-<!--            <field name="inherit_id" ref="stock.quant_search_view"/>-->
-<!--            <field name="model">stock.quant</field>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <field name="product_id" position="after">-->
-<!--                    <field name="resource_type"/>-->
-<!--                </field>-->
-<!--                <filter name="stockable" position="after">-->
-<!--                    <filter name="resource_typeM" string="Materiales" domain="[('product_id.resource_type', '=', 'M')]"/>-->
-<!--                    <filter name="resource_typeQ" string="Equipos" domain="[('product_id.resource_type', '=', 'Q')]"/>-->
-<!--                    <filter name="resource_typeHR" string="Herramientas" domain="[('product_id.resource_type', '=', 'HR')]"/>-->
-<!--                </filter>-->
-<!--                <filter name="locationgroup" position="after">-->
-<!--                    <filter string="Tipo de Recurso" name="resourcetype" domain="[]" context="{'group_by': 'resource_type'}"/>-->
-<!--                </filter>-->
-<!--            </field>-->
-<!--        </record>-->
 
 </odoo>

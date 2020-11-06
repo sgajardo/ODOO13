@@ -2,9 +2,10 @@
 <odoo>
     <data>
         <menuitem id="main_base_menu_bim"
-              name="BIM"
-              web_icon="base_bim_2,static/description/icon.png"
-              sequence="100"/>
+                  name="BIM"
+                  web_icon="base_bim_2,static/description/icon.png"
+                  groups="base_bim_2.group_user_bim"
+                  sequence="100"/>
 
         <menuitem id="menu_bim" name="BIM" parent="main_base_menu_bim" sequence="4"/>
         <menuitem id="menu_bim_maintainer" name="Mantenedor" parent="main_base_menu_bim" sequence="90"/>

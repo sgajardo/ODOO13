@@ -27,6 +27,7 @@ BIM 2.0
         'views/bim_project_view.xml',
         'wizards/wizard_workorder_inherit.xml',
         'wizards/wizard_installer.xml',
+        'wizards/wizard_mark_all_view.xml',
         'views/stock_picking_view.xml',
         'views/bim_concept_view.xml',
         'views/bim_report_inherit.xml',

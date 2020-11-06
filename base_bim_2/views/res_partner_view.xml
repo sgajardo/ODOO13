@@ -7,10 +7,10 @@
       <field name='type'>form</field>
       <field name='arch' type='xml'>
         <div name="button_box" position="inside">
-                    <button name="action_view_projects" type="object" class="oe_stat_button" icon="fa-compass">
+                    <button name="action_view_projects" type="object" class="oe_stat_button" icon="fa-compass" groups="base_bim_2.group_user_bim">
                                 <field name="project_count" widget="statinfo" string="Obras"/>
                     </button>
-                    <button name="action_view_maintenances" type="object" class="oe_stat_button" icon="fa-wrench">
+                    <button name="action_view_maintenances" type="object" class="oe_stat_button" icon="fa-wrench" groups="base_bim_2.group_user_bim">
                                 <field name="maintenance_count" widget="statinfo" string="Mantenimiento"/>
                     </button>
         </div>

@@ -42,6 +42,7 @@
                           <field name="modify_name" invisible="1"/>
                        </group>
                   </group>
+                  <field name="all_marked" invisible="1"/>
                   <field name="note" placeholder="Comentarios..."/>
                   <notebook>
                       <page name="restriction" string="Restricciones">
@@ -125,8 +126,19 @@
                         </field>
                       </page>
                       <page name="materials" string="Recurso Material">
-                        <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'M'}"/>
-                        <button name="%(action_workorder_create_purchase)d" class="btn-primary" type="action" string="Crear Orden de Compra" style="margin-left:5px" context="{'order': name}"/>
+                        <div class="row">
+                            <div class="col-8 text-left">
+                                <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'M'}"/>
+                                <button name="%(action_workorder_create_purchase)d" class="btn-primary" type="action" string="Crear Orden de Compra" style="margin-left:5px" context="{'order': name}"/>
+                            </div>
+                            <div class="col-4 text-right">
+                                <button name="action_mark_all" class="btn-primary" type="object" string="Marcar Todo" style="margin-left:5px"
+                                    attrs="{'invisible':[('all_marked','=',True)]}"/>
+                                <button name="action_unmark_all" class="btn-secondary" type="object" string="Desmarcar Todo" style="margin-left:5px"
+                                    attrs="{'invisible':[('all_marked','=',False)]}"/>
+                            </div>
+                        </div>
+
                         <separator string="Materiales Presupuestados"/>
                         <field name="material_ids">
                             <tree editable="bottom" create="0" default_order="sequence, id">
@@ -207,7 +219,7 @@
          <field name="name">workorder.bim.tree.view</field>
          <field name="model">bim.workorder</field>
          <field name="arch" type="xml">
-            <tree decoration-danger="state=='cancel'" decoration-primary="state=='done'">
+            <tree decoration-danger="decoration=='danger'" decoration-success="decoration=='success'" decoration-warning="decoration=='warning'">
                 <field name="name"/>
                 <field name="project_id"/>
                 <field name="budget_id"/>
@@ -225,6 +237,7 @@
                 <field name="date_end"/>
                 <field name="advance" widget="percentage"/>
                 <field name="state"/>
+                <field name="decoration" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -345,6 +358,20 @@
         <field name="res_model">bim.workorder.speciality</field>
         <field name="view_mode">tree,form</field>
     </record>
+
+    <act_window name="Marcar Todo"
+                    binding_model="bim.workorder.resources"
+                    res_model="wizard.mark.all"
+                    target="new"
+                    view_mode="form"
+                    id="action_mark_all"/>
+
+    <act_window name="Desmarcar Todo"
+                    binding_model="bim.workorder.resources"
+                    res_model="wizard.unmark.all"
+                    target="new"
+                    view_mode="form"
+                    id="action_unmark_all"/>
 
 
     <menuitem id="menu_ot_bim"

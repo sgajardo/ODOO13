@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models,_
 from odoo.exceptions import ValidationError
 #from tkinter import messagebox
-
+from datetime import datetime
 class BimWorkorder(models.Model):
     _name = 'bim.workorder'
     _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin', 'utm.mixin']
@@ -42,6 +42,7 @@ class BimWorkorder(models.Model):
     supply = fields.Char(string='Abastecimiento')
     amount_labor = fields.Float(string='Coste MO', compute="_get_total_timesheet")
     amount_material = fields.Float(string='Coste MAT', compute="_get_total_inventory")
+    all_marked = fields.Boolean()
     #qty_labor_execute = fields.Float(string='MO Ejecutada', compute="_get_total_timesheet")
     #qty_material_execute = fields.Float(string='MAT Ejecutado', compute="_get_total_inventory")
     #priority = fields.Selection([
@@ -61,7 +62,7 @@ class BimWorkorder(models.Model):
         ('delivered', 'Entregado'),
         ('cancel', 'Cancelado')],
         string='Estado', default='draft', tracking=True)
-
+    decoration = fields.Char(compute='compute_decoration')
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
@@ -406,6 +407,38 @@ class BimWorkorder(models.Model):
             # ~ action['res_id'] = requisitions.id
         # ~ return action
 
+    def action_mark_all(self):
+        for record in self:
+            for material in record.material_ids:
+                material.order_assign = True
+            record.all_marked = True
+
+    def action_unmark_all(self):
+        for record in self:
+            for material in record.material_ids:
+                material.order_assign = False
+            record.all_marked = False
+
+    def compute_decoration(self):
+        now = datetime.strftime(datetime.now(), '%Y-%m-%d')
+        now = datetime.strptime(now, '%Y-%m-%d')
+        for record in self:
+            if record.state in ['draft','done']:
+                if not record.date_end:
+                    record.decoration = 'red'
+                else:
+                    date_record = datetime.strftime(record.date_end, '%Y-%m-%d')
+                    date_record = datetime.strptime(date_record, '%Y-%m-%d')
+                    days = date_record - now
+                    days = days.days
+                    if days <= 5:
+                        record.decoration = 'danger'
+                    elif days > 5 and days <= 10:
+                        record.decoration = 'warning'
+                    elif days > 10:
+                        record.decoration = 'success'
+            else:
+                record.decoration = False
 
 class BimWorkorderConcepts(models.Model):
     _name = 'bim.workorder.concepts'
@@ -715,6 +748,7 @@ class BimWorkorderResources(models.Model):
                 raise ValidationError('No puede eliminar un material que posee Ordenes asociadas.')
         #self.order_ids..unlink()
         return super().unlink()
+
 
 class BimWorkorderRestriction(models.Model):
     _name = 'bim.workorder.restriction'
