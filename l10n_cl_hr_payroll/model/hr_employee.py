@@ -295,10 +295,10 @@ class HrEmployee(models.Model):
         usado para los cálculos de Semana Corrida, además de los días que sí
         debió trabajar. """
         if day:
-            dt_end = fields.Date.from_string('%s%.2d' % (date_start[:-2], day))
+            dt_end = date_end + relativedelta(day=day)
             dt_start = dt_end - relativedelta(months=1, days=-1)
         else:
-            dt_start, dt_end = map(fields.Date.from_string, [date_start, date_end])
+            dt_start, dt_end = date_start, date_end
         feriados = self.env['hr.holidays.chile'].search([('date', '>=', dt_start.strftime('%Y-%m-%d')), ('date', '<=', dt_end.strftime('%Y-%m-%d'))])
         constantes = [f.date[5:] for f in feriados.filtered('constant') if f.date]
         feriados = feriados.filtered(lambda f: (len(f.region_ids) == 0) or self.region_id in f.region_ids).mapped('date')
