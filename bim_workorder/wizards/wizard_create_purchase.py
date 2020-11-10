@@ -71,7 +71,8 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
                             'bim_workorder_id': workorder.id,
                             'origin': workorder.name,
                             'date_order': fields.Datetime.now(),
-                            'picking_type_id': picking_type
+                            'picking_type_id': picking_type,
+
                         })
                         order.order_line = purchase_lines
                         workorder.write({'order_ids': [(4, order.id, None)]})
@@ -105,7 +106,8 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
             'taxes_id': [(6, 0, line.product_id.supplier_taxes_id.ids)],
             'date_planned': fields.Date.today(),
             'workorder_resource_id': line.resource_id.id,
-            'workorder_departure_id': line.departure_id.id
+            'workorder_departure_id': line.departure_id.id,
+            'account_analytic_id': workorder.project_id.analytic_id.id
             }
 
 class WizardCreatePurchaseWorkorderLine(models.TransientModel):

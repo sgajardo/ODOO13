@@ -231,7 +231,9 @@
                 <field name="order_ids" widget="many2many_tags"/>
                 <field name="picking_ids" widget="many2many_tags"/>
                 <field name="restriction_ids" widget="many2many_tags"/>
+                <field name="plan_labor"/>
                 <field name="amount_labor"/>
+                <field name="plan_material"/>
                 <field name="amount_material"/>
                 <field name="date_start"/>
                 <field name="date_end"/>

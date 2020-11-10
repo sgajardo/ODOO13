@@ -63,6 +63,8 @@ class BimWorkorder(models.Model):
         ('cancel', 'Cancelado')],
         string='Estado', default='draft', tracking=True)
     decoration = fields.Char(compute='compute_decoration')
+    plan_labor = fields.Float(string='Plan MO', compute='_get_plan_labor')
+    plan_material = fields.Float(string='Plan MAT', compute='_get_plan_material')
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
     # -------------------------------------------------------------------------
@@ -91,6 +93,19 @@ class BimWorkorder(models.Model):
     def _get_total_timesheet(self):
         for record in self:
             record.amount_labor = sum(line.amt_execute_mo for line in record.concept_ids)
+
+    @api.depends('labor_ids', 'labor_extra_ids')
+    def _get_plan_labor(self):
+        for record in self:
+            record.plan_labor = sum(line.resource_id.amount_fixed * line.duration_cmpt for line in record.labor_ids) +\
+                                sum(line.product_id.standard_price * line.duration_cmpt for line in record.labor_extra_ids)
+
+    @api.depends('material_ids','material_extra_ids')
+    def _get_plan_material(self):
+        for record in self:
+            record.plan_material = sum(line.resource_id.amount_fixed * line.duration_cmpt for line in record.material_ids) + \
+                                sum(line.product_id.standard_price * line.duration_cmpt for line in record.material_extra_ids)
+
 
     @api.depends('material_ids','material_extra_ids','concept_ids')
     def _get_total_inventory(self):
