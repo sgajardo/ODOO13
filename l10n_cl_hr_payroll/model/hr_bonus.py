@@ -71,9 +71,9 @@ class HrBonusSheet(models.Model):
             # 3.- Línea a insertar no tiene fecha fin y el hyd si tiene: fecha inicio de línea debe ser menor a fecha fin de hyd debe ser
             # 4.- Línea a insertar y hyd tienen fecha fin: se compara rango exacto de fechas
             if line.date_to:
-                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and line.date_to >= hd.fecha_desde and (line.date_from <= hd.fecha_hasta or not hd.fecha_hasta))
+                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and line.date_to >= hd.date_from and (line.date_from <= hd.date_to or not hd.date_to))
             else:
-                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and (line.date_from < hd.fecha_hasta or not hd.fecha_hasta))
+                hyd_ids = line.employee_id.balance_ids.filtered(lambda hd: hd.balance_id == line.balance_id and (line.date_from < hd.date_to or not hd.date_to))
             if hyd_ids:
                 hyd_ids.monto = line.amount
                 vals = False
