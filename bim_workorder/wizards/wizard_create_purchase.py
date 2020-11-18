@@ -72,7 +72,6 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
                             'origin': workorder.name,
                             'date_order': fields.Datetime.now(),
                             'picking_type_id': picking_type,
-
                         })
                         order.order_line = purchase_lines
                         workorder.write({'order_ids': [(4, order.id, None)]})

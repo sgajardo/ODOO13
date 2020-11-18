@@ -74,6 +74,7 @@ BIM 2.0
         'wizard/bim_resource_report.xml',
         'wizard/bim_clone_budget.xml',
         'wizard/bim_budget_stage_generate.xml',
+        'wizard/bim_certification_msg_wizard.xml',
         'wizard/load_template_checklist.xml',
         'wizard/copy_measures.xml',
         'wizard/load_resource_purchase_requisition.xml',

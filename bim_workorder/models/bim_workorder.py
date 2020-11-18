@@ -89,6 +89,7 @@ class BimWorkorder(models.Model):
             picks = [pick.id for order in record.order_ids for pick in order.picking_ids if pick.picking_type_id.code == 'incoming' and pick.state == 'done']
             record.picking_ids = picks and [(6,0,picks)] or []
 
+
     @api.depends('labor_ids','labor_extra_ids','concept_ids')
     def _get_total_timesheet(self):
         for record in self:
@@ -193,11 +194,14 @@ class BimWorkorder(models.Model):
                 vals = [l.resource_id.id for l in record.material_ids]
                 sequence = max(record.material_ids.mapped('sequence')) + 1 if record.material_ids else 1
 
+                vals_extra = [l.resource_id.id for l in record.material_extra_ids]
+                sequence_extra = max(record.material_ids.mapped('sequence')) + 1 if record.material_extra_ids else 1
+                vals += vals_extra
             for res_id in resource_ids:
                 resource = concept_ob.browse(res_id)
                 # Cantidad a Ordenar
                 if resource and resource.product_id:
-                    qty_ordered = (resource.quantity * line_parent.qty_worder) - self._get_product_stock(resource.product_id)
+                    qty_ordered = (resource.quantity * line_parent.qty_worder) - (self._get_product_stock(resource.product_id) )#+ resource.get_material_delivered()
 
                 if not res_id in vals:
                     line = {'workorder_id': record.id,
@@ -218,11 +222,23 @@ class BimWorkorder(models.Model):
                 # Actualizar las lineas existentes
                 else:
                     for mat in record.material_ids:
+                        qty_ordered = (resource.quantity * line_parent.qty_worder) - (self._get_product_stock(resource.product_id) + mat.get_material_delivered())
+
                         if mat.resource_id.id == res_id:
-                            mat.qty_ordered = qty_ordered > 0 and qty_ordered or 0
+                            if qty_ordered > 0:
+                                mat.qty_ordered = qty_ordered
+                            else:
+                                mat.qty_ordered = 0
+
+            for mat in record.material_extra_ids:
+                qty_ordered = (line_parent.qty_worder*mat.efficiency_extra) - (
+                            self._get_product_stock(mat.product_id) + mat.get_material_delivered_extra())
+                if qty_ordered > 0:
+                    mat.qty_ordered = qty_ordered
+                else:
+                    mat.qty_ordered = 0
 
             #Creacion de Nuevas Lineas si existen
-            print (lines)
             if lines:
                 if type == 'labor':
                     record.labor_ids = lines
@@ -368,6 +384,7 @@ class BimWorkorder(models.Model):
                     'workorder_departure_id': line.departure_id.id,
                 }))
 
+
             if not product_lines:
                  raise ValidationError(u'No existen Materiales a procesar')
 
@@ -426,11 +443,15 @@ class BimWorkorder(models.Model):
         for record in self:
             for material in record.material_ids:
                 material.order_assign = True
+            for material in record.material_extra_ids:
+                material.order_assign = True
             record.all_marked = True
 
     def action_unmark_all(self):
         for record in self:
             for material in record.material_ids:
+                material.order_assign = False
+            for material in record.material_extra_ids:
                 material.order_assign = False
             record.all_marked = False
 
@@ -763,6 +784,23 @@ class BimWorkorderResources(models.Model):
                 raise ValidationError('No puede eliminar un material que posee Ordenes asociadas.')
         #self.order_ids..unlink()
         return super().unlink()
+
+    def get_material_delivered(self):
+        quant_delivered = 0
+        for picking in self.picking_out:
+            for move in picking.move_ids_without_package:
+                if self.resource_id.product_id == move.product_id:
+                    quant_delivered += move.quantity_done
+        return quant_delivered
+
+    def get_material_delivered_extra(self):
+        quant_delivered = 0
+        for picking in self.picking_out:
+            for move in picking.move_ids_without_package:
+                if self.product_id == move.product_id:
+                    quant_delivered += move.quantity_done
+        return quant_delivered
+
 
 
 class BimWorkorderRestriction(models.Model):

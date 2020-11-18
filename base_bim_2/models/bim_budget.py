@@ -191,6 +191,31 @@ class BimBudget(models.Model):
     company_id = fields.Many2one('res.company', string="Compañía", required=True, default=lambda self: self.env.company, readonly=True)
     currency_id = fields.Many2one('res.currency', string="Moneda", required=True, copy=True)
     list_price_do = fields.Boolean(compute='_giveme_list_price')
+    certification_ids = fields.One2many('bim.massive.certification','budget_id')
+    certification_count = fields.Integer(compute='_compute_certifification_count')
+
+    def _compute_certifification_count(self):
+        for record in self:
+            record.certification_count = len(record.certification_ids)
+
+    def action_view_certifications(self):
+        certifications = self.mapped('certification_ids')
+        action = self.env.ref('base_bim_2.bim_massive_certification_action').read()[0]
+        if certifications:
+            action['domain'] = [('budget_id', '=', self.id)]
+            action['context'] = {'default_budget_id': self.id,
+                                 'default_project_id': self.project_id.id}
+        else:
+            action = {
+                'type': 'ir.actions.act_window',
+                'name': 'Nueva Certificación Masiva',
+                'res_model': 'bim.massive.certification',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'target': 'current',
+                'context': {'default_budget_id': self.id, 'default_project_id': self.project_id.id}
+            }
+        return action
 
     def _giveme_list_price(self):
         if self.env.company.type_work == 'pricelist':
@@ -784,6 +809,20 @@ class BimBudgetStage(models.Model):
         self.write({'state':'draft'})
         return self.update_concept()
 
+    def name_get(self):
+        result = []
+        for stage in self:
+            if stage.state == 'draft':
+                state = 'Pendiente'
+            elif stage.state == 'process':
+                state = 'Actual'
+            elif stage.state == 'approved':
+                state = 'Aprobada'
+            else:
+                state = 'Cancelada'
+            name = stage.name + ' - ' + state
+            result.append((stage.id, name))
+        return result
 
     name = fields.Char("Nombre", size=100)
     code = fields.Char("Código")
@@ -818,6 +857,7 @@ class BimBudgetStage(models.Model):
                 concept.onchange_qty()
                 concept.onchange_qty_certification()
         return True
+
 
 class BimBudgetSpace(models.Model):
     _name = 'bim.budget.space'

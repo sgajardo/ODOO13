@@ -742,7 +742,16 @@ class BimConcepts(models.Model):
     def cert_massive(self):
         ''' Este metodo es llamado desde el menú contextual
         en la vista hierarchy para certificación masiva'''
-        return True
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': 'Nueva Certificación Masiva',
+            'res_model': 'bim.massive.certification',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {'default_budget_id': self.budget_id.id, 'default_project_id': self.budget_id.project_id.id}
+        }
+        return action
 
     def get_resources(self, child_ids, res_ids):
         ''' Este metodo Retorna los ids de los
@@ -946,11 +955,13 @@ class BimConceptMeasuring(models.Model):
         ('modificado_aprobado', 'Modificado Aprobado'),
         ('modificado_pendiente', 'Modificado Pendiente')],
         string='Característica', default='acordado', tracking=True)
+    massively_certified = fields.Boolean(default=False)
 
     @api.onchange('space_id')
     def onchange_group(self):
         if self.space_id:
             self.name = self.space_id.name
+
 
     # ~ @api.onchange('stage_id')
     # ~ def onchange_stage(self):

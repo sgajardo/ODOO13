@@ -86,6 +86,13 @@
                                 <span class="o_stat_text">Espacios</span>
                             </div>
                         </button>
+
+                        <button name="action_view_certifications" type="object" class="oe_stat_button" icon="fa-pencil" groups="base_bim_2.group_user_bim"><!-- attrs="{'invisible': [('group_count', '=', 0)]}"-->
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="certification_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Cert. Masivas</span>
+                            </div>
+                        </button>
                     </div>
                     <div>
                         <h1>

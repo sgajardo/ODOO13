@@ -19,6 +19,9 @@
                        <button name="action_cancel" type="object"
                             string="Cancelar" class="oe_highlight"
                             states="ready,draft"/>
+                       <button name="action_undo_certification" type="object"
+                            string="Deshacer" class="oe_highlight"
+                            states="done"/>
                        <field name="state" widget="statusbar" statusbar_visible="draft,ready,done,cancelled"/>
                     </header>
                       <sheet>
@@ -29,26 +32,25 @@
                             </div>
                           <group>
                               <group>
-                                  <field name="project_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': True}"/>
-                                  <field name="budget_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': True}"/>
+                                  <field name="project_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True}"/>
+                                  <field name="budget_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True}"/>
                                   <field name="type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                   <field name="percent" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'measure')]}"/>
-                                  <field name="space_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '!=', 'measure')]}"/>
-                                  <field name="stage_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'fixed')]}"/>
+                                  <field name="space_id" options="{'no_create': True }" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '!=', 'measure')]}"/>
+                                  <field name="stage_id" options="{'no_create': True}" attrs="{'readonly': [('state', '!=', 'draft')], 'invisible': [('type', '=', 'fixed')]}"/>
                               </group>
                               <group>
                                   <field name="creation_date"/>
                                   <field name="certification_date" attrs="{'invisible': [('state', 'in', ['draft','ready'])]}"/>
-                                  <field name="user_id" options="{'no_create': True, 'no_open': True}"/>
+                                  <field name="user_id" options="{'no_create': True}"/>
                                   <field name="company_id"/>
                                </group>
                           </group>
                           <field name="note" placeholder="Agrega nota de certificación"/>
                        </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids"/>
-                        <field name="activity_ids"/>
-                        <field name="message_ids"/>
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
                     </div>
                 </form>
             </field>
@@ -67,6 +69,7 @@
                     <field name="certification_date"/>
                     <field name="type"/>
                     <field name="state"/>
+                    <field name="data_changed"/>
                     <field name="company_id" optional="hide"/>
                 </tree>
             </field>

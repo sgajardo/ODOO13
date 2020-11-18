@@ -20,7 +20,6 @@ class BimCertificationReportWizard(models.TransientModel):
     display_type = fields.Selection([
         ('general', 'Certificación General'),
         ('compare', 'Comparativo'),
-        ('summary', 'Resumen'),
         ('origin', 'Certificación a Origen'),#
     ], string="Tipo de impresión", default='general', help="Forma de agrupacion del Reporte.")
     total_type = fields.Selection([
