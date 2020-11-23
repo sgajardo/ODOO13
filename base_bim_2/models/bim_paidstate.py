@@ -83,7 +83,7 @@ class bim_paidstate(models.Model):
         if record.project_id.retetion_product:
             retetion_product = self.project_id.retetion_product
         else:
-            retetion_product = self.env.user.company_id.retetion_product
+            retetion_product = self.env.user.company_id.retention_product
         if not record.project_id.customer_id:
             raise UserError('De agregarle un cliente a la obra para facturar')
         if not product:
