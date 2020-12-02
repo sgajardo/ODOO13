@@ -43,7 +43,6 @@
         'uom',
         'folder_view',
         'hierarchy_view',
-        'web_digital_sign',
         'purchase_requisition',
     ],
     'description': """
