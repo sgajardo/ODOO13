@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="workorder_create_purchase_wizard_form" model="ir.ui.view">
+        <field name="name">wizard.create.purchase.workorder.form</field>
+        <field name="model">wizard.create.purchase.workorder</field>
+        <field name="arch" type="xml">
+            <form string="Crear Orden de Compra">
+                <p><b>Considere lo siguiente para la ejecución de este proceso:</b></p>
+                <p class="text-muted"><i>* Debe seleccionar proveedore en cada linea de lo contrario no se generará registro relacionado.</i></p>
+                <group>
+                    <field name="filter_categ"/>
+                </group>
+                <group>
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom" create="0">
+                            <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="um_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="partner_id" options='{"no_create": 1, "no_open": 1}' context="{'res_partner_search_mode': 'supplier'}"/>
+                            <field name="departure_id" readonly="1"  force_save="1"/>
+                            <field name="quantity"/>
+                            <field name="cost_price"/>
+                        </tree>
+                    </field>
+                </group>
+                <footer>
+                    <button string="Procesar" name="create_purchase" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-default" special="cancel"/>
+                </footer>
+           </form>
+        </field>
+    </record>
+
+    <record id="action_workorder_create_purchase" model="ir.actions.act_window">
+        <field name="name">Generar Ordenes de Compra</field>
+        <field name="res_model">wizard.create.purchase.workorder</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="workorder_create_purchase_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
+

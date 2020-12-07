@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report id="bonus_sheet_report"
+        model="hr.bonus.sheet"
+        string="Bonos"
+        report_type="qweb-pdf"
+        name="l10n_cl_hr_payroll.bonus_sheet_template"
+        file="l10n_cl_hr_payroll.bonus_sheet_template"/>
+
+    <template id="l10n_cl_hr_payroll.bonus_sheet_template">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="report.external_layout">
+                    <div class="page">
+                        <div class="row mb32">
+                            <h3 align="center">
+                                <strong>BONOS</strong>
+                            </h3>
+                        </div>
+                        <div class="row mb8">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>BONO</th>
+                                        <th>EMPLEADO</th>
+                                        <th align="center">DESDE</th>
+                                        <th align="center">HASTA</th>
+                                        <th align="right">MONTO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.line_ids" t-as="l">
+                                        <td><span t-field="l.balance_id"/></td>
+                                        <td><span t-field="l.employee_id"/></td>
+                                        <td align="center"><span t-field="l.date_from"/></td>
+                                        <td align="center"><span t-field="l.date_to"/></td>
+                                        <td align="right">
+                                            <span t-field="l.amount" t-if="l.um == 'u'"/>
+                                            <span t-field="l.amount" t-if="l.um == '$'" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                            <span t-esc="'{} %'.format(l.amount)" t-if="l.um == '%'"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row mb64">
+                            <table class="table table-condensed">
+                                <tbody>
+                                    <tr>
+                                        <th>ESTADO</th>
+                                        <td><span t-field="o.state"/></td>
+                                        <th>FECHA SOLICITUD</th>
+                                        <td><span t-field="o.date_issue"/></td>
+                                        <th>CANT. DE BONOS</th>
+                                        <td><span t-field="o.bonus_count"/></td>
+                                        <th>MONTO A PAGAR</th>
+                                        <td align="right"><span t-field="o.amount_total"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row" style="margin-top: 300;">
+                            <table width="100%">
+                                <tr>
+                                    <td width="38%"/>
+                                    <td align="center" width="24%" style="border-top: 2px solid black;"><b>RESPONSABLE</b></td>
+                                    <td width="38%"/>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="wizard_ticket_pro_view_form" model="ir.ui.view">
+            <field name="name">wizard.ticket.pro.view.form</field>
+            <field name="model">ticket.pro.wizard</field>
+            <field name="arch" type="xml">
+                <form string="_form">
+                    <group>
+                        <span>Estas seguro de que quieres imprimir los detalles de estos tickets?</span>
+                    </group>
+                    <footer>
+                        <button string='Aceptar' name="check_report" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="report_ticket_pro_act"
+            name="Reporte de Tickets"
+            binding_model="ticket.pro"
+            res_model="ticket.pro.wizard"
+            view_mode="form"
+            target="new"/>
+
+
+    </data>
+</odoo>

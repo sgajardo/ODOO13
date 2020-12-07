@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="extra_hours_start_config_parameter" model="ir.config_parameter">
+        <field name="key">extra.hours.start</field>
+        <field name="value">0</field>
+    </record>
+
+    <record id="hr_balance_months_config_parameter" model="ir.config_parameter">
+        <field name="key">hr.balance.months</field>
+        <field name="value">3</field>
+    </record>
+
+    <record id="day_min_previred" model="ir.config_parameter">
+           <field name="key">day_min_previred</field>
+           <field name="value">19</field>
+    </record>
+
+    <record id="report_show_50_por" model="ir.config_parameter">
+           <field name="key">report.show.50.por</field>
+           <field name="value">True</field>
+    </record>
+
+    <record id="report_show_100_por" model="ir.config_parameter">
+           <field name="key">report.show.100.por</field>
+           <field name="value">True</field>
+    </record>
+
+    <record id="report_show_dom_por" model="ir.config_parameter">
+           <field name="key">report.show.dom.por</field>
+           <field name="value">True</field>
+    </record>
+
+    <record id="report_note_payslip" model="ir.config_parameter">
+           <field name="key">report.note.payslip</field>
+           <field name="value">Recibí conforme el alcance el alcance líquido de la presente liquidación, no teniendo cargo o cobro alguna que hacer por otro concepto.</field>
+    </record>
+
+    <record id="report_show_referencia" model="ir.config_parameter">
+           <field name="key">report.show.referencia</field>
+           <field name="value">True</field>
+    </record>
+</odoo>

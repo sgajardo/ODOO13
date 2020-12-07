@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report id="report_hrsalarybymonth"
+        model="hr.salary.employee.month"
+        string="Libro de remuneraciones"
+        report_type="qweb-pdf"
+        paperformat="report_paper_format_nuevo"
+        name="l10n_cl_hr_payroll.report_hrsalarybymonth_template"
+        file="l10n_cl_hr_payroll.report_hrsalarybymonth_template"/>
+
+    <template id="report_salary_book_page1">
+        <div class="page">
+            <div class="text-center">
+                <h2>Libro de Remuneraciones</h2>
+                <p>
+                    Fecha <u><span t-esc="o.read()[0]['end_date'].strftime('%d/%m/%Y')"/></u> 
+                    
+
+                </p>
+            </div>
+            <table class="table table-condensed">
+                <thead>
+                    <tr style="border-top: 1px solid black">
+                        <th>Cód</th>
+                        <th>R.U.T</th>
+                        <th>Nombre</th>
+                        <th>DT</th>
+                        <th>Sueldo Base</th>
+                        <th>H. Extra</th>
+                        <th>Grat. Legal</th>
+                        <th>Otros Imp</th>
+                        <th>Total Imp</th>
+                        <th>Asig Familiar</th>
+                        <th>Otro No Imp</th>
+                        <th>Tot. No Imp</th>
+                        <th>Haberes</th>                           
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="v_sueldo_base" t-value="0"/>
+                    <t t-set="v_h_extra" t-value="0"/>
+                    <t t-set="v_g_legal" t-value="0"/>
+                    <t t-set="v_otros_imponibles" t-value="0"/>
+                    <t t-set="v_total_imponible" t-value="0"/>
+                    <t t-set="v_asg_familiar" t-value="0"/>
+                    <t t-set="otros_no_imponible" t-value="0"/>
+                    <t t-set="total_no_imponible" t-value="0"/>
+                    <t t-set="total_haberes" t-value="0"/>
+
+                    <t t-foreach="o.get_employee2(o.read()[0])" t-as="e">
+                        <tr>
+                            <td align="left"><span t-esc="e[0]"/></td>
+                            <td class="text-nowrap" align="left"><span t-esc="e[1]"/></td>
+                            <td align="left"><span t-esc="e[2]"/> <span t-esc="e[3]"/> <span t-esc="e[4]"/> <span t-esc="e[5]"/></td>
+                            <td align="left"><span t-raw="int(e[6])"/></td>
+                            <td align="left"><span t-raw="int(e[7])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_sueldo_base" t-value="int(e[7]) + v_sueldo_base"/>
+                            <td align="right"><span t-raw="int(e[8])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_h_extra" t-value="int(e[8]) + v_h_extra"/>
+                            <td align="right"><span t-raw="int(e[9])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_g_legal" t-value="int(e[9]) + v_g_legal"/>
+                            <td align="right"><span t-raw="int(e[10])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_otros_imponibles" t-value="int(e[10]) + v_otros_imponibles"/>
+                            <td align="right"><span t-raw="int(e[11])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_total_imponible" t-value="int(e[11]) + v_total_imponible"/>
+                            <td align="right"><span t-raw="int(e[12])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_asg_familiar" t-value="int(e[12]) + v_asg_familiar"/>
+                            <td align="right"><span t-raw="int(e[13])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="otros_no_imponible" t-value="int(e[13]) + otros_no_imponible"/>
+                            <td align="right"><span t-raw="int(e[14])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="total_no_imponible" t-value="int(e[14]) + total_no_imponible"/>
+                            <td align="right"><span t-raw="int(e[15])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="total_haberes" t-value="int(e[15]) + total_haberes"/>
+                        </tr>
+                    </t>
+                </tbody>
+                <tfoot>
+                    <tr style="border-top: 1px solid black">
+                        <td>TOTAL:</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td align="right"><t t-raw="int(v_sueldo_base)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_h_extra)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_g_legal)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_otros_imponibles)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_total_imponible)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_asg_familiar)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(otros_no_imponible)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(total_no_imponible)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(total_haberes)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </template>
+    
+    <template id="report_salary_book_page2">
+        <div class="page">
+            <div class="text-center">
+                <h2>Libro de Remuneraciones</h2>
+                <p>
+                    Fecha <u><span t-esc="o.read()[0]['end_date'].strftime('%d/%m/%Y')"/></u> 
+                </p>
+            </div>
+            <table class="table table-condensed">
+                <thead>
+                    <tr style="border-top: 1px solid black">
+                        <th>Cód</th>
+                        <th>R.U.T</th>
+                        <th>Nombre</th>
+                        <th>DT</th>
+                        <th>Prevision</th>
+                        <th>Salud</th>
+                        <th>Imp. Unico</th>
+                        <th>Seg. Ces.</th>
+                        <th>Otros D.Leg.</th>
+                        <th>Tot. D.Leg</th>
+                        <th>Desc. Varios</th>
+                        <th>Tot. Desc</th>
+                        <th>Líquido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="v_prevision" t-value="0"/>
+                    <t t-set="v_salud" t-value="0"/>
+                    <t t-set="v_imp_unico" t-value="0"/>
+                    <t t-set="v_seg_ces" t-value="0"/>
+                    <t t-set="v_otros_d_legales" t-value="0"/>
+                    <t t-set="v_t_d_legales" t-value="0"/>
+                    <t t-set="v_d_varios" t-value="0"/>
+                    <t t-set="v_t_descuentos" t-value="0"/>
+                    <t t-set="v_liquido" t-value="0"/>
+                    <t t-foreach="o.get_employee(o.read()[0])" t-as="e">
+                        <tr>
+                            <td align="left"><span t-esc="e[0]"/></td>
+                            <td class="text-nowrap" align="left"><span t-esc="e[1]"/></td>
+                            <td align="left"><span t-esc="e[2]"/> <span t-esc="e[3]"/> <span t-esc="e[4]"/> <span t-esc="e[5]"/></td>
+                            <td align="left"><span t-raw="int(e[6])"/></td>
+                            <td align="left"><span t-raw="int(e[7])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_prevision" t-value="int(e[7]) + v_prevision"/>
+                            <td align="right"><span t-raw="int(e[8])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_salud" t-value="int(e[8]) + v_salud"/>
+                            <td align="right"><span t-raw="int(e[9])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_imp_unico" t-value="int(e[9]) + v_imp_unico"/>
+                            <td align="right"><span t-raw="int(e[10])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_seg_ces" t-value="int(e[10]) + v_seg_ces"/>
+                            <td align="right"><span t-raw="int(e[11])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_otros_d_legales" t-value="int(e[11]) + v_otros_d_legales"/>
+                            <td align="right"><span t-raw="int(e[12])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_t_d_legales" t-value="int(e[12]) + v_t_d_legales"/>
+                            <td align="right"><span t-raw="int(e[13])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_d_varios" t-value="int(e[13]) + v_d_varios"/>
+                            <td align="right"><span t-raw="int(e[14])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_t_descuentos" t-value="int(e[14]) + v_t_descuentos"/>
+                            <td align="right"><span t-raw="int(e[15])" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                            <t t-set="v_liquido" t-value="int(e[15]) + v_liquido"/>
+                        </tr>
+                    </t>
+                </tbody>
+                <tfoot>
+                    <tr style="border-top: 1px solid black">
+                        <td>TOTAL:</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td align="right"><t t-raw="int(v_prevision)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_salud)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_imp_unico)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_seg_ces)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_otros_d_legales)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_t_d_legales)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_d_varios)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_t_descuentos)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                        <td align="right"><t t-raw="int(v_liquido)" t-options="{'widget': 'monetary', 'display_currency': o.env.company.currency_id}"/></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </template>
+
+    <template id="report_hrsalarybymonth_template">
+        <t t-foreach="docs" t-as="o">
+        <t t-if="not o.read()[0]['no_header']">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-call="l10n_cl_hr_payroll.report_salary_book_page1"/>
+                </t>
+            </t>
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-call="l10n_cl_hr_payroll.report_salary_book_page2"/>
+                </t>
+            </t>
+        </t>
+        <t t-if="o.read()[0]['no_header']">
+            <t t-call="web.html_container">
+                <t t-call="l10n_cl_hr_payroll.report_salary_book_page1"/>
+            </t>
+            <t t-call="web.html_container">
+                <t t-call="l10n_cl_hr_payroll.report_salary_book_page2"/>
+            </t>
+        </t>
+        </t>
+    </template>
+</odoo>

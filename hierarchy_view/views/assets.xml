@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="assets_backend" inherit_id="web.assets_backend">
+        <xpath expr="link[last()]" position="after">
+            <link rel="stylesheet" type="text/scss" href="/hierarchy_view/static/src/scss/hierarchy.scss"/>
+        </xpath>
+        <xpath expr="script[last()]" position="after">
+            <script type="text/javascript" src="/hierarchy_view/static/src/js/hierarchy_controller.js"/>
+            <script type="text/javascript" src="/hierarchy_view/static/src/js/hierarchy_renderer.js"/>
+            <script type="text/javascript" src="/hierarchy_view/static/src/js/hierarchy_model.js"/>
+            <script type="text/javascript" src="/hierarchy_view/static/src/js/hierarchy_view.js"/>
+        </xpath>
+    </template>
+
+    <!-- res.partner hierarchy view -->
+    <record id="res_partner_view_hierarchy" model="ir.ui.view">
+        <field name="name">res.partner.view.hierarchy</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <hierarchy decoration-danger="phone==False">
+                <field name="display_name" string="Nombre"/>
+                <field name="function" invisible="1"/>
+                <field name="phone" optional="show"/>
+                <field name="email" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="city" optional="hide"/>
+                <field name="state_id" optional="hide"/>
+                <field name="country_id" optional="hide"/>
+                <field name="vat" optional="hide"/>
+                <field name="credit_limit" optional="show" sum="Total"/>
+                <field name="user_id" invisible="1"/>
+                <field name="is_company" invisible="1"/>
+                <field name="parent_id" invisible="1"/>
+                <field name="child_ids" invisible="1"/>
+                <field name="active" invisible="1"/>
+            </hierarchy>
+        </field>
+    </record>
+</odoo>

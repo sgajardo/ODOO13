@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="holidays_settings_tree" model="ir.ui.view">
+        <field name="name">Holidays Settings List</field>
+        <field name="model">holidays.settings</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="valid_on" />
+                <field name="days_amount" />
+                <field name="waiting_time" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="holidays_settings_form" model="ir.ui.view">
+        <field name="name">Holidays Settings Form</field>
+        <field name="model">holidays.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración de Vacaciones">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_asign_vacation_days" string="Calcular días" type="object"
+                            class="oe_stat_button" icon="fa-cogs"
+                            confirm="Se crearán las asignaciones para cada empleado, ¿continuar?"
+                            help="Corre el proceso de cálculo de vacaciones manualmente" />
+                    </div>
+                    <div class="oe_title">
+                        <h1>Configuración de Vacaciones</h1>
+                    </div>
+                    <group>
+                        <group name="left" string="Fechas">
+                            <field name="valid_on" />
+                            <p colspan="2">
+                                Esta fecha le indica al sistema desde cuando aplicar esta configuración,
+                                y buscará todas las configuraciones creadas previamente para determinar
+                                cuantos días le corresponde por cada periodo configurado.
+                            </p>
+                        </group>
+                        <group name="right" string="Parámetros">
+                            <field name="days_amount" />
+                            <field name="waiting_time" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="holidays_settings_action" model="ir.actions.act_window">
+        <field name="name">Configuración de Vacaciones</field>
+        <field name="res_model">holidays.settings</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Haga click acá para crear una nueva configuración de vacaciones.
+            </p>
+            <p>
+                Una vez creada, podrá activar el cron para que automáticamente asigne
+                diariamente las vacaciones de los empleados según los parámetros que
+                haya establecido acá. Puede tener varias configuraciones y estas se
+                utilizarán dependiendo de la fecha en la que son válidas.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="holidays_settings_menu"
+        name="Vacaciones"
+        parent="hr_holidays.menu_hr_holidays_configuration"
+        sequence="8"
+        action="holidays_settings_action"/>
+</odoo>

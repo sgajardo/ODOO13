@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="assets_backend" inherit_id="web.assets_backend">
+        <xpath expr="link[last()]" position="after">
+            <link rel="stylesheet" type="text/less" href="/folder_view/static/src/less/folder.less"/>
+        </xpath>
+        <xpath expr="script[last()]" position="after">
+            <script type="text/javascript" src="/folder_view/static/src/js/folder_renderer.js"/>
+            <script type="text/javascript" src="/folder_view/static/src/js/folder_view.js"/>
+        </xpath>
+    </template>
+
+    <!-- res.partner folder view -->
+    <record id="res_partner_view_folder" model="ir.ui.view">
+        <field name="name">res.partner.view.folder</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <folder parent_field="parent_id">
+                <field name="display_name" string="Nombre"/>
+                <field name="function" invisible="1"/>
+                <field name="phone" optional="show"/>
+                <field name="email" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="city" optional="hide"/>
+                <field name="state_id" optional="hide"/>
+                <field name="country_id" optional="hide"/>
+                <field name="vat" optional="hide"/>
+                <field name="user_id" invisible="1"/>
+                <field name="is_company" invisible="1"/>
+                <field name="parent_id" invisible="1"/>
+                <field name="active" invisible="1"/>
+            </folder>
+        </field>
+    </record>
+</odoo>

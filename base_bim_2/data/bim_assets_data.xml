@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="had00001" model="bim.assets">
+        <field name="name">HAD00001</field>
+        <field name="desc">Total de Materiales</field>
+        <field name="type">M</field>
+    </record>
+    <record id="had00002" model="bim.assets">
+        <field name="name">HAD00002</field>
+        <field name="desc">Total de Mano de Obra</field>
+        <field name="type">H</field>
+    </record>
+    <record id="had00003" model="bim.assets">
+        <field name="name">HAD00003</field>
+        <field name="desc">Total de Equipos</field>
+        <field name="type">Q</field>
+    </record>
+    <record id="had00004" model="bim.assets">
+        <field name="name">HAD00004</field>
+        <field name="desc">Total de Sub-contratos</field>
+        <field name="type">S</field>
+    </record>
+    <record id="had00005" model="bim.assets">
+        <field name="name">HAD00005</field>
+        <field name="desc">Total de Costos Directos</field>
+        <field name="type">T</field>
+    </record>
+    <record id="had00006" model="bim.assets">
+        <field name="name">HAD00006</field>
+        <field name="desc">Gastos Generales</field>
+        <field name="default_value">29</field>
+        <field name="type">O</field>
+    </record>
+    <record id="had00007" model="bim.assets">
+        <field name="name">HAD00007</field>
+        <field name="desc">Utilidad</field>
+        <field name="default_value">15</field>
+        <field name="type">O</field>
+    </record>
+    <record id="had00008" model="bim.assets">
+        <field name="name">HAD00008</field>
+        <field name="desc">Total Neto</field>
+        <field name="type">N</field>
+    </record>
+    <record id="had00009" model="bim.assets">
+        <field name="name">HAD00009</field>
+        <field name="desc">IVA (%)</field>
+        <field name="default_value">19</field>
+        <field name="type">O</field>
+    </record>
+    <record id="had00010" model="bim.assets">
+        <field name="name">HAD00010</field>
+        <field name="desc">Costo total general de obra</field>
+        <field name="type">N</field>
+    </record>
+    <record id="had00011" model="bim.assets">
+        <field name="name">HAD00011</field>
+        <field name="desc">Permisos</field>
+        <field name="type">O</field>
+    </record>
+    <record id="had00012" model="bim.assets">
+        <field name="name">HAD00012</field>
+        <field name="desc">Total del Presupuesto</field>
+        <field name="type">N</field>
+    </record>
+
+    <!-- Template base -->
+    <record id="bim_asset_template_base" model="bim.assets.template">
+        <field name="name">Plantilla Inicial</field>
+        <field name="desc">Plantilla base generada por el sistema</field>
+    </record>
+
+    <!-- Lineas de template -->
+    <record id="bim_asset_template_line_5_base" model="bim.assets.template.line">
+        <field name="sequence">5</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00005"/>
+    </record>
+    <record id="bim_asset_template_line_6_base" model="bim.assets.template.line">
+        <field name="sequence">6</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00006"/>
+        <field name="affect_ids" eval="[(4, ref('bim_asset_template_line_5_base'))]"/>
+        <field name="value">29</field>
+    </record>
+    <record id="bim_asset_template_line_7_base" model="bim.assets.template.line">
+        <field name="sequence">7</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00007"/>
+        <field name="affect_ids" eval="[(4, ref('bim_asset_template_line_5_base'))]"/>
+        <field name="value">15</field>
+    </record>
+    <record id="bim_asset_template_line_8_base" model="bim.assets.template.line">
+        <field name="sequence">8</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00008"/>
+    </record>
+    <record id="bim_asset_template_line_9_base" model="bim.assets.template.line">
+        <field name="sequence">9</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00009"/>
+        <field name="affect_ids" eval="[(4, ref('bim_asset_template_line_8_base'))]"/>
+        <field name="value">19</field>
+    </record>
+    <record id="bim_asset_template_line_10_base" model="bim.assets.template.line">
+        <field name="sequence">10</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00010"/>
+    </record>
+    <record id="bim_asset_template_line_11_base" model="bim.assets.template.line">
+        <field name="sequence">11</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00011"/>
+    </record>
+    <record id="bim_asset_template_line_12_base" model="bim.assets.template.line">
+        <field name="sequence">12</field>
+        <field name="template_id" ref="bim_asset_template_base"/>
+        <field name="asset_id" ref="had00012"/>
+    </record>
+    <!-- Se agrega el template a la compañía base -->
+    <record id="base.main_company" model="res.company">
+        <field name="asset_template_id" ref="bim_asset_template_base" />
+    </record>
+</odoo>

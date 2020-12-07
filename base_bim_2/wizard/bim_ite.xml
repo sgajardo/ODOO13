@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bim_ite_wizard_form" model="ir.ui.view">
+        <field name="name">bim.ite.wizard.form</field>
+        <field name="model">bim.ite.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Insertar ITEs">
+                <group name="main">
+                    <group name="left">
+                        <field name="ite_id" required="1" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}"/>
+                        <field name="concept_id" invisible="1"/>
+                        <field name="obs"/>
+                    </group>
+                    <group>
+                        <field name="val_n" required="1"/>
+                        <field name="val_x" required="1"/>
+                        <field name="val_y" required="1"/>
+                        <field name="val_z" required="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Continuar" name="do_action"  type="object" class="btn-primary"/>
+                    <button string="Cancelar" special="cancel" class="btn-default"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_wizard_ite_action" model="ir.actions.act_window">
+        <field name="name">Insertar de ITE</field>
+        <field name="res_model">bim.ite.wizard</field>
+        <field name="view_mode">form</field>
+       <field name="target">new</field>
+    </record>
+
+</odoo>

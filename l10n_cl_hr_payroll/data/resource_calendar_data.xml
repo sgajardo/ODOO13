@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Horario Mensual completo -->
+    <record id="hr_resource_monthly" model="resource.calendar">
+        <field name="name">Mensual</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="hours_per_day">9</field>
+        <field name="full_time_required_hours">45</field>
+        <field name="attendance_ids" eval="[(5, 0, 0),
+            (0, 0, {'name': 'Lunes', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 18, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Martes', 'dayofweek': '1', 'hour_from': 9, 'hour_to': 18, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Miércoles', 'dayofweek': '2', 'hour_from': 9, 'hour_to': 18, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Jueves', 'dayofweek': '3', 'hour_from': 9, 'hour_to': 18, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Viernes', 'dayofweek': '4', 'hour_from': 9, 'hour_to': 18, 'day_period': 'morning'})]"/>
+    </record>
+
+    <!-- Horario part time 30 horas semanales -->
+    <record id="hr_resource_parttime_30" model="resource.calendar">
+        <field name="name">Part time 30h</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="hours_per_day">6</field>
+        <field name="full_time_required_hours">30</field>
+        <field name="attendance_ids" eval="[(5, 0, 0),
+            (0, 0, {'name': 'Lunes', 'dayofweek': '0', 'hour_from': 8.5, 'hour_to': 14.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Martes', 'dayofweek': '1', 'hour_from': 8.5, 'hour_to': 14.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Miércoles', 'dayofweek': '2', 'hour_from': 8.5, 'hour_to': 14.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Jueves', 'dayofweek': '3', 'hour_from': 8.5, 'hour_to': 14.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Viernes', 'dayofweek': '4', 'hour_from': 8.5, 'hour_to': 14.5, 'day_period': 'morning'})]"/>
+    </record>
+
+    <!-- Horario part time 20 horas semanales -->
+    <record id="hr_resource_parttime_20" model="resource.calendar">
+        <field name="name">Part time 20h</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="hours_per_day">4</field>
+        <field name="full_time_required_hours">20</field>
+        <field name="attendance_ids" eval="[(5, 0, 0),
+            (0, 0, {'name': 'Lunes', 'dayofweek': '0', 'hour_from': 8.5, 'hour_to': 12.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Martes', 'dayofweek': '1', 'hour_from': 8.5, 'hour_to': 12.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Miércoles', 'dayofweek': '2', 'hour_from': 8.5, 'hour_to': 12.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Jueves', 'dayofweek': '3', 'hour_from': 8.5, 'hour_to': 12.5, 'day_period': 'morning'}),
+            (0, 0, {'name': 'Viernes', 'dayofweek': '4', 'hour_from': 8.5, 'hour_to': 12.5, 'day_period': 'morning'})]"/>
+    </record>
+</odoo>

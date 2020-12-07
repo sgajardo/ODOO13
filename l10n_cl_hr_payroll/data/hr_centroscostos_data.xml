@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>						
+<odoo>
+    <data>
+        <record id="01" model="hr.centroscostos">
+            <field name="name">01</field>
+            <field name="desc">ADMINISTRACION</field>
+        </record>
+        <record id="02" model="hr.centroscostos">
+            <field name="name">02</field>
+            <field name="desc">PROYECTOS</field>
+        </record>
+        <record id="03" model="hr.centroscostos">
+            <field name="name">03</field>
+            <field name="desc">MDA</field>
+        </record>
+        <record id="04" model="hr.centroscostos">
+            <field name="name">04</field>
+            <field name="desc">DET</field>
+        </record>
+        <record id="05" model="hr.centroscostos">
+            <field name="name">05</field>
+            <field name="desc">DAND</field>
+        </record>
+        <record id="06" model="hr.centroscostos">
+            <field name="name">06</field>
+            <field name="desc">DRT</field>
+        </record>
+        <record id="07" model="hr.centroscostos">
+            <field name="name">07</field>
+            <field name="desc">DCH</field>
+        </record>
+        <record id="08" model="hr.centroscostos">
+            <field name="name">08</field>
+            <field name="desc">DMH</field>
+        </record>
+        <record id="09" model="hr.centroscostos">
+            <field name="name">09</field>
+            <field name="desc">CASERONES</field>
+        </record>
+        <record id="10" model="hr.centroscostos">
+            <field name="name">10</field>
+            <field name="desc">SOPORTE</field>
+        </record>
+        <record id="11" model="hr.centroscostos">
+            <field name="name">11</field>
+            <field name="desc">COMERCIAL</field>
+        </record>
+        <record id="12" model="hr.centroscostos">
+            <field name="name">12</field>
+            <field name="desc">INGENIERIA</field>
+        </record>
+        <record id="13" model="hr.centroscostos">
+            <field name="name">13</field>
+            <field name="desc">EL SALVADOR</field>
+        </record>
+        <record id="14" model="hr.centroscostos">
+            <field name="name">14</field>
+            <field name="desc">PROYECTOS</field>
+        </record>
+        <record id="15" model="hr.centroscostos">
+            <field name="name">15</field>
+            <field name="desc">INGENIERIA</field>
+        </record>
+        <record id="16" model="hr.centroscostos">
+            <field name="name">16</field>
+            <field name="desc">APR</field>
+        </record>
+        <record id="17" model="hr.centroscostos">
+            <field name="name">17</field>
+            <field name="desc">DMB</field>
+        </record>
+        <record id="18" model="hr.centroscostos">
+            <field name="name">18</field>
+            <field name="desc">CAP</field>
+        </record>
+        <record id="19" model="hr.centroscostos">
+            <field name="name">19</field>
+            <field name="desc">PELAMBRES</field>
+        </record>
+        <record id="20" model="hr.centroscostos">
+            <field name="name">20</field>
+            <field name="desc">DIRECTORIO</field>
+        </record>
+        <record id="21" model="hr.centroscostos">
+            <field name="name">21</field>
+            <field name="desc">GERENCIA</field>
+        </record>
+        <record id="22" model="hr.centroscostos">
+            <field name="name">22</field>
+            <field name="desc">COLLAHUASI</field>
+        </record>
+        <record id="23" model="hr.centroscostos">
+            <field name="name">23</field>
+            <field name="desc">OPERACIONES STAFF</field>
+        </record>
+        <record id="24" model="hr.centroscostos">
+            <field name="name">24</field>
+            <field name="desc">DLB</field>
+        </record>
+        <record id="25" model="hr.centroscostos">
+            <field name="name">25</field>
+            <field name="desc">DMV</field>
+        </record>
+        <record id="26" model="hr.centroscostos">
+            <field name="name">26</field>
+            <field name="desc">EL SOLDADO</field>
+        </record>
+        <record id="27" model="hr.centroscostos">
+            <field name="name">27</field>
+            <field name="desc">OPERACIONES FIELD</field>
+        </record>
+        <record id="28" model="hr.centroscostos">
+            <field name="name">28</field>
+            <field name="desc">FINANZAS</field>
+        </record>
+    </data>
+</odoo>

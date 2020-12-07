@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_workorder_stock_picking_form_inherit" model="ir.ui.view">
+      <field name='name'>view.workorder.stock.picking.form.inherit</field>
+      <field name='model'>stock.picking</field>
+      <field name="inherit_id" ref="stock.view_picking_form"/>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+            <button name="button_scrap" position="after">
+                <button name="%(bim_workorder.action_installer_wizard)d" type="action" string="Entrega Instaladores" attrs="{'invisible':[('state','!=','done')]}"/>
+            </button>
+       </field>
+    </record>
+
+    <record id="workorder_bim_view_picking_form" model="ir.ui.view">
+      <field name='name'>workorder.bim.view.picking.form</field>
+      <field name='model'>stock.picking</field>
+      <field name="inherit_id" ref="base_bim_2.base_bim_view_picking_form"/>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+            <field name="bim_requisition_id" position="before">
+                <field name="bim_workorder_id"/>
+            </field>
+       </field>
+    </record>
+
+</odoo>

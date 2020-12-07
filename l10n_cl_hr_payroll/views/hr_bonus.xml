@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- hr.bonus.sheet form view -->
+    <record id="hr_bonus_sheet_form_view" model="ir.ui.view">
+        <field name="name">hr.bonus.sheet.form.view</field>
+        <field name="model">hr.bonus.sheet</field>
+        <field name="arch" type="xml">
+            <form string="Hoja de bonos">
+                <header>
+                    <button name="back_draft" type="object" string="Volver a borrador" class="btn-default" states="pending,approve,cancel"/>
+                    <button name="confirm" type="object" string="Confirmar" class="btn-primary" states="draft"/>
+                    <button name="approve" type="object" string="Aprobar" class="btn-primary" states="pending" groups="hr.group_hr_manager"/>
+                    <button name="cancel" type="object" string="Cancelar" class="btn-primary" states="pending" groups="hr.group_hr_manager"/>
+                    <button name="create_haberesydesc" type="object" string="Crear haberes/descuentos" class="btn-primary" states="approve" groups="hr.group_hr_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,approve,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="left">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="bonus_count"/>
+                            <field name="amount_total"/>
+                        </group>
+                        <group name="right">
+                            <field name="date_issue"/>
+                            <field name="description" class="oe_read_only"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="lines" string="Bonos">
+                            <field name="line_ids" context="{'default_sheet_id': id}">
+                                <tree editable="bottom">
+                                    <field name="sheet_id" invisible="1"/>
+                                    <field name="balance_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                    <field name="employee_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="amount"/>
+                                    <field name="um"/>
+                                </tree>
+                                <form>
+                                    <group name="main_lines">
+                                        <group name="left_lines">
+                                            <field name="employee_id"/>
+                                            <field name="amount"/>
+                                        </group>
+                                        <group name="right_lines">
+                                            <field name="date_from"/>
+                                            <field name="date_to"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_bonus_sheet_tree_view" model="ir.ui.view">
+        <field name="name">hr.bonus.sheet.tree.view</field>
+        <field name="model">hr.bonus.sheet</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state=='cancel'" decoration-info="state=='draft'" decoration-primary="state=='done'">
+                <field name="currency_id" invisible="1"/>
+                <field name="name"/>
+                <field name="date_issue"/>
+                <field name="bonus_count"/>
+                <field name="amount_total"/>
+                <field name="description"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_bonus_sheet_search_view" model="ir.ui.view">
+        <field name="name">hr.bonus.sheet.search.view</field>
+        <field name="model">hr.bonus.sheet</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date_issue"/>
+                <filter name="draft_state" string="Borrador" domain="[('state', '=', 'draft')]"/>
+                <filter name="pending_state" string="Por aprobar" domain="[('state', '=', 'pending')]"/>
+                <filter name="done_state" string="Aprobado" domain="[('state', '=', 'done')]"/>
+                <filter name="cancel_state" string="Cancelado" domain="[('state', '=', 'cancel')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_bonus_sheet_action" model="ir.actions.act_window">
+        <field name="name">Bonos RRHH</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.bonus.sheet</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Haga click para crear una nueva Hoja de Bonos
+            </p><p>
+                Las hojas de bonos le permitirán solicitar bonos para cada empleado, que luego de aprobación, serán asignados para cobrar en sus nóminas.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="hr_bonus_sheet_menu"
+        name="Bonos RRHH"
+        action="hr_bonus_sheet_action"
+        groups="hr.group_hr_user,l10n_cl_hr_payroll.group_bonus"
+        web_icon="l10n_cl_hr_payroll,static/description/bonus.png"
+        sequence="46"/>
+</odoo>

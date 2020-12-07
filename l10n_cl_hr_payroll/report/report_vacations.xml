@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report id="l10n_cl_hr_payroll.report_vacations"
+        model="hr.employee"
+        string="Informe Personal de Vacaciones"
+        report_type="qweb-pdf"
+        name="l10n_cl_hr_payroll.report_employee_vacations"
+        file="l10n_cl_hr_payroll.report_employee_vacations"/>
+
+    <template id="l10n_cl_hr_payroll.report_employee_vacations">
+        <t t-call="report.html_container">
+            <t t-call="report.external_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <t t-set="vacations" t-value="o.leave_ids.filtered(lambda l: l.holiday_status_id.name in ['Vacaciones', 'Vacaciones (Progresivas)'])"/>
+                        <div class="row mb32">
+                            <center>
+                                <h3>INFORME PERSONAL DE VACACIONES</h3>
+                                <h5><span t-esc="o.identification_id + ' - '" t-if="o.identification_id"/><span t-esc="o.display_name"/></h5>
+                            </center>
+                        </div>
+                        <div class="row">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>PERIODO</th>
+                                        <th>BÁSICO</th>
+                                        <th>PROGRES.</th>
+                                        <th>TOMADO</th>
+                                        <th>DESDE</th>
+                                        <th>HASTA</th>
+                                        <th>CONCEPTO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <t t-foreach="o.get_vacations_grouped()" t-as="year">
+                                    <tr>
+                                        <td><b><span t-esc="year[0]"/></b></td>
+                                        <td><b><span t-esc="year[1][0]"/></b></td>
+                                        <td><b><span t-esc="year[1][1]"/></b></td>
+                                        <td/>
+                                        <td colspan="3"><b>Asignación del periodo <span t-esc="year[0]"/></b></td>
+                                    </tr>
+                                    <tr t-foreach="vacations.filtered(lambda vac: vac.type == 'remove' and vac.date_from[:4] == year[0])" t-as="v">
+                                        <td><span t-esc="v.date_from[:4]"/></td>
+                                        <td/>
+                                        <td/>
+                                        <td><span t-esc="v.number_of_days_display"/></td>
+                                        <td><span t-field="v.date_from"/></td>
+                                        <td><span t-field="v.date_to"/></td>
+                                        <td><span t-esc="v.report_note"/></td>
+                                    </tr>
+                                </t>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <hr/>
+                            <t t-set="vacations_asigned" t-value="vacations.filtered(lambda vac: vac.type == 'add')"/>
+                            <table width="100%">
+                                <colgroup>
+                                    <col width="80%"/>
+                                    <col width="20%"/>
+                                </colgroup>
+                                <tr>
+                                    <th class="text-right">Total días asignados:</th>
+                                    <td class="text-right"><span t-esc="round(sum(vacations_asigned.mapped('number_of_days_display')), 2)"/></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-right">Total días tomados:</th>
+                                    <td class="text-right"><span t-esc="round(sum(vacations_asigned.mapped('consumed_vacations')), 2)"/></td>
+                                </tr>
+                                <tr>
+                                    <th class="text-right">Total saldo pendiente:</th>
+                                    <td class="text-right"><span t-esc="round(sum(vacations_asigned.mapped('remaining_vacations')), 2)"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="view_employee_form2" model="ir.ui.view">
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box">
+                <button name="%(report_vacations)d" class="oe_stat_button" type="action" icon="fa-plane" help="Vacaciones pendientes">
+                    <field name="vacations_count" widget="statinfo"/>
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>

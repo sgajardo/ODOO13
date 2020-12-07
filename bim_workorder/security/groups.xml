@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="workorder_bim_security_name" model="res.groups">
+            <field name="name">Permitir Edicion Nombre OT</field>
+            <field name="category_id" ref="base_bim_2.bim_security_rules_category"/>
+<!--        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base_bim_2.group_user_bim'))]"/>-->
+        </record>
+    </data>
+</odoo>

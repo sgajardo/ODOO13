@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <report
+            id="act_ticket_notes_report"
+            model="ticket.notes"
+            string="Reporte de Notas"
+            name="ticket_pro.report_ticket_notes"
+            file="ticket_pro.report_ticket_notes"
+            report_type="qweb-pdf"
+        />
+
+        <template id="report_ticket_notes">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page">
+                            <h3 class="text-center">
+                                <span t-esc="o.title"/>
+                            </h3>
+                            <br/>
+                            <div class="row mt32 mb32" id="informations">
+                                <div class="col-auto mw-100 mb-2">
+                                    <strong>Fecha:</strong>
+                                    <p class="m-0" t-esc="o.date_note"/>
+                                </div>
+                                <div class="col-auto mw-100 mb-2" name="expiration_date">
+                                    <strong>Secuencia:</strong>
+                                    <p class="m-0" t-esc="o.name"/>
+                                </div>
+                            </div>
+                            <div class="row w-100">
+                                <span t-raw="o.note"/>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+
+    </data>
+</odoo>

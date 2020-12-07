@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bim_resource_report_wizard_form" model="ir.ui.view">
+        <field name="name">bim.resource.report.wizard.form</field>
+        <field name="model">bim.resource.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Recursos">
+                <group name="main">
+                    <group name="left">
+                        <field name="budget_id" invisible="1"/>
+                        <field name="resource_all"/>
+                        <field name="filter_categ"/>
+                        <field name="category_id" options="{'no_create': True, 'no_open': True }"
+                               attrs="{'invisible': [('filter_categ', '=', False)],'required': [('filter_categ', '=', True)]}"/>
+                    </group>
+                    <group name="right">
+                        <field name="material"/>
+                        <field name="equipment"/>
+                        <field name="labor"/>
+                        <field name="aux"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Cancelar" special="cancel" class="btn-default"/>
+                    <button name="print_report" string="Imprimir" type="object" class="btn-primary"/>
+                    <button name="check_report_xls" string="Imprimir Excel" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_resource_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Reporte de Recursos</field>
+        <field name="res_model">bim.resource.report.wizard</field>
+        <field name="view_mode">form</field>
+       <field name="target">new</field>
+    </record>
+
+<!--
+    <act_window id="reporte_recursos_wizard_action"
+        name="Reporte de Recursos"
+        res_model="bim.resource.report.wizard"
+        src_model="bim.presupuesto"
+        view_id="reporte_recursos_wizard_form"
+        target="new"
+        key2="client_action_multi"
+    />
+-->
+
+</odoo>

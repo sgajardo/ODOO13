@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <template id="report_maintenance">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col text-right">
+                                        <h2><span t-field="o.name"/></h2>
+                                    </div>
+                                </div><br/><br/>
+                                <div class="row">
+                                    <div class="col text-right">
+                                        <table class="table table-sm table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-left">
+                                                        <strong>Cliente</strong><br/>
+                                                        <span t-field="o.project_id.customer_id.name" />
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <strong>Obra</strong><br/>
+                                                        <span t-field="o.project_id.nombre" />
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <strong>Fecha Estimada</strong><br/>
+                                                        <span t-field="o.date_planned" t-options='{"format": "d / MMMM / y"}'/>
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <strong>Fecha Ejecución</strong><br/>
+                                                        <span t-field="o.date_done" t-options='{"format": "d / MMMM / y"}'/>
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <strong>Responsable</strong><br/>
+                                                        <span t-field="o.user_id.name"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div><br/><br/>
+                                <div class="row">
+                                    <div class="col table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Producto</th>
+                                                    <th class="text-left">Descripción</th>
+                                                    <th class="text-center">Cantidad</th>
+                                                    <th class="text-center">Precio</th>
+                                                    <th class="text-center">Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="o.line_ids" t-as="line">
+                                                    <tr>
+                                                        <td><span t-field="line.product_id.name"/></td>
+                                                        <td class="text-center"><span t-field="line.name"/></td>
+                                                        <td class="text-center"><span t-field="line.quantity"/> <span t-field="line.uom_id"/></td>
+                                                        <td class="text-center"><span t-field="line.price_unit"/></td>
+                                                        <td class="text-center"><span t-field="line.price_subtotal"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        
+    </data>
+</odoo>

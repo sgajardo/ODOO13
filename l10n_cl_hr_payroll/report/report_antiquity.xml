@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report -->
+    <report
+        id="antiquity_report_id"
+        model="hr.employee"
+        string="Certificado Antigüedad"
+        report_type="qweb-pdf"
+        name="l10n_cl_hr_payroll.report_antiquity"
+        file="l10n_cl_hr_payroll.report_antiquity"
+        />
+        <!-- paperformat="l10n_cl_hr_payroll.payslip_format" -->
+    <!-- Template -->
+    <template id="l10n_cl_hr_payroll.report_antiquity">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="report.layout">
+                    <div class="page container" style="font-size: 18px; line-height: 32px;">
+
+                        <div class="media">
+                            <div class="media-left">
+                                <img t-if="o.company_id.logo" style="height: 95px; width: auto;" class="media-object"
+                                    t-att-src="'data:image/png;base64,%s' % o.company_id.logo"/>
+                            </div>
+                            <div class="media-body">
+                                <p style="font-size: 15px; line-height: 17px;">
+                                    <strong>RAZON SOCIAL</strong>: <span t-field="res_company.name" /><br/>
+                                    <strong>RUT EMPRESA</strong>: <span t-raw="res_company.vat.replace('CL','')[:-1] + '-' + res_company.vat.replace('CL','')[-1:]" /><br/>
+                                    <strong>GIRO</strong>: <span t-field="res_company.giro" /><br/>
+                                    <strong>TELEFONO</strong>: <span t-field="res_company.phone" /><br/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!--
+                        <img t-if="res_company.logo" style="max-height: 65px;" t-att-src="'data:image/png;base64,%s' % res_company.logo"/>
+                        <p/>
+                        <strong>RAZON SOCIAL</strong>: <span t-field="res_company.name" /><br/>
+                        <strong>RUT EMPRESA</strong>: <span t-raw="res_company.vat.replace('CL','')[:-1] + '-' + res_company.vat.replace('CL','')[-1:]" /><br/>
+                        <strong>GIRO</strong>: <span t-field="res_company.giro" /><br/>
+                        <strong>TELEFONO</strong>: <span t-field="res_company.phone" /><br/>
+                        -->
+                        <div class="row" style="margin-top: 50px; margin-bottom: 50px;">
+                            <h3 align="center">CERTIFICADO DE ANTIGÜEDAD</h3>
+                        </div>
+                        <div class="row" style="margin-top: 30px;">
+                            <t t-if="o.contract_ids">
+                                <t t-set="retirado" t-value="False if o.contract_ids.filtered(lambda c: not c.date_end) or o.contract_ids.filtered(lambda c: c.date_end > time.strftime('%Y-%m-%d', time.gmtime())) else True" />
+                                <t t-set="contrato" t-value="(o.contract_ids.filtered(lambda c: not c.date_end).sorted(lambda c: c.date_start, reverse=True) or o.contract_ids.sorted(lambda c: c.date_end, reverse=True))[0]" />
+                                <p>
+                                    El suscrito, certifica que <span t-esc="'la Sra.' if o.gender == 'female' else 'el Sr.'" /> <b><span t-esc="o.full_name.upper()" /></b>,
+                                    Rut. <b><span t-esc="o.identification_id or 'indefinido'" /></b>, <span t-esc="'es' if not retirado else 'fue'" />
+                                    funcionario de <b><span t-field="res_company.name" /></b> desde el <span t-esc="o.get_nombre_mes_espanol(o.contract_ids.sorted(lambda c: c.date_start)[0].date_start)" /><span t-if="retirado" t-esc="' hasta el %s' % o.get_nombre_mes_espanol(o.contract_ids.sorted(lambda c: c.date_end, reverse=True)[0].date_end)" /><span t-if="contrato.job_id">, ocupando el cargo de <b><span t-esc="contrato.job_id.name.upper()" /></b></span>.
+                                </p>
+                                <p style="margin-top: 30px;">
+                                    Su contrato <span t-esc="'es de caracter indefinido' if not contrato.date_end else 'vence el ' if not retirado else 'venció el '" /><span t-if="contrato.date_end" t-esc="o.get_nombre_mes_espanol(contrato.date_end)" />.
+                                </p>
+                                <p style="margin-top: 30px;">Se otorga el presente certificado a pedido del interesado para los fines que estime conveniente.</p>
+                                <p style="margin-top: 30px;"><span t-esc="res_company.city or 'Santiago'" />, <span t-esc="o.get_nombre_mes_espanol(time.strftime('%Y-%m-%d', time.gmtime()))" />.</p>
+                            </t>
+                            <t t-if="not o.contract_ids">
+                                <p><b><span t-field="o.full_name or o.name" /></b> no tiene contratos registrados en el sistema.</p>
+                            </t>
+                        </div>
+                        <div style="margin-top: 300px;">
+                            <p class="text-center"><b>ENTREGADO PARA FIRMA</b><br/>Gerente de Recursos Humanos</p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workorder_bim_form_view" model="ir.ui.view">
+        <field name="name">workorder.bim.form.view</field>
+        <field name="model">bim.workorder</field>
+        <field name="arch" type="xml">
+            <form string="Ordenes de Trabajo" delete="0">
+              <header>
+                  <button name="action_confirm" string="Confirmar" class="oe_highlight" type="object" states="draft"/>
+                  <button name="action_close" string="Terminar" class="oe_highlight" type="object" states="done"/>
+                  <button name="action_delivery" string="Entrega Completa" class="oe_highlight" type="object" states="close"/>
+                  <button name="action_cancel" string="Cancelar" class="oe_highlight" type="object" states="done,delivered"/>
+                  <field name="state" widget="statusbar"/>
+              </header>
+              <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_purchases" type="object" class="oe_stat_button" icon="fa-exchange" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('order_count','=',0)]}">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value"><field name="order_count" widget="statinfo" nolabel="1"/></span>
+                            <span class="o_stat_text">Ordenes de Compra</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="oe_title">
+                   <h1><field name="name" attrs="{'readonly':[('modify_name','=',False)]}"/></h1>
+                </div>
+                  <group>
+                      <group>
+                          <field name="project_id" required="1" options='{"no_create": 1}'/>
+                          <field name="budget_id" required="1" options='{"no_create": 1}'/>
+                          <field name="object_id" required="0" options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="space_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="speciality_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="description_act"/>
+                       </group>
+                      <group>
+                          <field name="date_start"/>
+                          <field name="date_end"/>
+                          <field name="priority"/>
+                          <field name="supply"/>
+                          <field name="user_id" readonly="1"/>
+                          <field name="modify_name" invisible="1"/>
+                       </group>
+                  </group>
+                  <field name="all_marked" invisible="1"/>
+                  <field name="note" placeholder="Comentarios..."/>
+                  <notebook>
+                      <page name="restriction" string="Restricciones">
+                        <field name="restriction_ids">
+                            <tree editable="bottom">
+                                <field name="restriction_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="name"/>
+                                <field name="number_report"/>
+                                <field name="date"/>
+                                <field name="count_day"/>
+                                <field name="file_support" widget="binary"/>
+                                <field name="workorder_id" invisible="1"/>
+                            </tree>
+                        </field>
+                      </page>
+                      <page name="concepts" string="Partidas y Mediciones">
+                        <field name="concept_ids">
+                            <tree editable="bottom">
+                                <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="name"/>
+                                <field name="qty_budget"/>
+                                <field name="qty_certif"/>
+                                <field name="qty_execute"/>
+                                <field name="qty_worder"/>
+                                <field name="qty_execute_mo" string="Ejecutado"/>
+                                <field name="amt_execute_mo"/>
+                                <field name="amt_execute_mt"/>
+                                <field name="workorder_id" invisible="1"/>
+                                <field name="budget_id" invisible="1"/>
+                                <field name="space_id" invisible="1"/>
+                            </tree>
+                        </field>
+                      </page>
+                      <page name="labors" string="Recurso Mano de Obra">
+                        <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'H'}"/>
+                        <separator string="Mano de Obra Presupuestada"/>
+                        <field name="labor_ids">
+                            <tree editable="bottom" create="0" default_order="sequence, id">
+                                <field name="sequence" readonly="1" force_save="1"/>
+                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['labor']),('budget_id','=',budget_id)]"/>
+                                <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="name" invisible="1"/>
+                                <field name="duration_cmpt"/>
+                                <field name="difficulty"/>
+                                <field name="efficiency_cmpt"/>
+                                <field name="date_start"/>
+                                <field name="date_stop"/>
+                                <field name="duration_real"/>
+                                <field name="efficiency_real"/>
+                                <field name="deviance_real"/>
+                                <field name="workorder_id" invisible="1"/>
+                                <field name="budget_id" invisible="1"/>
+                                <field name="space_id" invisible="1"/>
+                                <field name="resource_type" invisible="1"/>
+                                <field name="workorder_concept_id" invisible="1"/>
+                                <button name="open_timesheet_view" string="TimeSheet" type="object" icon="fa-list"/>
+                            </tree>
+                        </field>
+                        <separator string="Mano de Obra No Presupuestada"/>
+                        <field name="labor_extra_ids">
+                            <tree editable="bottom" default_order="sequence, id">
+                                <field name="sequence" readonly="1" force_save="1"/>
+                                <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['H'])]"/>
+                                <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida" attrs="{'required':[('product_id','!=',False)]}"/>
+                                <field name="name" invisible="1"/>
+                                <field name="duration_cmpt"/>
+                                <field name="difficulty"/>
+                                <field name="efficiency_extra" string="Rendimiento"/>
+                                <field name="date_start"/>
+                                <field name="date_stop"/>
+                                <field name="duration_real"/>
+                                <field name="efficiency_real"/>
+                                <field name="deviance_real"/>
+                                <field name="workorder_id" invisible="1"/>
+                                <field name="budget_id" invisible="1"/>
+                                <field name="space_id" invisible="1"/>
+                                <field name="resource_type" invisible="1"/>
+                                <field name="workorder_concept_id" invisible="1"/>
+                                <button name="open_timesheet_view" string="TimeSheet" type="object" icon="fa-list" context="{'order': name}"/>
+                            </tree>
+                        </field>
+                      </page>
+                      <page name="materials" string="Recurso Material">
+                        <div class="row">
+                            <div class="col-8 text-left">
+                                <button name="update_list" class="btn-primary" type="object" string="Cargar/Actualizar Recursos" context="{'type': 'M'}"/>
+                                <button name="%(action_workorder_create_purchase)d" class="btn-primary" type="action" string="Crear Orden de Compra" style="margin-left:5px" context="{'order': name}"/>
+                            </div>
+                            <div class="col-4 text-right">
+                                <button name="action_mark_all" class="btn-primary" type="object" string="Marcar Todo" style="margin-left:5px"
+                                    attrs="{'invisible':[('all_marked','=',True)]}"/>
+                                <button name="action_unmark_all" class="btn-secondary" type="object" string="Desmarcar Todo" style="margin-left:5px"
+                                    attrs="{'invisible':[('all_marked','=',False)]}"/>
+                            </div>
+                        </div>
+
+                        <separator string="Materiales Presupuestados"/>
+                        <field name="material_ids">
+                            <tree editable="bottom" create="0" default_order="sequence, id">
+                                <field name="sequence" readonly="1" force_save="1"/>
+                                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
+                                <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="efficiency_cmpt"/>
+                                <field name="duration_cmpt" string="Cant Calculada"/>
+                                <field name="qty_available"/>
+                                <field name="qty_ordered"/>
+                                <field name="category_id" readonly="1" force_save="1"/>
+                                <field name="order_assign" string="Cotizar"/>
+                                <field name="order_agree_id" invisible="1"/>
+                                <field name="vendor_first_id" invisible="1"/>
+                                <field name="vendor_second_id" invisible="1"/>
+                                <field name="order_ids" invisible="1"/>
+                                <field name="supply" invisible="1"/>
+                                <field name="difficulty" invisible="1"/>
+                                <field name="date_start" invisible="1"/>
+                                <field name="date_stop" invisible="1"/>
+                                <field name="duration_real" invisible="1"/>
+                                <field name="efficiency_real" invisible="1"/>
+                                <field name="workorder_id" invisible="1"/>
+                                <field name="budget_id" invisible="1"/>
+                                <field name="space_id" invisible="1"/>
+                                <field name="resource_type" invisible="1"/>
+                                <field name="workorder_concept_id" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                            </tree>
+                        </field>
+                        <button name="action_open_lines" class="oe_link" type="object" string=" -> Ver todo" context="{'show': 'budget'}"/>
+                        <separator string="Materiales No Presupuestados"/>
+                        <field name="material_extra_ids">
+                            <tree editable="bottom" default_order="sequence, id">
+                                <field name="sequence" readonly="1" force_save="1"/>
+                                <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['M'])]" string="Recurso"/>
+                                <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida" attrs="{'required':[('product_id','!=',False)]}"/>
+                                <field name="efficiency_extra" string="Rendimiento"/>
+                                <field name="duration_cmpt" string="Cant Calculada"/>
+                                <field name="qty_available"/>
+                                <field name="qty_ordered"/>
+                                <field name="category_id" readonly="1" force_save="1"/>
+                                <field name="reason"/>
+                                <field name="user_id"/>
+                                <field name="order_assign" string="Cotizar"/>
+                                <field name="order_agree_id" invisible="1"/>
+                                <field name="vendor_first_id" invisible="1"/>
+                                <field name="vendor_second_id" invisible="1"/>
+                                <field name="order_ids" invisible="1"/>
+                                <field name="supply" invisible="1"/>
+                                <field name="difficulty" invisible="1"/>
+                                <field name="date_start" invisible="1"/>
+                                <field name="date_stop" invisible="1"/>
+                                <field name="duration_real" invisible="1"/>
+                                <field name="efficiency_real" invisible="1"/>
+                                <field name="workorder_id" invisible="1"/>
+                                <field name="budget_id" invisible="1"/>
+                                <field name="space_id" invisible="1"/>
+                                <field name="resource_type" invisible="1"/>
+                                <field name="workorder_concept_id" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                            </tree>
+                        </field>
+                        <button name="action_open_lines" class="oe_link" type="object" string=" -> Ver todo" context="{'show': 'extra'}"/>
+                      </page>
+                  </notebook>
+              </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="workorder_bim_tree_view" model="ir.ui.view">
+         <field name="name">workorder.bim.tree.view</field>
+         <field name="model">bim.workorder</field>
+         <field name="arch" type="xml">
+            <tree decoration-danger="decoration=='danger'" decoration-success="decoration=='success'" decoration-warning="decoration=='warning'">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="budget_id"/>
+                <field name="object_id" string="Edificio (Objeto)"/>
+                <field name="space_id" string="Piso (Espacio)"/>
+                <field name="note"/>
+                <field name="priority"/>
+                <field name="supply"/>
+                <field name="order_ids" widget="many2many_tags"/>
+                <field name="picking_ids" widget="many2many_tags"/>
+                <field name="restriction_ids" widget="many2many_tags"/>
+                <field name="plan_labor"/>
+                <field name="amount_labor"/>
+                <field name="plan_material"/>
+                <field name="amount_material"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="advance" widget="percentage"/>
+                <field name="state"/>
+                <field name="decoration" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+<!--
+    VISTAS PARA RECURSOS
+-->
+    <record id="resources_budget_bim_tree_view" model="ir.ui.view">
+         <field name="name">bim.workorder.resources.budget.tree.view</field>
+         <field name="model">bim.workorder.resources</field>
+         <field name="arch" type="xml">
+            <tree editable="bottom" create="0" default_order="sequence, id">
+                <field name="sequence" readonly="1"/>
+                <field name="resource_id" options='{"no_create": 1, "no_open": 1}' readonly="1" domain="[('type','in',['material']),('budget_id','=',budget_id)]"/>
+                <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
+                <field name="name" invisible="1"/>
+                <field name="efficiency_cmpt"/>
+                <field name="duration_cmpt" string="Cant Calculada"/>
+                <field name="qty_available"/>
+                <field name="qty_ordered"/>
+                <field name="category_id" readonly="1"/>
+                <field name="order_assign"/>
+                <field name="note"/>
+                <field name="order_agree_id" readonly="1"/>
+                <field name="vendor_first_id"/>
+                <field name="vendor_second_id"/>
+                <field name="order_ids" widget="many2many_tags" invisible="1"/>
+                <field name="order_confirm_ids" widget="many2many_tags" readonly="1"/>
+                <field name="supply"/>
+                <field name="picking_in" widget="many2many_tags"/>
+                <field name="picking_out" widget="many2many_tags"/>
+                <field name="difficulty" invisible="1"/>
+                <field name="date_start" invisible="1"/>
+                <field name="date_stop" invisible="1"/>
+                <field name="duration_real" invisible="1"/>
+                <field name="efficiency_real" invisible="1"/>
+                <field name="workorder_id" invisible="1"/>
+                <field name="budget_id" invisible="1"/>
+                <field name="space_id" invisible="1"/>
+                <field name="resource_type" invisible="1"/>
+                <field name="workorder_concept_id" invisible="1"/>
+                <button name="open_purchase_view" string="Ver Pedidos de Compra" type="object" icon="fa-shopping-basket"/>
+                <button name="open_picking_view" string="Ver Ordenes de Entrega" type="object" icon="fa-truck"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="resources_extra_bim_tree_view" model="ir.ui.view">
+         <field name="name">bim.workorder.resources.extra.tree.view</field>
+         <field name="model">bim.workorder.resources</field>
+         <field name="arch" type="xml">
+            <tree editable="bottom" create="0" default_order="sequence, id">
+                <field name="sequence" readonly="1"/>
+                <field name="product_id" required="1" options='{"no_create": 1, "no_open": 1}' domain="[('resource_type','in',['M'])]"/>
+                <field name="departure_id" options='{"no_create": 1, "no_open": 1}' string="Partida"/>
+                <field name="efficiency_extra" string="Rendimiento"/>
+                <field name="duration_cmpt" string="Cant Calculada"/>
+                <field name="qty_available"/>
+                <field name="qty_ordered"/>
+                <field name="category_id" readonly="1"/>
+                <field name="reason"/>
+                <field name="user_id"/>
+                <field name="order_assign"/>
+                <field name="note"/>
+                <field name="order_agree_id" readonly="1"/>
+                <field name="vendor_first_id"/>
+                <field name="vendor_second_id"/>
+                <field name="order_ids" widget="many2many_tags" invisible="1"/>
+                <field name="order_confirm_ids" widget="many2many_tags" readonly="1"/>
+                <field name="supply"/>
+                <field name="picking_in" widget="many2many_tags"/>
+                <field name="picking_out" widget="many2many_tags"/>
+                <field name="difficulty" invisible="1"/>
+                <field name="date_start" invisible="1"/>
+                <field name="date_stop" invisible="1"/>
+                <field name="duration_real" invisible="1"/>
+                <field name="efficiency_real" invisible="1"/>
+                <field name="workorder_id" invisible="1"/>
+                <field name="budget_id" invisible="1"/>
+                <field name="space_id" invisible="1"/>
+                <field name="resource_type" invisible="1"/>
+                <field name="workorder_concept_id" invisible="1"/>
+                <field name="name" invisible="1"/>
+                <button name="open_purchase_view" string="Ver Pedidos de Compra" type="object" icon="fa-shopping-basket"/>
+                <button name="open_picking_view" string="Ver Ordenes de Entrega" type="object" icon="fa-truck"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_material_budget_tree_all" model="ir.actions.act_window">
+        <field name="name">Materiales Presupuestados</field>
+        <field name="res_model">bim.workorder.resources</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="resources_budget_bim_tree_view"/>
+    </record>
+
+    <record id="action_material_extra_tree_all" model="ir.actions.act_window">
+        <field name="name">Materiales No Presupuestados</field>
+        <field name="res_model">bim.workorder.resources</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="resources_extra_bim_tree_view"/>
+    </record>
+
+    <record id="action_workorder_bim" model="ir.actions.act_window">
+        <field name="name">Ordenes de Trabajo</field>
+        <field name="res_model">bim.workorder</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="workorder_bim_tree_view"/>
+    </record>
+    <record id="action_config_restriction_bim" model="ir.actions.act_window">
+        <field name="name">Restricciones</field>
+        <field name="res_model">bim.restriction</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_config_speciality_bim" model="ir.actions.act_window">
+        <field name="name">Especialidades</field>
+        <field name="res_model">bim.workorder.speciality</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <act_window name="Marcar Todo"
+                    binding_model="bim.workorder.resources"
+                    res_model="wizard.mark.all"
+                    target="new"
+                    view_mode="form"
+                    id="action_mark_all"/>
+
+    <act_window name="Desmarcar Todo"
+                    binding_model="bim.workorder.resources"
+                    res_model="wizard.unmark.all"
+                    target="new"
+                    view_mode="form"
+                    id="action_unmark_all"/>
+
+
+    <menuitem id="menu_ot_bim"
+        name="OT"
+        parent="base_bim_2.main_base_menu_bim"
+        sequence="110"/>
+
+    <menuitem id="menu_workorder_bim"
+        name="Ordenes de Trabajo"
+        parent="menu_ot_bim"
+        sequence="1"
+        action="action_workorder_bim" />
+
+    <menuitem id="menu_onfig_speciality_bim"
+        name="Especialidades"
+        parent="menu_ot_bim"
+        sequence="2"
+        action="action_config_speciality_bim" />
+
+    <menuitem id="menu_config_restriction_bim"
+        name="Restricciones"
+        parent="menu_ot_bim"
+        sequence="3"
+        action="action_config_restriction_bim" />
+
+    <record id="view_bim_purchase_requisition_workorder" model="ir.ui.view">
+       <field name='name'>bim.purchase.requisition.form.workorder</field>
+       <field name='model'>bim.purchase.requisition</field>
+       <field name="inherit_id" ref="base_bim_2.view_form_bim_purchase_requisition"/>
+       <field name='type'>form</field>
+       <field name='arch' type='xml'>
+          <field name="amount_total" position="after">
+               <field name="workorder_id" readonly="1"/>
+           </field>
+       </field>
+    </record>
+
+</odoo>

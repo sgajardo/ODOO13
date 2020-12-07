@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- hr.work.entry inherit form view -->
+    <record id="hr_work_entry_view_form" model="ir.ui.view">
+        <field name="name">hr.work.entry.inherit.view.form</field>
+        <field name="model">hr.work.entry</field>
+        <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_form"/>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="create">0</attribute>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_view_tree" model="ir.ui.view">
+        <field name="name">hr.work.entry.inherit.view.tree</field>
+        <field name="model">hr.work.entry</field>
+        <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_tree"/>
+        <field name="arch" type="xml">
+            <tree position="attributes">
+                <attribute name="create">0</attribute>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_work_entry.hr_work_entry_action" model="ir.actions.act_window">
+        <field name="view_mode">gantt,tree,form,pivot</field>
+    </record>
+</odoo>
