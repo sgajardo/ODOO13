@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    <record id="view_form_bim_task" model="ir.ui.view">
+        <field name="name">view.form.bim.task</field>
+        <field name="model">bim.task</field>
+        <field name="arch" type="xml">
+            <form string="Tareas" delete="0">
+                <header>
+                    <button name="action_cancel"  string="Cancelar" type="object"/>
+                    <button name="action_work" attrs="{'invisible': [('state', '!=', 'draft')]}" string="Pasar a Trabajando" class="oe_highlight" type="object"/>
+                    <button name="action_end" attrs="{'invisible': [('state', '!=', 'work')]}" string="Pasar a Finalizada" class="oe_highlight" type="object"/>
+                    <field name="state" widget="statusbar"/>
+                 </header>
+                <sheet>
+                    <div class="oe_title">
+                       <h1>
+                           <field name="name" readonly="1"/>
+                       </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="desc" required="1"/>
+                            <field name="project_id" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="load_work"/>
+
+                        </group>
+                        <group>
+                            <field name="user_resp_id" required="1"/>
+                            <field name="prog_declarada" required="1"/>
+                            <field name="prog_calculada"/>
+                            <field name="user_id" required="1"/>
+
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Hojas de Tiempo">
+                            <field name="bim_timesheet_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="employee_id"/>
+                                    <field name="project_id"/>
+                                    <field name="date"/>
+                                    <field name="week_start"/>
+                                    <field name="week_end"/>
+                                    <field name="total_hours" sum="Total"/>
+                                    <field name="total_extra_hours" sum="Total"/>
+                                    <field name="work_cost" sum="Total"/>
+                                </tree>
+                            </field>
+
+                            <group class="oe_subtotal_footer oe_right" colspan="2" name="task_total">
+                                <field name="amount_total"/>
+                                <field name="dif_total"/>
+                                <field name="cost_mo_total"/>
+                            </group>
+
+
+                        </page>
+                        <page string="Notas">
+                            <field name="obs" nolabel="1" widget="html"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_task" model="ir.ui.view">
+        <field name="name">view.tree.bim.task</field>
+        <field name="model">bim.task</field>
+        <field name="arch" type="xml">
+            <tree delete="1">
+                <field name="name"/>
+                <field name="desc"/>
+                <field name="user_id"/>
+                <field name="user_resp_id"/>
+                <field name="load_work"/>
+                <field name="project_id"/>
+                <field name="load_work"/>
+                <field name="amount_total"/>
+                <field name="dif_total"/>
+                <field name="prog_declarada"/>
+                <field name="prog_calculada"/>
+                <field name="cost_mo_total"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_task" model="ir.actions.act_window">
+        <field name="name">Tareas</field>
+        <field name="res_model">bim.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_task_action"
+        name="Tareas"
+        parent="menu_bim_task"
+        action="action_bim_task"
+        sequence="1" />
+        
+    
+    </data>
+
+</odoo>

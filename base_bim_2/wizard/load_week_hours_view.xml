@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_load_week_hours" model="ir.ui.view">
+            <field name="name">view.load.week.hours</field>
+            <field name="model">load.week.hours</field>
+            <field name="arch" type="xml">
+                <form string="Cargar Horas Semanales">
+                    <group>
+                        <group>
+                            <field name="week_date" required="1"/>
+                        </group>
+                        <field name="line_ids" nolabel="1">
+                            <tree editable="bottom" create="0">
+                                <field name="employee_id"/>
+                                <field name="hours1"/>
+                                <field name="extra1"/>
+                                <field name="hours2"/>
+                                <field name="extra2"/>
+                                <field name="hours3"/>
+                                <field name="extra3"/>
+                                <field name="hours4"/>
+                                <field name="extra4"/>
+                                <field name="hours5"/>
+                                <field name="extra5"/>
+                                <field name="hours6"/>
+                                <field name="hours7"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button string='Cargar' name="load_hours" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+        
+        <record id="action_load_week_hours" model="ir.actions.act_window">
+            <field name="name">Cargar Horas Semanales</field>
+            <field name="res_model">load.week.hours</field>
+            <field name="view_mode">tree,form</field>
+           <field name="view_id" ref="view_load_week_hours"/>
+           <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

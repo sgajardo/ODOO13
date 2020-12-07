@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="payslip_run_accounting_inherit" model="ir.ui.view">
+        <field name="name">Payslip Run Accounting Inherit</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button string="Descentralizar" name="cancel_moves" type="object"
+                    states="accounted" confirm="Al descentralizar la nómina, se borrarán los asientos contables asociados, ¿continuar?"/>
+                <button string="Centralizar" name="create_moves" type="object" states="close,validate" class="btn-primary"/>
+            </header>
+            <field name="credit_note" position="before">
+                <field name="date" attrs="{'invisible': [('state', '=', 'draft')], 'readonly': [('state', '=', 'accounted')]}"/>
+                <field name="journal_id" options='{"no_create": 1, "no_open": 1}' attrs="{'invisible': [('state', '=', 'draft')], 'readonly': [('state', '=', 'accounted')]}"/>
+                <field name="move_id" readonly="1" attrs="{'invisible': [('state', '!=', 'accounted')]}"/>
+            </field>
+        </field>
+    </record>
+</odoo>

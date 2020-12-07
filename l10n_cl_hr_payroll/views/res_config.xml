@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payroll_configuration_form_view" model="ir.ui.view">
+        <field name="name">payroll.configuration.form.view</field>
+        <field name="model">hr.payroll.config.settings</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payroll_configuration"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='module_hr_payroll_account']/.." position="after">
+                <field name="conf_account_afp_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_seguro_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_fonasa_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_isapre_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_mutual_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_ccaf_id" options="{'no_create': 1, 'no_open': 1}"/>
+                <field name="conf_account_multa_id" options="{'no_create': 1, 'no_open': 1}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

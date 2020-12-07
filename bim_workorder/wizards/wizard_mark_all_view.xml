@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="wizard_mark_all_form_view" model="ir.ui.view">
+            <field name="name">wizard.mark.all.form.view</field>
+            <field name="model">wizard.mark.all</field>
+            <field name="arch" type="xml">
+                <form>
+                    <p>¿Está seguro que desea marcar todos los recursos?</p>
+                    <footer>
+                        <button name="action_mark_all" string="Marcar Todo" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="wizard_unmark_all_form_view" model="ir.ui.view">
+            <field name="name">wizard.unmark.all.form.view</field>
+            <field name="model">wizard.unmark.all</field>
+            <field name="arch" type="xml">
+                <form>
+                    <p>¿Está seguro que desea desmarcar todos los recursos?</p>
+                    <footer>
+                        <button name="action_unmark_all" string="Desmarcar Todo" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

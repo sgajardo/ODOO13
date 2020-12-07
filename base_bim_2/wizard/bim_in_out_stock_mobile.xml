@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bim_io_stock_mobile_form" model="ir.ui.view">
+        <field name="name">bim.stock.mobile.wizard.form</field>
+        <field name="model">bim.stock.mobile.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Mov. de Salida">
+                <group>
+                    <group>
+                        <field name="type" widget="radio"/>
+                    </group>
+                    <group>
+                        <field name="location_id" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}" attrs="{'invisible': [('type','=','out')],'required': [('type','=','in')]}"/>
+                        <field name="project_id" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}" attrs="{'invisible': [('type','=','in')],'required': [('type','=','out')]}"/>
+                        <field name="warehouse_id" invisible="1"/>
+                        <field name="mobile_id" invisible="1"/>
+                    </group>
+                </group>
+                <separator string="Lineas con Materiales a Mover"/>
+                <field name="bim_stock_lines" nolabel="1" >
+                    <tree editable="bottom">
+                        <field name="product_id" options="{'no_open':True,'no_quick_create':True,'no_create_edit':True}" domain="[('type','!=','service'),('resource_type','in',['M'])]"/>
+                        <field name="qty_available"/>
+                        <field name="qty_add"/>
+                        <field name="wizard_id" invisible="1"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button name="action_load" string="Confirmar" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_io_stock_mobile_action" model="ir.actions.act_window">
+        <field name="name">Creación de Movimiento de Entrada ó Salida</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">bim.stock.mobile.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

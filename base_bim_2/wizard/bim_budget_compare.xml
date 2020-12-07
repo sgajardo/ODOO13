@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <!-- bim.budget.compare.wizard form view -->
+    <record id="bim_budget_compare_wizard_view_form" model="ir.ui.view">
+        <field name="name">bim.budget.compare.wizard.view.form</field>
+        <field name="model">bim.budget.compare.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Comparar presupuestos">
+                <group name="main">
+                    <group name="left">
+                        <field name="origin_budget_id" force_save="1"/>
+                        <label for="switch_budgets" string=""/>
+                        <div class="o_row">
+                            <button name="switch_budgets" type="object" class="btn-link" icon="fa-exchange" help="Intercambiar presupuestos"/>
+                        </div>
+                        <field name="compare_budget_id" force_save="1"/>
+                        <separator/>
+                        <field name="compare" widget="radio"/>
+                        <field name="budget_type" widget="radio"/>
+                    </group>
+                    <group name="left" string="Datos a comparar">
+                        <field name="price"/>
+                        <field name="text"/>
+                        <field name="quantity"/>
+                        <field name="measure"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="cancel" string="Cancelar" special="cancel" class="btn-secondary"/>
+                    <button name="print_excel" type="object" string="Imprimir comparación" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_budget_compare_wizard_action" model="ir.actions.act_window">
+        <field name="name">Comparar presupuestos</field>
+        <field name="res_model">bim.budget.compare.wizard</field>
+        <field name="binding_model_id" ref="model_bim_budget"/>
+        <field name="binding_view_types">list</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

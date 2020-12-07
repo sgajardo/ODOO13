@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="salary_rule_form_inherit" model="ir.ui.view">
+        <field name="name">Salary Rule Accounting Inherit</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Contabilidad">
+                    <group>
+                        <group name="left">
+                            <field name="partner_id" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="expense"/>
+                            <field name="use_type"/>
+                        </group>
+                        <group name="right">
+                            <field name="account_type"/>
+                            <field name="account_id" options='{"no_create": 1, "no_open": 1}'/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="l10n_cl_hr_salary_rule_list_c_view" model="ir.ui.view">
+        <field name="name">l10n.cl.hr.salary.rule.list.c.view</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="inherit_id" ref="hr_payroll.hr_salary_rule_list"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="expense" optional="show"/>
+                <field name="account_type" optional="show"/>
+                <field name="account_id" optional="show"/>
+                <field name="use_type" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

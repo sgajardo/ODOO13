@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <div t-extend="HierarchyView">
+        <t t-jquery=".o_hierarchy_view" t-operation="append">
+            <div class="bimHierarchyMeasuresPlaceholder"/>
+        </t>
+    </div>
+
+    <div t-name="bim.HierarchyMeasures" class="accordion" id="bimHierarchyMeasuresContainer">
+        <div class="card">
+            <div class="card-header d-flex" id="bimHierarchyMeasuresHeader">
+                <button class="btn btn-link text-reset o_bim_measures_visible" type="button"><i t-attf-class="fa fa-{{measuresOpen ? 'check-' : ''}}square-o"/></button>
+                <button class="btn btn-link text-reset" type="button" data-toggle="collapse" data-target="#bimHierarchyMeasures" aria-expanded="true" aria-controls="bimHierarchyMeasures">
+                Medición
+                </button>
+            </div>
+            <div id="bimHierarchyMeasures" t-attf-class="collapse{{measuresOpen ? ' show' : ''}}" aria-labelledby="bimHierarchyMeasuresHeader" data-parent="#bimHierarchyMeasuresContainer">
+                <div class="card-body p-0 d-flex align-items-center"/>
+                <div t-if="note" class="card-footer" t-raw="note"/>
+            </div>
+        </div>
+    </div>
+
+    <t t-extend="HierarchyView.buttons">
+        <button t-jquery=".o_hierarchy_button_add" t-operation="inner">
+            <i class="fa fa-plus" title="Crear"/>
+        </button>
+        <button t-jquery=".o_hierarchy_button_unfold" t-operation="inner">
+            <i class="fa fa-folder-open" title="Expandir todo"/>
+        </button>
+        <button t-jquery=".o_hierarchy_button_fold" t-operation="inner">
+            <i class="fa fa-folder" title="Contraer todo"/>
+        </button>
+        <button t-jquery=".o_hierarchy_button_fold" t-operation="after">
+            <div class="dropdown d-inline" t-if="widget.initialState.context.budget_type">
+                <t t-set="budget_type" t-value="widget.initialState.context.budget_type"/>
+                <button class="btn btn-primary dropdown-toggle"
+                    type="button" id="bim_budget_type_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Cambiar tipo
+                </button>
+                <div class="dropdown-menu" aria-labelledby="bim_budget_type_dropdown">
+                    <button t-attf-class="dropdown-item{{budget_type === 'budget' ? ' active' : ''}}" type="button" data-type="budget">Presupuesto</button>
+                    <button t-attf-class="dropdown-item{{budget_type === 'certification' ? ' active' : ''}}" type="button" data-type="certification">Certificación</button>
+                    <button t-attf-class="dropdown-item{{budget_type === 'execution' ? ' active' : ''}}" type="button" data-type="execution">Ejecución</button>
+                    <button t-attf-class="dropdown-item{{budget_type === 'gantt' ? ' active' : ''}}" type="button" data-type="gantt">Programación</button>
+                </div>
+            </div>
+            <button t-if="widget.initialState.context.default_budget_id"
+                class="btn btn-secondary" id="update_budget_amount">
+                <i class="fa fa-gear"/> Actualizar importe</button>
+        </button>
+    </t>
+
+    <ul t-extend="HierarchySidebarList">
+        <t t-jquery="a" t-operation="before">
+            <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'chapter'"
+                class="fa fa-th-large text-success mx-1"/>
+            <t t-else="">
+                <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'departure'"
+                    class="fa fa-th-list text-warning mx-1"/>
+                <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'labor'"
+                    class="fa fa-male text-success mx-1"/>
+                <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'equip'"
+                    class="fa fa-gears text-danger mx-1"/>
+                <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'material'"
+                    class="fa fa-maxcdn text-warning mx-1"/>
+                <t t-else="">
+                    <i t-if="record.model === 'bim.concepts' &amp;&amp; record.data.type === 'aux'"
+                        class="fa fa-percent text-o mx-1"/>
+                </t>
+            </t>
+        </t>
+    </ul>
+
+    <div t-extend="HierarchyContextMenu">
+        <t t-jquery="[data-action='unlink']" t-operation="after">
+            <button data-action="cert_massive" class="list-group-item list-group-item-action"><i class="fa fa-bookmark-o"/> Cert Masiva</button>
+            <button data-action="deep_copy" class="list-group-item list-group-item-action border-bold-top"><i class="fa fa-copy"/> Copiar</button>
+            <button data-action="deep_cut" class="list-group-item list-group-item-action"><i class="fa fa-scissors"/> Cortar</button>
+            <button data-action="deep_paste" class="list-group-item list-group-item-action d-none"><i class="fa fa-paste"/> Pegar</button>
+            <button data-action="move_up" class="list-group-item list-group-item-action border-bold-top"><i class="fa fa-chevron-up"/> Mover arriba</button>
+            <button data-action="move_down" class="list-group-item list-group-item-action"><i class="fa fa-chevron-down"/> Mover abajo</button>
+            <button data-action="update_concept" class="list-group-item list-group-item-action border-bold-top"><i class="fa fa-refresh"/> Actualizar</button>
+        </t>
+    </div>
+</templates>
+
+

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="bim_security_category" model="ir.module.category">
+            <field name="name">BIM</field>
+            <field name="description">Usuarios de BIM</field>
+            <field name="sequence" eval="90"/>
+        </record>
+
+        <record id="bim_security_rules_category" model="ir.module.category">
+            <field name="name">Permisos adicionales BIM</field>
+            <field name="description">Reglas de acceso a las obras</field>
+            <field name="sequence" eval="90"/>
+        </record>
+
+        <record id="group_bim_maintenance" model="res.groups">
+            <field name="name">Servicio Técnico BIM</field>
+            <field name="category_id" ref="bim_security_rules_category"/>
+            <field name="comment">Servicio Técnico</field>
+        </record>
+
+        <record id="group_see_all" model="res.groups">
+            <field name="name">Ver todas las Obras</field>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_see_owner" model="res.groups">
+            <field name="name">Ver solo mis obras</field>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_employee_bim" model="res.groups">
+            <field name="name">Empleados de Obras</field>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_user_bim" model="res.groups">
+            <field name="name">Usuario BIM</field>
+            <field name="category_id" ref="bim_security_category"/>
+            <!-- <field name="implied_ids" eval="[(4, ref('base_bim_2.group_see_owner'))]"/> -->
+        </record>
+
+        <record id="group_manager_bim" model="res.groups">
+            <field name="name">Administrador BIM</field>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="category_id" ref="bim_security_category"/>
+            <field name="implied_ids" eval="[(4, ref('base_bim_2.group_user_bim'))]"/>
+        </record>
+
+        <record id="group_requisition_purchase" model="res.groups">
+            <field name="name">Solicitud de Materiales desde Compras</field>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_create_invoice_paidstate" model="res.groups">
+            <field name="name">Generar facturas desde los estados de pago</field>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_create_product_import_budget" model="res.groups">
+            <field name="name">Crear un proucto al importar un presupuesto</field>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <record id="group_rectify_products" model="res.groups">
+            <field name="name">Rectificación de productos en presupuestos</field>
+            <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="category_id" ref="bim_security_rules_category"/>
+        </record>
+
+        <!-- Reglas de Acceso -->
+        <record id="rule_see_all_projects" model="ir.rule">
+            <field name="name">Ver todas las Obras</field>
+            <field ref="model_bim_project" name="model_id"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_see_all'))]"/>
+        </record>
+
+        <record id="rule_see_owner_project" model="ir.rule">
+            <field name="name">Ver mis Obras</field>
+            <field ref="model_bim_project" name="model_id"/>
+            <field name="domain_force">['|',('user_id', '=', user.id),('user_id', '=', False)]</field>
+            <field name="groups" eval="[(4, ref('group_see_owner'))]"/>
+        </record>
+
+        <record id="rule_multicompany_project" model="ir.rule">
+            <field name="name">Multi compañía Obras</field>
+            <field ref="model_bim_project" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_see_all_imports" model="ir.rule">
+            <field name="name">Ver todos los trabajos de importación</field>
+            <field ref="model_bim_import_temp" name="model_id"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_see_all'))]"/>
+        </record>
+
+        <record id="rule_see_owner_import" model="ir.rule">
+            <field name="name">Ver mis trabajos de importación</field>
+            <field ref="model_bim_import_temp" name="model_id"/>
+            <field name="domain_force">['|',('budget_id.project_id.user_id', '=', user.id),('budget_id.project_id.user_id', '=', False)]</field>
+            <field name="groups" eval="[(4, ref('group_see_owner'))]"/>
+        </record>
+
+        <record id="rule_multicompany_department" model="ir.rule">
+            <field name="name">Multi compañía Departamentos</field>
+            <field ref="model_bim_department" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_documentation" model="ir.rule">
+            <field name="name">Multi compañía Documentos</field>
+            <field ref="model_bim_documentation" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_paidstate" model="ir.rule">
+            <field name="name">Multi compañía Estados de Pagos</field>
+            <field ref="model_bim_paidstate" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_requisition" model="ir.rule">
+            <field name="name">Multi compañía solicitud de Materiales</field>
+            <field ref="model_bim_purchase_requisition" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_listproduct" model="ir.rule">
+            <field name="name">Multi compañía Productos solicitud</field>
+            <field ref="model_product_list" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance" model="ir.rule">
+            <field name="name">Multi compañía Mantenimiento</field>
+            <field ref="model_bim_maintenance" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance_line" model="ir.rule">
+            <field name="name">Multi compañía Líneas de Mantenimiento</field>
+            <field ref="model_bim_maintenance" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance" model="ir.rule">
+            <field name="name">Multi compañía Mantenimiento</field>
+            <field ref="model_bim_project_employee_timesheet" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance_line" model="ir.rule">
+            <field name="name">Multi compañía Líneas de Mantenimiento</field>
+            <field ref="model_bim_project_employee" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance" model="ir.rule">
+            <field name="name">Multi compañía Mantenimiento</field>
+            <field ref="model_bim_project_employee" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+
+        <record id="rule_multicompany_maintenance_line" model="ir.rule">
+            <field name="name">Multi compañía Líneas de Mantenimiento</field>
+            <field ref="model_bim_project_employee_timesheet" name="model_id"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','in', company_ids)]</field>
+            <field name="global" eval="1"/>
+        </record>
+    </data>
+</odoo>

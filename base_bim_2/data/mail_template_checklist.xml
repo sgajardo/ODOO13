@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id="email_template_checklist" model="mail.template">
+            <field name="name">Checklist: Enviar Checklist</field>
+            <field name="model_id" ref="base_bim_2.model_bim_checklist"/>
+            <field name="subject">Checklist (Ref ${object.code or 'n/a' })</field>
+            <field name="partner_to">${object.project_id.customer_id.id}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Hola ${object.project_id.customer_id.name}
+                        <br/><br/>
+                        Le adjuntamos el checklist de la obra <strong>${object.project_id.nombre}</strong>
+                        <br/><br/>
+                        Saludos,
+                    </p>
+                </div>
+            </field>
+
+            <field name="report_template" ref="base_bim_2.bim_checklist_act"/>
+            <field name="report_name">CHKLST_${(object.code or '')}</field>
+            <field name="lang">${object.project_id.customer_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <record id="email_template_budget" model="mail.template">
+            <field name="name">Presupuesto: Enviar presupuesto</field>
+            <field name="model_id" ref="base_bim_2.model_bim_budget"/>
+            <field name="subject">${object.company_id.name} (Presupuesto: ${object.name or 'n/a' })</field>
+            <field name="email_from">${(object.user_id.email_formatted or user.email_formatted) | safe}</field>
+            <field name="partner_to">${object.project_id.customer_id.id}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Hola ${object.project_id.customer_id.name}
+                        <br/><br/>
+                        Se adjunta Reporte Completo del Presupuesto <strong>${object.name}</strong>
+                        <br/><br/>
+                        Saludos,
+                    </p>
+                </div>
+            </field>
+            <field name="report_name">${(object.name or '').replace('/','_')}</field>
+            <field name="lang">${object.project_id.customer_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

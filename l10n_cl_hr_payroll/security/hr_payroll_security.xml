@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--    CATEGORY      -->
+
+    <record id="payrol_module_category" model="ir.module.category">
+        <field name="name">Roll Privado</field>
+        <field name="description">Roll Privado</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!--    USER       -->
+
+    <record id="group_rol_privado_base" model="res.groups">
+        <field name="name">Roll Privado</field>
+        <field name="category_id" ref="payrol_module_category"/>
+        <field name="comment">Roll Privado</field>
+    </record>
+
+</odoo>

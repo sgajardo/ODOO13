@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="bim_price_massive_wzd" model="ir.ui.view">
+            <field name="name">bim.price.massive.wzd</field>
+            <field name="model">bim.price.massive.wzd</field>
+            <field name="arch" type="xml">
+                <form string="Actualizar precio masivamente">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="budget_id"/>
+                            <h1>
+                                <field name="budget_id" placeholder="Presupuesto" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="type_update" widget="radio"/>
+                            </group>
+                            <group>
+                                <field name="product_id" options="{'no_create_edit':True}" attrs="{'invisible': [('type_update', 'not in', ['manual'])], 'required': [('type_update', '=', 'manual')]}"/>
+                                <field name="new_price" attrs="{'invisible': [('type_update', 'not in', ['manual'])], 'required': [('type_update', '=', 'manual')]}"/>
+                            </group>
+                        </group>
+                        <footer>
+                            <button string='Actualizar' name="update_price" type="object" class="btn-primary"/>
+                            <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_price_massive_wzd" model="ir.actions.act_window">
+            <field name="name">Actualizar precios masivamente</field>
+            <field name="res_model">bim.price.massive.wzd</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="bim_price_massive_wzd"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

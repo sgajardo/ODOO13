@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- BIM  -->
+        <record forcecreate="True" id="decimal_bim_qyt" model="decimal.precision">
+            <field name="name">BIM qty</field>
+            <field name="digits" eval="3"/>
+        </record>
+        <record forcecreate="True" id="decimal_bim_price" model="decimal.precision">
+            <field name="name">BIM price</field>
+            <field name="digits" eval="2"/>
+        </record>
+
+        <!-- Departamentos  -->
+        <record forcecreate="True" id="bim_department_arquitectura" model="bim.department">
+            <field name="name">ARQUITECTURA</field>
+        </record>
+
+        <record forcecreate="True" id="bim_department_ingenieria" model="bim.department">
+            <field name="name">INGENIERIA</field>
+        </record>
+
+        <record forcecreate="True" id="bim_department_otro" model="bim.department">
+            <field name="name">OTRO</field>
+        </record>
+
+        <!-- Unidades de Medida  -->
+        <record id="uom_categ_function" model="uom.category">
+            <field name="name">Función</field>
+        </record>
+
+        <record id="product_uom_percent" model="uom.uom">
+            <field name="name">(%) Porcentaje</field>
+            <field name="category_id" ref="uom_categ_function"/>
+            <field name="factor" eval="1.0"/>
+            <field name="rounding" eval="0.001"/>
+        </record>
+    </data>
+</odoo>

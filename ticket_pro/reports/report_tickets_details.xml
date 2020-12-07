@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_assets_common" inherit_id="web.report_assets_common">
+            <xpath expr="//link[last()]" position="after">
+                <link href="/ticket_pro/static/src/less/style.less" rel="stylesheet" type="text/less"/>
+            </xpath>
+        </template>
+
+        <report
+            id="ticket_pro_report"
+            model="ticket.pro.wizard"
+            string="Reporte de Tickets"
+            name="ticket_pro.report_detail_tickets"
+            file="ticket_pro.report_detail_tickets"
+            report_type="qweb-pdf"
+            menu="False"
+        />
+
+        <template id="report_detail_tickets">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page">
+                            <h3 class="text-center">Reporte de Tickets</h3>
+                            <br/>
+                            <t t-foreach="o.tickets_ids" t-as="ticket">
+                                <div class="container">
+                                    <div class="o_div_border">
+                                        <div>
+                                            <strong><span t-esc="ticket.name"/> - <span t-esc="ticket.title"/></strong>
+                                        </div>
+                                        <div class="o_text_align_justify">
+                                            <strong>Descripción: </strong><span t-esc="ticket.obs"/>
+                                        </div>
+                                        <t t-if="ticket.obs_solucion">
+                                            <div class="o_text_align_justify">
+                                                <strong>Solución: </strong><span t-esc="ticket.obs_solucion"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                                <br/>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

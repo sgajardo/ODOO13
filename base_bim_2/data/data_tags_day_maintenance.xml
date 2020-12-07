@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id="bim_tags_man_day_seven" model="bim.maintenance.tags.days">
+            <field name="name">7</field>
+        </record>
+
+        <record id="bim_tags_man_day_three" model="bim.maintenance.tags.days">
+            <field name="name">3</field>
+        </record>        
+    </data>
+</odoo>
