@@ -397,8 +397,8 @@ class HrEmployee(models.Model):
     @property
     def worked_months(self):
         contract = self.contract_id.parent_id or self.contract_id
-        worked_time = contract and relativedelta(fields.Date.from_string(self.contract_id.date_end or fields.Date.today()), fields.Date.from_string(contract.date_start))
-        return worked_time and (worked_time.years * 12) + worked_time.months
+        worked_time = relativedelta(fields.Date.from_string(self.contract_id.date_end or fields.Date.today()), fields.Date.from_string(contract.date_start)) if contract else False
+        return  ((worked_time.years * 12) + worked_time.months) if worked_time else 0
 
     def name_get(self):
         """ Todos los empleados deberían tener primer nombre y primer apellido

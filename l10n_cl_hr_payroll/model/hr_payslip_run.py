@@ -66,13 +66,12 @@ class HrPayslipRun(models.Model):
 
     def calcular_masivo(self):
         if self.slip_ids:
-            contador = 0
             for slip in self.slip_ids:
-                contador += 1
                 slip.action_payslip_draft()
+                slip.compute_sheet()
                 slip.action_payslip_done()
-            if contador > 0:
-                self.message_post(body=_("Se han Calculado masivamente %s Nóminas de Empleado") % contador)
+            self.message_post(body=_("Se han Calculado masivamente %s Nóminas de Empleado") % len(self.slip_ids))
+
 
     def _compute_employees_count(self):
         total_employees = self.env['hr.employee'].search_count([('hired', '=', True)])
