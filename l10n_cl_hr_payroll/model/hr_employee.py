@@ -8,17 +8,22 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class HrEmployee(models.Model):
+class HrEmployeeBase(models.AbstractModel):
     _inherit = 'hr.employee.base'
-
-    def _get_region_domain(self):
-        """ Devuelve dominio con regiones chilenas """
-        return [('country_id', '=', self.env.ref('base.cl').id)]
 
     first_name = fields.Char('Primer Nombre')
     last_name = fields.Char('Primer Apellido')
     middle_name = fields.Char('Segundo Nombre', help='Employees middle name')
     mothers_name = fields.Char('Segundo Apellido', help='Employees mothers name')
+
+
+class HrEmployee(models.Model):
+    _inherit = 'hr.employee'
+
+    def _get_region_domain(self):
+        """ Devuelve dominio con regiones chilenas """
+        return [('country_id', '=', self.env.ref('base.cl').id)]
+
     resource_calendar_id = fields.Many2one('resource.calendar', default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_resource_monthly', raise_if_not_found=False))
     region_id = fields.Many2one('res.country.state', 'Región', domain=_get_region_domain)
     address = fields.Char('Dirección')
