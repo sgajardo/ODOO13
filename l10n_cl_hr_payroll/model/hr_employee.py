@@ -8,13 +8,6 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
-class HrEmployeeBase(models.AbstractModel):
-    _inherit = 'hr.employee.public'
-
-    def name_get(self):
-        return self.env['hr.employee'].sudo().browse(self.ids).name_get()
-
-
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
@@ -415,6 +408,8 @@ class HrEmployee(models.Model):
         tomará el nombre de usuario, en caso de tener usuario definido. Y si
         tampoco tiene usuario entonces mostramos lo que haya en el name.
         """
+        if not self.check_access_rights('read', raise_exception=False):
+            return super().name_get()
         return [(rec.id, '%s %s' % (rec.first_name or '', rec.last_name or '') if rec.first_name or rec.last_name else rec.user_id and rec.user_id.name or '' if rec.user_id else rec.name) for rec in self]
 
     @api.model
