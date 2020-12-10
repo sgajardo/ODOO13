@@ -9,12 +9,10 @@ from odoo.exceptions import ValidationError
 
 
 class HrEmployeeBase(models.AbstractModel):
-    _inherit = 'hr.employee.base'
+    _inherit = 'hr.employee.public'
 
-    first_name = fields.Char('Primer Nombre')
-    last_name = fields.Char('Primer Apellido')
-    middle_name = fields.Char('Segundo Nombre', help='Employees middle name')
-    mothers_name = fields.Char('Segundo Apellido', help='Employees mothers name')
+    def name_get(self):
+        return self.env['hr.employee'].sudo().browse(self.ids).name_get()
 
 
 class HrEmployee(models.Model):
@@ -24,6 +22,10 @@ class HrEmployee(models.Model):
         """ Devuelve dominio con regiones chilenas """
         return [('country_id', '=', self.env.ref('base.cl').id)]
 
+    first_name = fields.Char('Primer Nombre')
+    last_name = fields.Char('Primer Apellido')
+    middle_name = fields.Char('Segundo Nombre', help='Employees middle name')
+    mothers_name = fields.Char('Segundo Apellido', help='Employees mothers name')
     resource_calendar_id = fields.Many2one('resource.calendar', default=lambda self: self.env.ref('l10n_cl_hr_payroll.hr_resource_monthly', raise_if_not_found=False))
     region_id = fields.Many2one('res.country.state', 'Región', domain=_get_region_domain)
     address = fields.Char('Dirección')
