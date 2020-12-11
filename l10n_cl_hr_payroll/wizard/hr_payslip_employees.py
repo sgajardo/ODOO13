@@ -21,6 +21,9 @@ class HrPayslipEmployees(models.TransientModel):
         }
 
     def compute_sheet(self):
+        for emp in self.employee_ids:
+            if not emp.hired:
+                raise ValidationError('%s no está contratado.' % emp.display_name)
         payslip_run = self.env['hr.payslip.run'].browse(self.env.context.get('active_id', 0)).exists()
         # Si existe otro procesamiento de nómina con el mismo empleado dentro del mismo periodo, lanzamos un raise
         repeat = self.env['hr.payslip'].search([('employee_id', 'in', self.employee_ids.ids), ('date_from', '<=', payslip_run.date_end), ('date_to', '>=', payslip_run.date_start)], limit=1)
