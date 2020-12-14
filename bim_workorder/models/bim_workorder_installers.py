@@ -101,13 +101,16 @@ class BimWorkorderStockInstallers(models.Model):
 
         for picking in self.picking_ids:
             location_id = picking.location_dest_id.id
-            picking_type = picking_type_obj.search([
-                ('default_location_src_id', '=', location_id),
-                ('code', '=', 'outgoing')],limit=1)
+            picking_type = project.warehouse_id.out_type_id
 
             if not picking_type:
                 warehouse = self.env['stock.warehouse'].search([('partner_id','=',company.partner_id.id)],limit=1)
                 picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id),('code', '=', 'outgoing')],limit=1)
+
+                if not picking_type:
+                    picking_type = picking_type_obj.search([
+                        ('default_location_src_id', '=', location_id),
+                        ('code', '=', 'outgoing')],limit=1)
 
             picking_out = picking.copy({
                     'name': '/',
