@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_inherit_hr_attendance_form" model="ir.ui.view">
+            <field name="name">view.inherit.hr.attendance.form</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='worked_hours']" position="before">
+                    <field name="project_id"/>
+                    <field name="attendance_cost" sum="Sum" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="currency_id" invisible="1"/>
+                </xpath>
+                <field name="worked_hours" position="attributes">
+                    <attribute name="sum">Sum</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_inherit_hr_attendance_form_new" model="ir.ui.view">
+            <field name="name">view.inherit.hr.attendance.form.new</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='check_out']" position="after">
+                    <field name="project_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

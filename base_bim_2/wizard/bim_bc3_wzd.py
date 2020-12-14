@@ -21,7 +21,23 @@ class BimBc3Wizard(models.TransientModel):
         data = base64.b64decode(self.bc3_file).decode('latin-1')
         nats = ['not_used', 'labor', 'equip', 'material']
         res_types = ['A', 'H', 'Q', 'M']
-        for row in data.split('\n'):
+        pending = ''
+        rows = data.split('\n')
+        next_index = 0
+        for row in rows:
+            next_index += 1
+            row = row.strip()
+            if row and pending:
+                row = pending + row
+                pending = ''
+
+            next_row = rows[next_index] if len(rows) > next_index else False
+            if row and next_row and next_row[0] != '~':
+                pending = row
+                continue
+            else:
+                pending = ''
+
             if not row or row[0] != '~':
                 continue
             elif row[1] == 'C':

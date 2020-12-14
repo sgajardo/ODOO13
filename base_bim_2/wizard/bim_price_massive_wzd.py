@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
+import logging
+_logger = logging.getLogger(__name__)
 
 class BimPriceMassiveWzd(models.TransientModel):
     _name = 'bim.price.massive.wzd'
@@ -12,11 +14,13 @@ class BimPriceMassiveWzd(models.TransientModel):
 
     budget_id = fields.Many2one('bim.budget', string='Presupuesto', default=_get_default_budget)
     product_id = fields.Many2one('product.template', string='Recurso')
+    pricelist_id = fields.Many2one('product.pricelist', string='Tarifa')
     new_price = fields.Float('Precio Nuevo')
     type_update = fields.Selection([('cost', 'Actualizar conceptos masivos según coste actual'),
                                     ('sale', 'Actualizar conceptos masivos según precio actual'),
                                     ('manual', 'Actualizar conceptos masivos manualmente'),
-                                    ('agreed', 'Actualizar conceptos masivos según precios acordados')
+                                    ('agreed', 'Actualizar conceptos masivos según precios acordados'),
+                                    ('pricelist', 'Actualizar conceptos masivos según tarifa')
                                     ], string="Tipo",  default='cost')
     def update_price(self):
         if self.type_update == 'cost':
@@ -37,10 +41,15 @@ class BimPriceMassiveWzd(models.TransientModel):
                 resources = self.budget_id.concept_ids.filtered(lambda x: x.product_id == line.product_id)
                 for resource in resources:
                     resource.amount_fixed = line.price_agreed
-        else:
+        elif self.type_update == 'manual':
             concepts = self.env['bim.concepts'].search([('budget_id', '=', self.budget_id.id), ('product_id', '=', self.product_id.id)])
             if self.new_price > 0.0:
                 for concept in concepts:
                     concept.write({'amount_fixed': self.new_price})
             else:
                 raise ValidationError(_('El precio debe ser mayor que 0.0'))
+        else:
+            resources = self.budget_id.concept_ids.filtered(lambda self: self.type in ['material', 'labor', 'equip'])
+            for resource in resources:
+                if self.pricelist_id:
+                    resource.amount_fixed = self.pricelist_id.get_product_price(resource.product_id, resource.quantity,self.budget_id.project_id.customer_id, False, False)

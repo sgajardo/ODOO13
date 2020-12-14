@@ -117,15 +117,12 @@ class BimBudget(models.Model):
     def create(self, vals):
         if vals.get('code', "New") == "New":
             vals['code'] = self.env['ir.sequence'].next_by_code('bim.budget') or "New"
-            vals['space_ids'] = [(0, 0, {'name': vals['code'],'code': '00'})]
+            vals['space_ids'] = [(0, 0, {'name': vals['code'],'code': 'S1'})]
         budget = super(BimBudget, self).create(vals)
 
-        if not vals.get('template_id'):
-            template = self.env.company.asset_template_id
-            self._create_assets(template)
-
-        #if vals.get('template_id'):
-        #    template = self.env['bim.assets.template'].browse(vals['template_id'])
+        # if not vals.get('template_id'):
+        #     template = self.env.company.asset_template_id
+        #     budget._create_assets(template)
 
         return budget
 
@@ -191,7 +188,7 @@ class BimBudget(models.Model):
     company_id = fields.Many2one('res.company', string="Compañía", required=True, default=lambda self: self.env.company, readonly=True)
     currency_id = fields.Many2one('res.currency', string="Moneda", required=True, copy=True)
     list_price_do = fields.Boolean(compute='_giveme_list_price')
-    certification_ids = fields.One2many('bim.massive.certification','budget_id')
+    certification_ids = fields.One2many('bim.massive.certification.by.line','budget_id')
     certification_count = fields.Integer(compute='_compute_certifification_count')
 
     def _compute_certifification_count(self):
@@ -200,7 +197,7 @@ class BimBudget(models.Model):
 
     def action_view_certifications(self):
         certifications = self.mapped('certification_ids')
-        action = self.env.ref('base_bim_2.bim_massive_certification_action').read()[0]
+        action = self.env.ref('base_bim_2.bim_massive_certification_by_line_action').read()[0]
         if certifications:
             action['domain'] = [('budget_id', '=', self.id)]
             action['context'] = {'default_budget_id': self.id,
@@ -209,7 +206,7 @@ class BimBudget(models.Model):
             action = {
                 'type': 'ir.actions.act_window',
                 'name': 'Nueva Certificación Masiva',
-                'res_model': 'bim.massive.certification',
+                'res_model': 'bim.massive.certification.by.line',
                 'view_type': 'form',
                 'view_mode': 'form',
                 'target': 'current',
@@ -258,6 +255,7 @@ class BimBudget(models.Model):
     gantt_type = fields.Selection([('begin', 'Inicio Calculado'),
                                    ('end', 'Término Calculado'),
                                    ('time', 'Duración Calculada')], 'Programación', default='end', required=True)
+    detailed_retification_ids = fields.One2many('bim.product.rectify.detailed','budget_id',readonly=False)
 
     def action_presupuesto(self):
         self.write({'state': 'done'})
@@ -694,7 +692,8 @@ class BimBudget(models.Model):
         default = dict(default or {})
         default.update(
             code = "New",
-            name =_("%s (copy)") % (self.name or '')
+            name =_("%s (copy)") % (self.name or ''),
+            do_compute = True
         )
         new_copy = super(BimBudget, self).copy(default)
 
@@ -707,7 +706,8 @@ class BimBudget(models.Model):
                 self.recursive_create(cap.child_ids,new_copy,new_cap,cobj)
 
         #Generacion de Haberes y descuentos
-        new_copy._create_assets(new_copy.template_id)
+        if self.asset_ids:
+            new_copy._create_assets(new_copy.template_id)
 
         #Generacion de Indicadores
         if self.indicator_ids:
@@ -772,6 +772,71 @@ class BimBudget(models.Model):
                         measure.unlink()
             record.message_post(
                 body=_("Cantidades en las Partidas llevadas Cero y Mediciones Eliminadas por:  %s") % record.env.user.name)
+
+    def load_product_budget_details(self):
+        if not self.env.user.has_group('base_bim_2.group_rectify_products'):
+            raise ValidationError('No tienes permisos para rectificar productos.')
+
+        for line in self.detailed_retification_ids:
+            line.unlink()
+
+        product_obj = self.env['product.product']
+        detail_rect_obj = self.env['bim.product.rectify.detailed']
+        different_product_codes = []
+        tmp_list = []
+        same_product_codes = []
+        for concept in self.concept_ids.filtered(lambda c: c.type in ['labor','equip', 'material']):
+            tuple = concept.code + concept.name
+            if tuple not in tmp_list:
+                if concept.code == concept.product_id.default_code:
+                    tmp_list.append(tuple)
+                    same_product_codes.append([concept.type,concept.product_id])
+                else:
+                    tmp_list.append(tuple)
+                    product = product_obj.search([('default_code','=',concept.code)])
+                    if product:
+                        product_id = product
+                    else:
+                        product_id = concept.product_id
+                    different_product_codes.append([concept.type, concept.code, concept.name,product_id])
+
+        for tuple in different_product_codes:
+            type = 'M'
+            if tuple[0] == 'labor':
+                type = 'H'
+            elif tuple[0] == 'equip':
+                type = 'Q'
+            detail_rect_obj.create({
+                'budget_id': self.id,
+                'type': type,
+                'bim_product_code': tuple[1],
+                'bim_product_name': tuple[2],
+                'odoo_product_id': tuple[3].id
+            })
+
+        for tuple in same_product_codes:
+            type = 'M'
+            if tuple[0] == 'labor':
+                type = 'H'
+            elif tuple[0] == 'equip':
+                type = 'Q'
+            detail_rect_obj.create({
+                'budget_id': self.id,
+                'type': type,
+                'bim_product_code': tuple[1].default_code,
+                'bim_product_name': tuple[1].name,
+                'odoo_product_id': tuple[1].id
+            })
+        self.rectify_products_from_details()
+
+        return True
+
+    def rectify_products_from_details(self):
+        for record in self:
+            for line in record.detailed_retification_ids:
+                concepts = record.concept_ids.filtered(lambda c: c.type in ['labor','equip', 'material'] and c.code == line.bim_product_code)
+                for concept in concepts:
+                    concept.product_id = line.odoo_product_id.id
 
 
 class BimBudgetStage(models.Model):
@@ -1032,3 +1097,18 @@ class BimProductRectify(models.Model):
     date = fields.Datetime('Fecha', default=fields.Datetime.now)
     csv_file = fields.Binary('Archivo', required=True)
     filename = fields.Char('Nombre archivo')
+
+class BimProductRectifyDetailed(models.Model):
+    _name = 'bim.product.rectify.detailed'
+    _description = 'Rectificación detallada de productos en presupuesto'
+
+    budget_id = fields.Many2one('bim.budget', readonly=True)
+    bim_product_code = fields.Char(string='Código BIM', required=True, readonly=True)
+    type = fields.Selection([
+        ('H', 'MANO DE OBRA'),
+        ('Q', 'EQUIPO'),
+        ('M', 'MATERIAL')
+        ], string="Tipo", required=True, readonly=True)
+    bim_product_name = fields.Char(string='Nombre BIM', required=True, readonly=True)
+    odoo_product_id = fields.Many2one('product.product', string='Producto en Odoo', required=True, domain="[('resource_type','=',type)]")
+    odoo_product_code = fields.Char(string='Código BIM', related='odoo_product_id.default_code', readonly=True)

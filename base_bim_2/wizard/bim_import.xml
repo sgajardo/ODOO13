@@ -15,6 +15,7 @@
                     <group name="right">
                         <field name="project_id" options="{'no_create': 1, 'no_open': 1}"/>
                         <field name="create_all_products" groups="base_bim_2.group_create_product_import_budget"/>
+                        <field name="product_cost_or_price"  attrs="{'invisible': [('create_all_products', '=', False)], 'required': [('create_all_products', '=', True)]}"/>
                         <field name="product_id" options="{'no_create': 1, 'no_open': 1}"
                                attrs="{'invisible': [('create_all_products', '=', True)], 'required': [('create_all_products', '=', False)]}"/>
                     </group>
@@ -74,6 +75,7 @@
                         <group name="right">
                             <field name="project_id" options="{'no_create': 1, 'no_open': 1}"/>
                             <field name="create_all_products"/>
+                            <field name="product_cost_or_price"  attrs="{'invisible': [('create_all_products', '=', False)], 'required': [('create_all_products', '=', True)]}"/>
                             <field name="product_id" options="{'no_create': 1, 'no_open': 1}"
                                    attrs="{'invisible': [('create_all_products', '=', True)], 'required': [('create_all_products', '=', False)]}"/>
                             <field name="user_id" options="{'no_open': True}" force_save="1"/>

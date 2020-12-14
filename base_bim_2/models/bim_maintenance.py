@@ -161,11 +161,20 @@ class BimMaintenance(models.Model):
 
     def generate_paidstate(self):
         self.ensure_one()
+        order_lines = []
+        line_vals = {
+            'name': 'Mantenimiento' + self.project_id.name,
+            'price_unit': self.amount_total,
+            'quantity': 1,
+        }
+        order_lines.append((0, 0, line_vals))
+
         epaid = self.env['bim.paidstate'].create({
             'project_id': self.project_id.id,
             'amount': self.invoice_amount,
             'currency_id': self.maintenance_currency_id.id,
-            'maintenance_id': self.id
+            'maintenance_id': self.id,
+            'lines_ids': order_lines
         })
         self.state = 'invoiced'
         action = self.env.ref('base_bim_2.action_bim_paidstate')

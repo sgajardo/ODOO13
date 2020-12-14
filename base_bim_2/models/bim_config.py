@@ -13,7 +13,7 @@ class BimConfigSettings(models.TransientModel):
 
     retention_product = fields.Many2one('product.product', string='Producto Retención',
                                              related="company_id.retention_product", readonly=False)
-
+    retention = fields.Float('Retención %', related="company_id.retention", readonly=False)
     validate_stock =fields.Boolean(related="company_id.validate_stock")
     asset_template_id = fields.Many2one('bim.assets.template', related='company_id.asset_template_id', readonly=False)
     stock_location_mobile = fields.Many2one('stock.location', related='company_id.stock_location_mobile', readonly=False)

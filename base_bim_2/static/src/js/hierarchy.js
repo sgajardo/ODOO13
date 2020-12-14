@@ -8,6 +8,13 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
 
     var QWeb = core.qweb;
 
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split('base64,')[1]);
+        reader.onerror = error => reject(error);
+    });
+
     HierarchyRenderer.include({
         events: _.extend({}, HierarchyRenderer.prototype.events, {
             'click .oh_contextmenu [data-action="cert_massive"]': 'certMassive',
@@ -18,7 +25,73 @@ odoo.define('base_bim_2.Hierarchy', function (require) {
             'click .oh_contextmenu [data-action="move_down"]': 'moveRecord',
             'click .oh_contextmenu [data-action="update_concept"]': 'updateRecord',
             'click .o_bim_measures_visible': 'toggleMeasuresVisible',
+            'dragenter .oh_title': 'highlight',
+            'dragover .oh_title': 'highlight',
+            'dragleave .oh_title': 'unhighlight',
+            'drop .oh_title': 'handleDrop',
         }),
+        highlight: function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(e.currentTarget).addClass('oh_highlight');
+        },
+        unhighlight: function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(e.currentTarget).removeClass('oh_highlight');
+        },
+        handleDrop: function (e) {
+            e.originalEvent.preventDefault();
+            e.originalEvent.stopPropagation();
+            $(e.currentTarget).removeClass('oh_highlight');
+            var dt = e.originalEvent.dataTransfer;
+            var files = dt.files;
+            this.handleFiles($(e.currentTarget).find('>a'), files);
+        },
+        handleFiles: function ($a, files) {
+            var self = this;
+            var $li = $a.closest('li');
+            var concept_id = $a.data('id');
+            toBase64(files[0]).then(function (file) {
+                self.do_action({
+                    type: 'ir.actions.act_window',
+                    name: 'Importar BC3',
+                    res_model: 'bim.bc3.wizard',
+                    views: [[false, 'form']],
+                    target: 'new',
+                    context: {
+                        concept_id: concept_id,
+                        default_filename: files[0].name,
+                        default_bc3_file: file,
+                    },
+                }, {
+                    on_close: function () {
+                        if ($a && !$a.data('childs')) {
+                            $a.get()[0].dataset.childs = true;
+                            $li.find('.oh_title .fa.fa-angle-right').removeClass('fa-angle-right text-muted').addClass('fa-caret-right');
+                        }
+                        if ($li) {
+                            self.refresh_record($li);
+                        } else {
+                            var model = self.getParent().model;
+                            model.load({
+                                context: self.state.context,
+                                domain: [['id', '=', concept_id]],
+                                fields: self.state.fields,
+                                fieldsInfo: self.state.fieldsInfo,
+                                viewType: 'hierarchy',
+                                modelName: self.state.model,
+                                type: 'list',
+                            }).then(function (res_id) {
+                                var new_state = model.get(res_id);
+                                self.state.data = self.state.data.concat(new_state.data);
+                                self.renderSidebar();
+                            });
+                        }
+                    },
+                });
+            });
+        },
         start: function () {
             var self = this;
 

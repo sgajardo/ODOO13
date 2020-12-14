@@ -229,18 +229,21 @@ class BimBudgetCompare(models.TransientModel):
                                 i = measures.index(line.name) + 1
                             except ValueError:
                                 continue
-                            sheet.write(row + i, 14, line.name)
-                            sheet.write(row + i, 15, line.qty, normal_right)
-                            sheet.write(row + i, 16, line.length, normal_right)
-                            sheet.write(row + i, 17, line.width, normal_right)
-                            sheet.write(row + i, 18, line.height, normal_right)
-                            sheet.write(row + i, 19, line.amount_subtotal, normal_right)
-                            sheet.write(row + i, 24, line.name)
-                            sheet.write(row + i, 25, line.qty, normal_right)
-                            sheet.write(row + i, 26, line.length, normal_right)
-                            sheet.write(row + i, 27, line.width, normal_right)
-                            sheet.write(row + i, 28, line.height, normal_right)
-                            sheet.write(row + i, 29, line.amount_subtotal, normal_right)
+                            try:
+                                sheet.write(row + i, 14, line.name)
+                                sheet.write(row + i, 15, line.qty, normal_right)
+                                sheet.write(row + i, 16, line.length, normal_right)
+                                sheet.write(row + i, 17, line.width, normal_right)
+                                sheet.write(row + i, 18, line.height, normal_right)
+                                sheet.write(row + i, 19, line.amount_subtotal, normal_right)
+                                sheet.write(row + i, 24, line.name)
+                                sheet.write(row + i, 25, line.qty, normal_right)
+                                sheet.write(row + i, 26, line.length, normal_right)
+                                sheet.write(row + i, 27, line.width, normal_right)
+                                sheet.write(row + i, 28, line.height, normal_right)
+                                sheet.write(row + i, 29, line.amount_subtotal, normal_right)
+                            except:
+                                pass
 
                     break  # Encontré el que coincide en código, no buscaré mas...
 

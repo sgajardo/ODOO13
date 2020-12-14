@@ -15,6 +15,7 @@
                     </group>
                     <group>
                         <field name="total_type" widget="radio"/>
+                        <field name="show_amount_and_price" attrs="{'invisible': [('display_type','in',['summary','compare'])]}"/>
                         <field name="filter_ok" attrs="{'invisible': ['|',('display_type','=','summary'),('summary_type', '=','chapter')]}"/>
                         <field name="filter_type" widget="radio" attrs="{'invisible': [('filter_ok', '=',False)]}"/>
                         <field name="space_ids" domain="[('budget_id', '=', budget_id)]" options="{'no_create_edit':True}" widget="many2many_tags"

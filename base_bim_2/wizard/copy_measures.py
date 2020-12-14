@@ -18,7 +18,7 @@ class CopyMeasuresWizard(models.TransientModel):
     def _onchange_budget(self):
         return {
             'domain': {
-                'dest_concept_id': [('budget_id', '=', self.budget_id.id)] if self.budget_id else []
+                'dest_concept_id': [('budget_id', '=', self.budget_id.id),('type','=','departure')] if self.budget_id else []
             },
             'value': {
                 'dest_concept_id': self.dest_concept_id if self.dest_concept_id.budget_id == self.budget_id else None

@@ -21,7 +21,9 @@
                             type="action" string="Actualizar Precios" class="oe_highlight"/>
 
                     <button name="%(base_bim_2.bim_budget_stage_wizard_action)d" class="oe_highlight"
-                            string="Generar Etapas"  type="action"/> <!-- attrs="{'invisible': [('stage_ids', '!=', [])]}" -->
+                            string="Generar Etapas"  type="action"
+                            attrs="{'invisible': [('stage_ids', '!=', [])]}"
+                    />
                     <button name="%(base_bim_2.action_bim_ajust_budget)d" string="Modificar" class="oe_highlight" type="action"/>
 
                     <button name="print_budget_notes" string="Notas" type="object"/>
@@ -198,7 +200,7 @@
                                 <field name="incidents"/>
                             </group>
                         </page>
-                        <page name="rectify" string="Rectificar productos" groups="base_bim_2.group_rectify_products">
+<!--                        <page name="rectify" string="Rectificar productos" groups="base_bim_2.group_rectify_products">
                             <button name="rectify_products" type="object" string="Rectificar productos" class="btn-primary mt-2"/>
                             <field name="product_rectify_ids" readonly="1">
                                 <tree>
@@ -209,7 +211,30 @@
                                     <field name="csv_file" widget="binary" filename="filename"/>
                                 </tree>
                             </field>
+                        </page>-->
+
+                        <page name="rectify_detailed" string="Rectificar Productos" groups="base_bim_2.group_rectify_products">
+                            <div class="row">
+                                <div class="col-3">
+                                    <button name="load_product_budget_details" type="object" string="Cargar Productos" class="btn-primary mt-2"/>
+                                </div>
+                                <div class="col-3" attr="{'invisible': [('detailed_retification_ids','=',[])]}">
+                                    <button name="rectify_products_from_details" type="object" string="Rectificar Productos" class="btn-primary mt-2"/>
+                                </div>
+                            </div>
+
+                            <field name="detailed_retification_ids">
+                                <tree editable="bottom" create="0" decoration-danger="bim_product_code!=odoo_product_code"><!---->
+                                    <field name="budget_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="odoo_product_code" invisible="1"/>
+                                    <field name="bim_product_code"/>
+                                    <field name="bim_product_name"/>
+                                    <field name="odoo_product_id" options="{'no_create': True}"/>
+                                </tree>
+                            </field>
                         </page>
+
                         <page name="bim_budget_tools" string="Herramientas" >
                             <group>
                                 <button name="concept_quantiy_to_cero" type="object" string="Cantidad Partidas a Cero" class="btn-primary mt-2" groups="base_bim_2.group_manager_bim"

@@ -18,6 +18,7 @@ class StockPicking(models.Model):
     bim_project_id = fields.Many2one('bim.project','Obra')
     bim_space_id = fields.Many2one('bim.budget.space','Espacio')
     bim_object_id = fields.Many2one('bim.object','Objeto de Obra')
+    bim_worder_id = fields.Many2one('bim.work.order', 'Work Order')
     check_to_rewrite = fields.Boolean('Sobreescribir destino')
     invoice_guide_number = fields.Char('No. Guía Factura')
 
@@ -27,7 +28,7 @@ class StockPicking(models.Model):
         self.move_lines = False
         req = self.bim_requisition_id
         for line in req.product_ids:
-            if not line.realizado:
+            if not line.done:
                 new_line = new_lines.new({
                     'name': line.product_id.name,
                     'product_id': line.product_id.id,

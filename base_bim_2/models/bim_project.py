@@ -169,6 +169,15 @@ class bim_project(models.Model):
                 balace_surface = 0.0
             record.balace_surface = balace_surface
 
+    def compute_executed_attendance_and_cost(self):
+        for record in self:
+            executed = 0
+            cost = 0
+            for line in record.project_attendance_ids:
+                executed += line.worked_hours
+                cost += line.attendance_cost
+            record.executed_attendance = executed
+            record.attendance_cost = cost
     # Datos
     name = fields.Char('Código', translate=True, default="Nuevo", track_visibility='onchange', copy=False)
     nombre = fields.Char('Nombre', translate=True, track_visibility='onchange', copy=True)
@@ -179,7 +188,7 @@ class bim_project(models.Model):
     ticket_ids = fields.One2many('ticket.bim', 'project_id', 'Ticket')
     obs = fields.Text('Notas')
 
-    retention = fields.Float('Retención %', default=5)
+    retention = fields.Float('Retención %', default=lambda self: self.env.company.retention)
 
     image_1920 = fields.Image("Imagen", max_width=1920, max_height=1920, default=_default_image)
     image_128 = fields.Image("Image 128", max_width=128, max_height=128, store=True, default=_default_image)
@@ -194,14 +203,10 @@ class bim_project(models.Model):
     country_id = fields.Many2one('res.country', string='Pais')
     street_id = fields.Many2one('res.partner', string='Dirección')
 
-
-
     date_ini = fields.Date('Fecha Inicio', default=fields.Date.today)
     date_end = fields.Date('Fecha de Fin')
-
     date_ini_real = fields.Date('Fecha Inicio Real')
     date_end_real = fields.Date('Fecha de Fin Real')
-
 
     expedient = fields.Char('Expediente', translate=True)
     date_contract = fields.Date('Fecha Contrato', help="Fecha de contrato")
@@ -288,6 +293,9 @@ class bim_project(models.Model):
     workorder_ids = fields.One2many('bim.work.order', 'project_id', 'Ordenes de Trabajo')
     workorder_count = fields.Integer('N° Ordenes de Trabajo', compute="_compute_workorder_count")
     price_agreed_ids = fields.One2many('bim.list.price.agreed', 'project_id', string='Precios Acordados')
+    project_attendance_ids = fields.One2many('hr.attendance', 'project_id')
+    executed_attendance = fields.Float(compute='compute_executed_attendance_and_cost')
+    attendance_cost = fields.Float(compute='compute_executed_attendance_and_cost')
 
     @api.onchange('warehouse_id','stock_location_id')
     def onchange_stock(self):
@@ -431,6 +439,17 @@ class bim_project(models.Model):
                 'target': 'current',
                 'context': {'default_project_id': self.id,'default_currency_id': self.currency_id.id}
             }
+
+    def action_view_attendance(self):
+        project_attendance_ids = self.mapped('project_attendance_ids')
+        action = self.env.ref('hr_attendance.hr_attendance_action').sudo().read()[0]
+        if len(project_attendance_ids) == 0:
+            action['context'] = {'default_project_id': self.id}
+            action['views'] = [(False, 'form')]
+        else:
+            action['domain'] = [('id', 'in', project_attendance_ids.ids)]
+            action['context'] = {'default_project_id': self.id}
+        return action
 
     def action_view_requisitions(self):
         requsitions = self.env['bim.purchase.requisition'].search([('project_id','=',self.id)])

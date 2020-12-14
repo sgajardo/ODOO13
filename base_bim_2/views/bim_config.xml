@@ -149,8 +149,8 @@
                                 </div>
                                 <div class="content-group">
                                     <div class="row mt16">
-                                        <label for="retention_product" string="" class="col-lg-3 o_light_label"/>
-                                        <field name="retention_product" widget="selection"/>
+                                        <label for="retention" string="" class="col-lg-3 o_light_label"/>
+                                        <field name="retention"/>
                                     </div>
                                 </div>
                             </div>

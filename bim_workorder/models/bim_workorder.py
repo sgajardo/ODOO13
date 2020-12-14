@@ -621,6 +621,13 @@ class BimWorkorderResources(models.Model):
     departure_id = fields.Many2one('bim.concepts', string="Otra Partida", domain="[('budget_id','=',budget_id),('type','=','departure')]")
     product_id = fields.Many2one('product.product', string="Recurso adicional")
     product_type = fields.Selection(related='product_id.resource_type', string="Tipo Producto")
+    state = fields.Selection([
+        ('draft', 'Borrador'),
+        ('done', 'Aprobado'),
+        ('close', 'Terminado'),
+        ('delivered', 'Entregado'),
+        ('cancel', 'Cancelado')],
+        string='Estado', default='draft', tracking=True, related='workorder_id.state')
 
     # -------------------------------------------------------------------------
     # COMPUTE METHODS
