@@ -31,8 +31,9 @@ class BimAjustBudgetWzd(models.TransientModel):
 
     service = fields.Boolean(string="Servicios", default=False)
     functions = fields.Boolean(string="Funciones", default=False)
+    duplicate = fields.Boolean(string="Duplicar el Presupuesto", default=False)
 
-    type = fields.Selection(string="Modificar por", selection=[('percent', 'Porcentaje'), ('amount', 'Total'), ('fixed', 'Monto Fijo')],
+    type = fields.Selection(string="Modificar por", selection=[('percent', 'Porcentaje'), ('fixed', 'Monto Fijo'), ('amount', 'Total')],
                                   default='percent')
     type_ajust = fields.Selection(string="Ajustar", selection=[('quant', 'Cantidad'), ('amount', 'Precio')], default='amount')
 
@@ -48,13 +49,13 @@ class BimAjustBudgetWzd(models.TransientModel):
         self.new_amount = new_amount
 
     def load_ajust(self):
-        balance = 0.0 # Total presupuestado
         if not self.materials and not self.work_hand and not self.equipment:
             raise UserError(_("Tienes que almenos seleccionar un Concepto"))
-
-        concepts = self.env['bim.concepts'].search([('budget_id', '=', self.budget_id.id),('type', 'not in', ('chapter', 'departure'))])
-        amount_affected = 0
-        amount_unaffected = 0
+        if self.duplicate:
+           budget = self.budget_id.copy()
+        else:
+            budget = self.budget_id
+        concepts = self.env['bim.concepts'].search([('budget_id', '=', budget.id),('type', 'not in', ('chapter', 'departure'))])
         filter = []
         if self.materials:
             filter.append('material')
@@ -74,32 +75,44 @@ class BimAjustBudgetWzd(models.TransientModel):
                 else:
                     concept.quantity = concept.quantity + (concept.quantity * percent / 100)
         elif self.type == 'amount':
-            total_affected = 0.0
-            for concept in concepts_affected:
-                total_affected += concept.balance
-            factor = self.new_amount / self.amount
+            factor = 1
+            if self.amount > 0:
+                factor = self.new_amount / self.amount
             if self.new_amount <= 0:
                 raise UserError(_("El valor debe ser mayor que cero"))
             # Verificación del nuevo monto total del presupuesto
-            total_budget_after_affect = self.amount - total_affected
-            if total_budget_after_affect < self.new_amount:
-                for concept in concepts_affected:
-                    if self.type_ajust == 'amount':
-                        concept.amount_fixed = concept.amount_fixed * factor
-                    else:
-                        concept.quantity = concept.quantity * factor
-            else:
-                raise UserError(_("No se puede llegar al monto estimado"))
-        else:
-            if self.fixed <= 0:
-                raise UserError(_("El valor debe ser mayor que cero"))
             for concept in concepts_affected:
                 if self.type_ajust == 'amount':
-                    concept.amount_fixed = concept.amount_fixed + self.fixed
+                    concept.amount_fixed = concept.amount_fixed * factor
                 else:
-                    concept.quantity = concept.quantity + self.fixed
-        msg = "Presupuesto modificado a %s" % (self.budget_id.balance)
-        self.sudo().budget_id.message_post(body=msg)
+                    concept.quantity = concept.quantity * factor
+
+        else:
+            for concept in concepts_affected:
+                if self.type_ajust == 'amount':
+                    tmp = concept.amount_fixed + self.fixed
+                    concept.amount_fixed = tmp if tmp > 0 else 0
+                else:
+                    tmp = concept.quantity + self.fixed
+                    concept.quantity = tmp if tmp > 0 else 0
+        budget.update_amount()
+        msg = "Presupuesto modificado a %s" % (budget.balance)
+        budget.sudo().message_post(body=msg)
+        if self.duplicate:
+            action = self.env.ref('base_bim_2.action_bim_budget').read()[0]
+            action['views'] = [(False, "form")]
+            action['res_id'] = budget.id
+            return action
+
+    @api.onchange('type')
+    def onchange_type(self):
+        for record in self:
+            if record.type == 'amount':
+                record.type_ajust = 'amount'
+                record.materials = True
+                record.work_hand = True
+                record.equipment = True
+
 
 
 

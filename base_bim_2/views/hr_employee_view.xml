@@ -9,6 +9,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='mobile_phone']" position="after">
                     <field name="wage_bim"/>
+                    <field name="hour_cost"/>
+                    <field name="default_bim_project"/>
                 </xpath>
 
             </field>

@@ -361,6 +361,11 @@ class BimConcepts(models.Model):
     # ----------------------------------------------------------------#
     # ---------------- ONCHANGE METHODS ------------------------------#
     # ----------------------------------------------------------------#
+    @api.onchange('type')
+    def onchange_concept_type(self):
+        if self.type == 'chapter' and self.parent_id.id != False and self.parent_id.type != 'chapter':
+            raise UserError('No es posible agregar un Capítulo como hijo de otro concepto que no sea de tipo Capítulo')
+
     @api.depends('measuring_ids', 'amount_measure', 'amount_measure_cert')
     @api.onchange('measuring_ids')
     def onchange_qty(self):
@@ -956,6 +961,7 @@ class BimConceptMeasuring(models.Model):
         ('modificado_pendiente', 'Modificado Pendiente')],
         string='Característica', default='acordado', tracking=True)
     massively_certified = fields.Boolean(default=False)
+    parent_id = fields.Many2one('bim.concepts', "Padre", related='concept_id.parent_id')
 
     @api.onchange('space_id')
     def onchange_group(self):
@@ -994,6 +1000,7 @@ class BimCertificationStage(models.Model):
     amount_budget = fields.Float(string='Total pres', digits='BIM price')
     amount_certif = fields.Float(string='Total cert', digits='BIM price', compute="_compute_amount")
     stage_state = fields.Selection(related='stage_id.state', store=True, readonly=True)
+    parent_id = fields.Many2one('bim.concepts', "Padre", related='concept_id.parent_id')
 
     @api.onchange('certif_qty')
     def onchange_qty(self):

@@ -34,8 +34,10 @@
                                 <th>CÓDIGO</th>
                                 <th>CRITERIO</th>
                                 <th class="text-center">UNIDAD</th>
-                                <th class="text-center">CANTIDAD</th>
-                                <th class="text-right">PRECIO</th>
+                                <t t-if="o.show_amount_and_price">
+                                    <th class="text-center">CANTIDAD</th>
+                                    <th class="text-right">PRECIO</th>
+                                </t>
                                 <th class="text-right">IMPORTE</th>
                             </tr>
                         </thead>
@@ -51,8 +53,10 @@
                                             <td class="text-left"><i t-attf-class="fa fa-{{'percent text-success' if parent.type == 'aux' else 'th-large text-success' if parent.type == 'chapter' else 'th-list text-warning' if parent.type == 'departure' else 'edit text-info'}} mr-2 float-left"/><em><span t-field="parent.code"/></em></td>
                                             <td class="text-left"><em><span t-field="parent.name"/></em></td>
                                             <td class="text-center"><em><t t-if="parent.uom_id"><span t-field="parent.uom_id"/></t><t t-if="not parent.uom_id">-</t></em></td>
-                                            <td class="text-center"><em><span t-esc="parent.quantity"/></em></td>
-                                            <td class="text-right"><em><span t-esc="filter_cap['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                            <t t-if="o.show_amount_and_price">
+                                                <td class="text-center"><em><span t-esc="parent.quantity"/></em></td>
+                                                <td class="text-right"><em><span t-esc="filter_cap['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                            </t>
                                             <td class="text-right"><em><span t-esc="filter_cap['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
                                         </tr>
 
@@ -67,8 +71,10 @@
                                                     </td>
                                                     <td class="text-left"><span t-field="child.name"/></td>
                                                     <td class="text-center"><span t-field="child.uom_id"/></td>
-                                                    <td class="text-center"><span t-esc="filter_dep['qty']" /></td>
-                                                    <td class="text-right"><span t-esc="filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                    <t t-if="o.show_amount_and_price">
+                                                        <td class="text-center"><span t-esc="filter_dep['qty']" /></td>
+                                                        <td class="text-right"><span t-esc="filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                    </t>
                                                     <td class="text-right"><span t-esc="filter_dep['qty']*filter_dep['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                                 </tr>
                                                 <!-- PARTIDA EXTRA EN NIVEL PARTIDAS UNICAMENTE-->
@@ -81,8 +87,10 @@
                                                             </td>
                                                             <td class="text-left"><span t-field="extra.name"/></td>
                                                             <td class="text-center"><span t-field="extra.uom_id"/></td>
-                                                            <td class="text-center"><span t-esc="filter_ext['qty']" /></td>
-                                                            <td class="text-right"><span t-esc="filter_ext['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                            <t t-if="o.show_amount_and_price">
+                                                                <td class="text-center"><span t-esc="filter_ext['qty']" /></td>
+                                                                <td class="text-right"><span t-esc="filter_ext['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                            </t>
                                                             <td class="text-right"><span t-esc="filter_ext['qty']*filter_ext['price']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                                         </tr>
                                                     </t>
@@ -95,8 +103,10 @@
                                                         </td>
                                                         <td class="text-left"><span t-field="resource.name"/></td>
                                                         <td class="text-center"><span t-field="resource.uom_id"/></td>
-                                                        <td class="text-center"><span t-field="resource.quantity" /></td>
-                                                        <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                        <t t-if="o.show_amount_and_price">
+                                                            <td class="text-center"><span t-field="resource.quantity" /></td>
+                                                            <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                        </t>
                                                         <td class="text-right"><span t-field="resource.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                                     </tr>
                                                     <!-- NIVELES ADICIONALES MAX 8 -->
@@ -139,8 +149,10 @@
                                         </td>
                                         <td><em><span t-field="parent.name"/></em></td>
                                         <td class="text-center"><em><t t-if="parent.uom_id"><span t-field="parent.uom_id"/></t><t t-if="not parent.uom_id">-</t></em></td>
-                                        <td class="text-center"><em><span t-field="parent.quantity"/></em></td>
-                                        <td class="text-right"><em><span t-field="parent.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                        <t t-if="o.show_amount_and_price">
+                                            <td class="text-center"><em><span t-field="parent.quantity"/></em></td>
+                                            <td class="text-right"><em><span t-field="parent.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
+                                        </t>
                                         <td class="text-right"><em><span t-field="parent.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></em></td>
                                     </tr>
                                     <!-- PARTIDAS -->
@@ -151,8 +163,10 @@
                                             </td>
                                             <td><span t-field="child.name"/></td>
                                             <td class="text-center"><span t-field="child.uom_id"/></td>
-                                            <td class="text-center"><span t-field="child.quantity" /></td>
-                                            <td class="text-right"><span t-field="child.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                            <t t-if="o.show_amount_and_price">
+                                                <td class="text-center"><span t-field="child.quantity" /></td>
+                                                <td class="text-right"><span t-field="child.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                            </t>
                                             <td class="text-right"><span t-field="child.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                         </tr>
                                         <!-- PARTIDA EXTRA (SOLO DETALLE PARTIDAS)-->
@@ -163,8 +177,10 @@
                                                 </td>
                                                 <td class="text-left"><span t-field="extra.name"/></td>
                                                 <td class="text-center"><span t-field="extra.uom_id"/></td>
-                                                <td class="text-center"><span t-esc="extra.quantity" /></td>
-                                                <td class="text-right"><span t-field="extra.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                <t t-if="o.show_amount_and_price">
+                                                    <td class="text-center"><span t-esc="extra.quantity" /></td>
+                                                    <td class="text-right"><span t-field="extra.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                </t>
                                                 <td class="text-right"><span t-esc="extra.balance" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                             </tr>
                                         </t>
@@ -176,8 +192,10 @@
                                                 </td>
                                                 <td><span t-field="resource.name"/></td>
                                                 <td class="text-center"><span t-field="resource.uom_id"/></td>
-                                                <td class="text-center"><span t-field="resource.quantity" /></td>
-                                                <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                <t t-if="o.show_amount_and_price">
+                                                    <td class="text-center"><span t-field="resource.quantity" /></td>
+                                                    <td class="text-right"><span t-field="resource.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                                </t>
                                                 <td class="text-right"><span t-field="resource.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
                                             </tr>
                                             <!-- NIVELES ADICIONALES MAX 8 -->
@@ -309,8 +327,10 @@
             </td>
             <td><span t-field="level.name"/></td>
             <td class="text-center"><span t-field="level.uom_id"/></td>
-            <td class="text-center"><span t-field="level.quantity" /></td>
-            <td class="text-right"><span t-field="level.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+            <t t-if="o.show_amount_and_price">
+                <td class="text-center"><span t-field="level.quantity" /></td>
+                <td class="text-right"><span t-field="level.amount_compute" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+            </t>
             <td class="text-right"><span t-field="level.balance" t-field-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
         </tr>
     </template>

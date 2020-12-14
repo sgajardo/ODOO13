@@ -58,6 +58,12 @@
                         <button name="action_view_timesheets" type="object" class="oe_stat_button" icon="fa-calendar-o" groups="base_bim_2.group_employee_bim">
                             <field name="timesheet_count" widget="statinfo" string="Hojas de Tiempo"/>
                         </button>
+                         <button name="action_view_attendance" type="object" class="oe_stat_button" icon="fa-calendar" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="executed_attendance" widget="statinfo" nolabel="1"/> H/ <field name="attendance_cost" widget="monetary" nolabel="1"/></span>
+                                <span class="o_stat_text">Asistencia</span>
+                            </div>
+                        </button>
                         <button name="action_view_requisitions" type="object" class="oe_stat_button" icon="fa-shopping-basket">
                             <field name="requisition_count" widget="statinfo" string="Solicitud de Materiales"/>
                         </button>
@@ -322,11 +328,6 @@
                                 <img t-att-src="kanban_image('bim.project', 'image_128', record.id.raw_value)" t-att-alt="record.id.raw_value" class="o_image_64_contain"/>
                             </div>
 
-                            <div class="o_kanban_tags_section">
-                                <span class="oe_kanban_list_many2many">
-                                    <field name="tag_ids" options="{'color_field': 'color'}"/>
-                                </span>
-                            </div>
                             <div class="oe_kanban_details">
                                 <strong><field name="nombre"/></strong>
                                 <ul>
@@ -339,7 +340,18 @@
                                 </ul>
                                 <div name="tags"/>
                             </div>
+                            <div class="row">
+                                <div class="col-2">
 
+                                </div>
+                                <div class="col-8">
+                                    <div class="o_kanban_tags_section">
+                                        <span class="oe_kanban_list_many2many">
+                                            <field name="tag_ids"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="o_kanban_record_bottom">
                                 <div class="oe_kanban_bottom_left">
@@ -419,6 +431,7 @@
         <field name="res_model">bim.project</field>
         <field name="view_mode">kanban,tree,graph,pivot,form,activity</field>
         <field name="context">{}</field>
+        <field name="search_view_id" ref="base_bim_2.view_search_bim_project"/>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Presione para crear nuevo proyecto u obra

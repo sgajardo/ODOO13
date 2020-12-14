@@ -8,6 +8,9 @@
                   sequence="100"/>
 
         <menuitem id="menu_bim" name="BIM" parent="main_base_menu_bim" sequence="4"/>
+        <menuitem id="menu_bim_assistance" name="Asistencia Empleados" parent="menu_bim" sequence="77"
+                  action="hr_attendance.hr_attendance_action"
+        />
         <menuitem id="menu_bim_maintainer" name="Mantenedor" parent="main_base_menu_bim" sequence="90"/>
         <menuitem id="menu_bim_templates" name="Plantillas" parent="main_base_menu_bim" sequence="99"/>
 

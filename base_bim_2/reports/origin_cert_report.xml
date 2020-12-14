@@ -87,8 +87,8 @@
                                         <em><strong><span t-esc="round(current,2)"/></strong></em>
                                     </td>
                                 </tr>
-
-                                <t t-foreach="chapter.child_ids" t-as="child">
+                                 <t t-set="cert_childs" t-value="chapter.child_ids.filtered(lambda c: c.to_certify and c.balance_cert > 0)"/>
+                                <t t-foreach="cert_childs" t-as="child">
                                     <tr class="child_row">
                                         <td class="text-left">
                                             <i t-attf-class="fa fa-{{'percent text-success' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="child.code"/>

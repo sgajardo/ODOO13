@@ -34,3 +34,15 @@
 .border-bold-top {
     border-top: 0.2rem solid #ccc;
 }
+
+.oh_title {
+    border: 1px solid transparent;
+}
+
+.oh_title.oh_highlight {
+    border: 1px dashed;
+    opacity: 0.5;
+    padding: 0 0.5rem;
+    margin-left: -0.5rem;
+    border-radius: 0.5rem;
+}

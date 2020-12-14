@@ -107,6 +107,12 @@
                                 <span class="o_stat_text">Previsualizar</span>
                             </div>
                         </button> -->
+                        <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-money" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="picking_count" widget="statinfo" nolabel="1" /></span>
+                                <span class="o_stat_text">Entregas</span>
+                            </div>
+                        </button>
                         <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o" groups="base_bim_2.group_user_bim" >
                             <div class="o_form_field o_stat_info">
                                 <span class="o_stat_value"><field name="invoice_count" widget="statinfo" nolabel="1"/></span>

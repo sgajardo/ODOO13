@@ -31,3 +31,5 @@ from . import work_order
 from . import bim_list_price_agreed
 from . import ir_config_parameter
 from . import bim_massive_certification
+from . import bim_massive_certification_by_line
+from . import hr_attendance

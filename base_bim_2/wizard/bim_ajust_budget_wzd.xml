@@ -21,16 +21,19 @@
                     </group>
                     <group>
                         <group>
-                            <field name="type_ajust" widget="radio"/>
+                            <field name="type_ajust" widget="radio" attrs="{'readonly': [('type', '=', 'amount')]}"/>
 
                         </group>
                         <group>
-                            <field name="materials"/>
-                            <field name="work_hand"/>
-                            <field name="equipment"/>
+                            <field name="materials" attrs="{'readonly': [('type', '=', 'amount')]}"/>
+                            <field name="work_hand" attrs="{'readonly': [('type', '=', 'amount')]}"/>
+                            <field name="equipment" attrs="{'readonly': [('type', '=', 'amount')]}"/>
                             <field name="service" invisible="1"/>
                             <field name="functions"  invisible="1"/>
                         </group>
+                    </group>
+                    <group>
+                        <field name="duplicate"/>
                     </group>
                     <footer>
                         <button string='Aplicar' name="load_ajust" type="object" class="btn-primary"/>

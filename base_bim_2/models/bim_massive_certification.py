@@ -192,13 +192,3 @@ class BimMasCertification(models.Model):
                     concept.percent_cert = 0
                 concept.onchange_percent_certification()
 
-        # if self.env.user.has_group('virtual_account.group_virtual_account_user'):
-        #     return {
-        #         'name': _('Create Invoices'),
-        #         'view_mode': 'form',
-        #         'res_model': 'purchase.make.invoice.wizard',
-        #         'view_id': self.env.ref('virtual_account.purchase_make_invoice_wizard').id,
-        #         'type': 'ir.actions.act_window',
-        #         'context': {'default_purchase_id': self.id},
-        #         'target': 'new'
-        #     }

@@ -19,6 +19,7 @@
                                 <field name="type_update" widget="radio"/>
                             </group>
                             <group>
+                                <field name="pricelist_id" options="{'no_create_edit':True}" attrs="{'invisible': [('type_update', 'not in', ['pricelist'])], 'required': [('type_update', '=', 'pricelist')]}"/>
                                 <field name="product_id" options="{'no_create_edit':True}" attrs="{'invisible': [('type_update', 'not in', ['manual'])], 'required': [('type_update', '=', 'manual')]}"/>
                                 <field name="new_price" attrs="{'invisible': [('type_update', 'not in', ['manual'])], 'required': [('type_update', '=', 'manual')]}"/>
                             </group>

@@ -41,7 +41,7 @@ class BimTask(models.Model):
     user_resp_id = fields.Many2one('res.users', string='Responsable', track_visibility='onchange')
     date_ini = fields.Datetime('Fecha Inicio')
     date_end = fields.Datetime('Fecha de Fin')
-    load_work = fields.Integer('Horas Etimadas (H)')
+    load_work = fields.Integer('Horas Estimadas (H)')
     prog_declarada = fields.Selection( STATE_TASK , string='Prog. Declarada %', copy=False, index=True,
         track_visibility='onchange', default='0')
     prog_calculada = fields.Integer('Prog. Cálculada %',)# compute="_compute_total")

@@ -240,9 +240,24 @@ class BimWorkOrder(models.Model):
     authorized_transaction_ids = fields.Many2many('payment.transaction', compute='_compute_authorized_transaction_ids',
                                                   string='Authorized Transactions', copy=False, readonly=True)
 
+    picking_count = fields.Integer('Picking count', compute="_compute_count_pickings")
+    picking_ids = fields.One2many('stock.picking', 'bim_worder_id', 'Delivery Orders')
+
     _sql_constraints = [
         ('date_order_conditional_required', "CHECK( (state IN ('sale', 'done') AND date_order IS NOT NULL) OR state NOT IN ('sale', 'done') )", "A confirmed sales order requires a confirmation date."),
     ]
+
+    @api.depends('picking_ids')
+    def _compute_count_pickings(self):
+        for order in self:
+            order.picking_count = len(order.picking_ids)
+
+    def action_view_picking(self):
+        pickings = self.mapped('picking_ids')
+        action = self.env.ref('stock.action_picking_tree_all').read()[0]
+        action['domain'] = [('id', 'in', pickings.ids)]
+        action['context'] = {'default_project_id': self.id}
+        return action
 
     def action_view_invoices(self):
         invoices = self.mapped('move_ids')
@@ -594,6 +609,7 @@ class BimWorkOrder(models.Model):
     def _get_invoice_grouping_keys(self):
         return ['company_id', 'partner_id', 'currency_id']
 
+
     def create_invoices(self):
         invoice_obj = self.env['account.move']
         record = self
@@ -601,12 +617,17 @@ class BimWorkOrder(models.Model):
         journal = self.env.user.company_id.journal_id.id
         if not journal:
             raise UserError('No ha configurado un Diario de Ventas')
+        pickings = self.picking_ids
+        if pickings:
+            for picking in pickings:
+                for line in picking.move_ids_without_package:
+                    line.quantity_done = line.product_uom_qty
+                picking.button_validate()
         invoice_vals = {
             'type': 'out_invoice',
             'workorder_id': self.id,
             'project_id': self.project_id.id,
             'partner_id': record.partner_invoice_id.id,
-            #'partner_shipping_id': record.partner_shipping_id.id,
             'journal_id': journal,
             'currency_id': self.currency_id.id,
             'invoice_date': record.date_order,
@@ -701,6 +722,10 @@ class BimWorkOrder(models.Model):
             if tx and tx.state == 'pending' and tx.acquirer_id.provider == 'transfer':
                 tx._set_transaction_done()
                 tx.write({'is_processed': True})
+            if not self.project_id.warehouse_id:
+                raise UserError(_('The project must have a warehouse assigned'))
+            else:
+                picking = self.create_picking()
         return self.write({'state': 'done'})
 
     def action_unlock(self):
@@ -925,6 +950,41 @@ class BimWorkOrder(models.Model):
         self.ensure_one()
         return self.env.ref('sale.action_quotations_with_onboarding')
 
+    @api.model
+    def _prepare_picking(self, warehouse):
+        if not self.partner_id.property_stock_supplier.id:
+            raise UserError(_("You must set a Vendor Location for this partner %s") % self.partner_id.name)
+        location_dest_id, supplierloc = self.env['stock.warehouse']._get_partner_locations()
+        return {
+            'picking_type_id': warehouse.out_type_id.id,
+            'partner_id': self.partner_id.id,
+            'user_id': False,
+            'date': self.date_order,
+            'origin': self.name,
+            'bim_worder_id': self.id,
+            'location_id': warehouse.lot_stock_id.id,
+            'location_dest_id': location_dest_id.id,
+            'company_id': self.company_id.id,
+        }
+
+    def create_picking(self):
+        StockPicking = self.env['stock.picking']
+        for order in self:
+            if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
+                warehouse = order.project_id.warehouse_id
+                res = order._prepare_picking(warehouse)
+                picking = StockPicking.create(res)
+                moves = order.order_line._create_stock_moves(picking)
+                moves = moves.filtered(lambda x: x.state not in ('done', 'cancel'))._action_confirm()
+                seq = 0
+                for move in sorted(moves, key=lambda move: move.date_expected):
+                    seq += 5
+                    move.sequence = seq
+                moves._action_assign()
+                picking.message_post_with_view('mail.message_origin_link',
+                                               values={'self': picking, 'origin': order},
+                                               subtype_id=self.env.ref('mail.mt_note').id)
+                return picking
 
 class BimWorkOrderLine(models.Model):
     _name = 'bim.work.order.line'
@@ -1643,3 +1703,48 @@ class BimWorkOrderLine(models.Model):
             name += "\n" + pacv.with_context(lang=self.order_id.partner_id.lang).display_name
 
         return name
+
+    def _prepare_stock_moves(self, picking):
+        """ Prepare the stock moves data for one order line. This function returns a list of
+        dictionary ready to be used in stock.move's create()
+        """
+        self.ensure_one()
+        res = []
+        if self.product_id.type not in ['product', 'consu']:
+            return res
+        qty = 0.0
+        price_unit = self.price_unit
+        location_dest_id, supplierloc = self.env['stock.warehouse']._get_partner_locations()
+        template = {
+            # truncate to 2000 to avoid triggering index limit error
+            # TODO: remove index in master?
+            'name': (self.name or '')[:2000],
+            'product_id': self.product_id.id,
+            'product_uom': self.product_uom.id,
+            'date': self.order_id.date_order,
+            'location_id': self.order_id.project_id.warehouse_id.lot_stock_id.id,
+            'location_dest_id': location_dest_id.id,
+            'picking_id': picking.id,
+            'partner_id': self.order_id.partner_shipping_id.id,
+            'state': 'draft',
+            'company_id': self.order_id.company_id.id,
+            'price_unit': price_unit,
+            'picking_type_id': self.order_id.project_id.warehouse_id.int_type_id.id,
+            'origin': self.order_id.name,
+        }
+        diff_quantity = self.product_uom_qty - qty
+        if float_compare(diff_quantity, 0.0, precision_rounding=self.product_uom.rounding) > 0:
+            so_line_uom = self.product_uom
+            quant_uom = self.product_id.uom_id
+            product_uom_qty, product_uom = so_line_uom._adjust_uom_quantities(diff_quantity, quant_uom)
+            template['product_uom_qty'] = product_uom_qty
+            template['product_uom'] = product_uom.id
+            res.append(template)
+        return res
+
+    def _create_stock_moves(self, picking):
+        values = []
+        for line in self:
+            for val in line._prepare_stock_moves(picking):
+                values.append(val)
+        return self.env['stock.move'].create(values)

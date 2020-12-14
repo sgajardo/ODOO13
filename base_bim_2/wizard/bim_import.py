@@ -26,7 +26,8 @@ class BimImportTemp(models.Model):
     budget_id = fields.Many2one('bim.budget', 'Presupuesto creado', readonly=True, ondelete='cascade')
     user_id = fields.Many2one('res.users', 'Responsable', readonly=True, required=True, default=lambda self: self.env.user)
     last_row = fields.Integer('Última fila', readonly=True, track_visibility='onchange')
-
+    product_cost_or_price = fields.Selection([('price', 'Precio Venta'), ('cost', 'Costo Producto')],
+                                             string='Asignar a', default='cost')
     @api.model
     def create(self, vals):
         if vals.get('name', "New") == "New":
@@ -94,7 +95,6 @@ class BimImportTemp(models.Model):
                     continue
                 uoms[alt_name.strip()] = uom
         units_id = self.env.ref('uom.product_uom_unit').id
-        default_space = self.env.ref('base_bim_2.default_bim_budget_space')
         next_row_is_departure_note = False
         product_obj = self.env['product.product']
         formula_obj = self.env['bim.formula']
@@ -102,6 +102,10 @@ class BimImportTemp(models.Model):
         read_rows = 0
         limit = int(self.env['ir.config_parameter'].get_param('bim.import.temp.limit')) or 5000
         budget = self.budget_id
+        if budget.space_ids:
+            default_space = budget.space_ids[0]
+        else:
+            default_space = self.env.ref('base_bim_2.default_bim_budget_space')
         category = self.env.company.bim_product_category_id
         # Creamos un set de todos los conceptos "sin hijos", de modo que podamos
         # asignarle padre cuando encontremos la columna "parcial", usando el index
@@ -192,7 +196,8 @@ class BimImportTemp(models.Model):
                         'name': row[3].value,
                         'resource_type': res_type,
                         'type': 'product' if res_type == 'M' else 'service',
-                        'standard_price': float(row[11 if has_measures else 5].value),
+                        'standard_price': float(row[11 if has_measures else 5].value) if self.product_cost_or_price == 'cost' else 0,
+                        'list_price': float(row[11 if has_measures else 5].value) if self.product_cost_or_price == 'price' else 0,
                         'default_code': str(row[0].value).strip(),
                         'categ_id': category.id,
                         'uom_id': uom_id.id or units_id,
@@ -245,7 +250,10 @@ class BimImportTemp(models.Model):
                                                           'project_id': self.project_id.id,
                                                           'date_end': fields.Date.today(),
                                                           'currency_id': self.project_id.currency_id.id})
-        default_space = self.env.ref('base_bim_2.default_bim_budget_space')
+        if budget.space_ids:
+            default_space = budget.space_ids[0]
+        else:
+            default_space = self.env.ref('base_bim_2.default_bim_budget_space')
         last_row = self.last_row
         formula_obj = self.env['bim.formula']
         concept_obj = self.env['bim.concepts']
@@ -267,6 +275,7 @@ class BimImportTemp(models.Model):
         pending = ''
         rows = data.split('\n')
         for row in rows[last_row:]:
+            row = row.strip()
             read_rows += 1
             if read_rows > limit:
                 break
@@ -320,7 +329,8 @@ class BimImportTemp(models.Model):
                             'name': name,
                             'resource_type': res_type,
                             'type': 'product' if res_type == 'M' else 'service',
-                            'standard_price': price,
+                            'list_price': price if self.product_cost_or_price == 'price' else 0,
+                            'standard_price': price if self.product_cost_or_price == 'cost' else 0,
                             'default_code': code,
                             'categ_id': category.id,
                             'uom_id': uom_id.id or units_id,
@@ -433,6 +443,7 @@ class BimImportWizard(models.TransientModel):
     product_id = fields.Many2one('product.product', 'Producto por defecto', default=lambda self: self.env.ref('base_bim_2.default_product', raise_if_not_found=False))
     excel_file = fields.Binary('Archivo Excel', required=True)
     filename = fields.Char('Nombre archivo')
+    product_cost_or_price = fields.Selection([('price','Precio Venta'),('cost','Costo Producto')], string='Asignar precio', default='cost')
 
     def import_data(self):
         data = self.read([])[0]
@@ -443,6 +454,7 @@ class BimImportWizard(models.TransientModel):
             'product_id': self.product_id.id,
             'excel_file': self.excel_file,
             'filename': self.filename,
+            'product_cost_or_price': self.product_cost_or_price,
         })
         return {'type': 'ir.actions.act_window_close'}
 

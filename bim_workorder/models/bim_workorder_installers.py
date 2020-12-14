@@ -94,7 +94,7 @@ class BimWorkorderStockInstallers(models.Model):
         project = self.project_id
         company = self.env.company
         picking_type_obj = self.env['stock.picking.type']
-        location_dest_id = self.env['stock.location'].search([('usage', '=', 'customer')])
+        location_dest_id = self.env['stock.location'].search([('usage', '=', 'customer')],limit=1)
 
         if not self.picking_ids:
             raise ValidationError('No existen movimientos')

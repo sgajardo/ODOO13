@@ -43,6 +43,7 @@ class BimBudgetReportWizard(models.TransientModel):
     measures = fields.Boolean('Medición', default=True)
     images = fields.Boolean('Imágenes', default=True)
     filter_ok = fields.Boolean('Agregar Filtro')
+    show_amount_and_price = fields.Boolean('Mostrar Cantidad y Precio', default=True)
     space_ids = fields.Many2many('bim.budget.space', string='Espacios')
     object_ids = fields.Many2many('bim.object', string='Objetos de Obra')
 
@@ -216,10 +217,10 @@ class BimBudgetReportWizard(models.TransientModel):
                         if mea.space_id and mea.space_id.object_id and mea.space_id.object_id.id in object_ids:
                             qty += mea.amount_subtotal
 
-                total_aux += (dep.aux_amount_count * qty) / dep.quantity
-                total_eqp += (dep.equip_amount_count * qty) / dep.quantity
-                total_lab += (dep.labor_amount_count * qty) / dep.quantity
-                total_mat += (dep.material_amount_count * qty) / dep.quantity
+                total_aux += (dep.aux_amount_count * qty) / dep.quantity if dep.quantity > 0 else 0
+                total_eqp += (dep.equip_amount_count * qty) / dep.quantity if dep.quantity > 0 else 0
+                total_lab += (dep.labor_amount_count * qty) / dep.quantity if dep.quantity > 0 else 0
+                total_mat += (dep.material_amount_count * qty) / dep.quantity if dep.quantity > 0 else 0
         return {'MO':total_lab,'MT':total_mat,'EQ':total_eqp,'AX':total_aux}
 
     @api.model
@@ -283,7 +284,10 @@ class BimBudgetReportWizard(models.TransientModel):
                                     qty_fil += mea.amount_subtotal
                         price += child.amount_compute * qty_fil
 
-        return {'qty':qty,'price':price}
+        if price > 0:
+            return {'qty':qty,'price':price}
+        else:
+            return {'qty': 0, 'price': 0}
 
 
     @api.model
