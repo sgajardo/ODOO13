@@ -70,8 +70,9 @@ class PurchaseOrderLine(models.Model):
 
     def _prepare_stock_moves(self, picking):
         res = super(PurchaseOrderLine, self)._prepare_stock_moves(picking)
-        res[0]['workorder_departure_id'] = self.workorder_departure_id and self.workorder_departure_id.id or False
-        res[0]['workorder_resource_id'] = self.workorder_resource_id and self.workorder_resource_id.id or False
+        if res:
+            res[0]['workorder_departure_id'] = self.workorder_departure_id and self.workorder_departure_id.id or False
+            res[0]['workorder_resource_id'] = self.workorder_resource_id and self.workorder_resource_id.id or False
         return res
 
 class StockPicking(models.Model):
