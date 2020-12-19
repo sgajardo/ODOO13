@@ -84,6 +84,7 @@ class BimConcepts(models.Model):
 
     @api.depends('child_ids')
     def _get_amount_count(self):
+        _logger.info("---_get_amount_count 1---")
         for rec in self:
             aux_amount = 0
             equip_amount = 0
@@ -109,6 +110,7 @@ class BimConcepts(models.Model):
             rec.equip_amount_count = equip_amount
             rec.labor_amount_count = labor_amount
             rec.material_amount_count = material_amount
+            _logger.info("---_get_amount_count 2---")
 
     @api.depends('parent_id')
     def _get_level(self):
