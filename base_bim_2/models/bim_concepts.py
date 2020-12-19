@@ -29,7 +29,10 @@ class BimConcepts(models.Model):
     
     @api.model
     def default_get(self, default_fields):
+        _logger.info("---1---")
         values = super(BimConcepts, self).default_get(default_fields)
+        _logger.info("---2---")
+        """
         parent_id = self._context.get('default_parent_id', False)
         budget_id = self._context.get('default_budget_id', False)
         active_id = self._context.get('active_id')
@@ -55,7 +58,7 @@ class BimConcepts(models.Model):
                 # En la recarga de vista el "active_id" esta manteniendo el id del Presupuesto
                 budget = self.env['bim.budget'].browse(active_id)
                 values['budget_id'] = budget.id
-        return values
+        return values"""
 
     @api.depends('parent_id', 'type')
     def _get_valid_certification(self):
