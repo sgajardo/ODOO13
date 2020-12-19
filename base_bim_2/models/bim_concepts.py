@@ -149,6 +149,7 @@ class BimConcepts(models.Model):
         'code', 'type_cert', 'parent_id', 'update', 'parent_id.update',
         'budget_type', 'quantity_cert', 'amount_fixed_cert', 'amount_compute_cert')
     def _compute_amount_cert(self):
+        _logger.info("---_compute_amount_cert 1 ---")
         for record in self:
             balance_cert = 0
             if record.budget_type == 'certification':
@@ -156,7 +157,8 @@ class BimConcepts(models.Model):
                 balance_cert = round(record.quantity_cert * amount, 2)
                 if record.type == 'chapter':
                     balance_cert = sum(child.balance_cert for child in record.child_ids)
-            record.balance_cert = balance_cert
+            _logger.info("---_compute_amount_cert 2 ---")
+            record.balance_cert = 100
 
     @api.depends('quantity', 'type', 'amount_fixed', 'amount_compute', 'product_id', 'update')
     def _compute_amount(self):
@@ -391,11 +393,13 @@ class BimConcepts(models.Model):
     @api.depends('measuring_ids', 'amount_measure', 'amount_measure_cert')
     @api.onchange('measuring_ids')
     def onchange_qty(self):
+        _logger.info("---onchange_qty 1 ---")
         for record in self:
             if record.measuring_ids:
                 record.quantity = abs(record.amount_measure)
                 if record.type_cert == 'measure':
                     record.quantity_cert = abs(record.amount_measure_cert)
+        _logger.info("---onchange_qty 2 ---")
 
     @api.depends('certification_stage_ids', 'amount_stage_cert')
     @api.onchange('certification_stage_ids')
@@ -429,6 +433,7 @@ class BimConcepts(models.Model):
     @api.depends('code', 'parent_id', 'sequence')
     @api.onchange('type', 'code', 'sequence')
     def onchange_function(self):
+        _logger.info("---onchange_function 1 ---")
         # Inicializacion de certificacion para recurso hijo de capitulo
         if self.type in ['labor', 'equip', 'material'] and self.parent_id.type == 'chapter':
             self.type_cert = 'fixed'
@@ -475,6 +480,7 @@ class BimConcepts(models.Model):
                 afecto_cert = sum(concept.balance_cert for concept in self.budget_id.concept_ids.filtered(lambda c: c.type == 'chapter'))
                 self.quantity = afecto * 0.01
                 self.percent_cert = ((afecto_cert - self.balance_cert) / afecto) * 100
+            _logger.info("---onchange_function 2 ---")
 
     @api.onchange('product_id')
     def onchange_product(self):
