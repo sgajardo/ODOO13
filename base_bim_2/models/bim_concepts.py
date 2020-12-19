@@ -432,7 +432,7 @@ class BimConcepts(models.Model):
         if self.parent_id:
             obj = self.env['bim.concepts'].search([('parent_id', '=', self.parent_id.id)])
             last = len(obj)
-            self.code = self.parent_id.code + "." + str(last+1)""
+            self.code = self.parent_id.code + "." + str(last+1)"""
 
     @api.depends('code', 'parent_id', 'sequence')
     @api.onchange('type', 'code', 'sequence')
@@ -569,9 +569,10 @@ class BimConcepts(models.Model):
     def update_amount(self):
         for record in self:
             _logger.info('======================== ... =====================')
+            """
             #record.update = 'start'
             #record.update = 'stop'
-            """
+           
             record._compute_price()
             record._compute_amount()
             if record.to_certify:
