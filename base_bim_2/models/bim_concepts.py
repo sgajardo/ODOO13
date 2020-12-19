@@ -157,9 +157,11 @@ class BimConcepts(models.Model):
 
     @api.depends('quantity', 'type', 'amount_fixed', 'amount_compute', 'product_id', 'update')
     def _compute_amount(self):
+        _logger.info('_compute_amount! 1')
         for record in self:
             price = record.amount_fixed if (record.type in ['labor', 'equip', 'material'] or record.amount_type == 'fixed') else record.amount_compute
             record.balance = record.quantity * price
+        _logger.info('_compute_amount! 2')
 
     @api.depends(
         'child_ids.type',
@@ -171,6 +173,7 @@ class BimConcepts(models.Model):
         'child_ids.amount_compute',
         'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
+        _logger.info('_compute_price! 1')
         for record in self:
             price_pres = 0
             price_cert = 0
@@ -200,10 +203,12 @@ class BimConcepts(models.Model):
 
             record.amount_compute = price_pres
             record.amount_compute_cert = price_cert
+            _logger.info('_compute_price! 2')
 
     @api.depends('parent_id', 'child_ids', 'child_ids.amount_execute', 'type',
                  'aux_amount_count', 'equip_amount_count', 'labor_amount_count', 'material_amount_count')
     def _compute_execute(self):
+        _logger.info('_compute_execute! 1')
         stock_obj = self.env['stock.picking']
         part_obj = self.env['bim.part']
         for record in self:
@@ -263,6 +268,8 @@ class BimConcepts(models.Model):
                             execute_labor += line.price_subtotal
             else:
                 executed = sum(child.amount_execute for child in record.child_ids)
+                
+            
 
             #record.qty_execute = quantity
             record.amount_execute = executed
@@ -270,6 +277,8 @@ class BimConcepts(models.Model):
             record.amount_execute_labor = execute_labor
             record.amount_execute_material = execute_material
             record.balance_execute = execute_equip + execute_labor + execute_material
+            
+            _logger.info('_compute_execute! 2')
 
     sequence = fields.Integer('Secuencia', default=1)
     display_name = fields.Char(compute='_compute_display_name', store=True, index=True)
