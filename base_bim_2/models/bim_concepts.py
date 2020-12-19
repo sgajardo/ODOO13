@@ -32,7 +32,7 @@ class BimConcepts(models.Model):
         _logger.info("---1---")
         values = super(BimConcepts, self).default_get(default_fields)
         _logger.info("---2---")
-        """
+        
         parent_id = self._context.get('default_parent_id', False)
         budget_id = self._context.get('default_budget_id', False)
         active_id = self._context.get('active_id')
@@ -58,7 +58,7 @@ class BimConcepts(models.Model):
                 # En la recarga de vista el "active_id" esta manteniendo el id del Presupuesto
                 budget = self.env['bim.budget'].browse(active_id)
                 values['budget_id'] = budget.id
-        return values"""
+        return values
 
     @api.depends('parent_id', 'type')
     def _get_valid_certification(self):
@@ -581,8 +581,6 @@ class BimConcepts(models.Model):
         return record.attachment_ids[0].datas if record.attachment_ids else False
 
     @api.depends('gantt_type', 'child_ids', 'duration',
-                 'acs_date_start', 'acs_date_end',
-                 'parent_id.acs_date_start', 'parent_id.acs_date_end',
                  'budget_id.date_start', 'budget_id.date_end',
                  'bim_predecessor_concept_ids')
     def _compute_dates(self):
