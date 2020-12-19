@@ -7,6 +7,8 @@ from math import *
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, email_split, email_escape_char, email_re
 from odoo.tools.misc import formatLang, format_date
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class BimConcepts(models.Model):
@@ -532,12 +534,14 @@ class BimConcepts(models.Model):
 
     def update_amount(self):
         for record in self:
+            _logger.info('======================== ... =====================')
             #record.update = 'start'
             #record.update = 'stop'
+            """
             record._compute_price()
             record._compute_amount()
             if record.to_certify:
-                record._compute_amount_cert()
+                record._compute_amount_cert()"""
 
     def update_certify(self):
         for record in self:
