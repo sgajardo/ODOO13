@@ -27,6 +27,7 @@ class BimConcepts(models.Model):
     
     @api.model
     def default_get(self, default_fields):
+        import pdb; pdb.set_trace()
         values = super(BimConcepts, self).default_get(default_fields)
         parent_id = self._context.get('default_parent_id', False)
         budget_id = self._context.get('default_budget_id', False)
