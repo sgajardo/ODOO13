@@ -9,8 +9,10 @@ from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, emai
 from odoo.tools.misc import formatLang, format_date
 import logging
 _logger = logging.getLogger(__name__)
+"""
 import sys
-sys.setrecursionlimit(20000)
+sys.setrecursionlimit(10000)
+"""
 
 
 class BimConcepts(models.Model):
