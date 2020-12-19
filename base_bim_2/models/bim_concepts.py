@@ -10,7 +10,7 @@ from odoo.tools.misc import formatLang, format_date
 import logging
 _logger = logging.getLogger(__name__)
 import sys
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(20000)
 
 
 class BimConcepts(models.Model):
