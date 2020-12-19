@@ -263,6 +263,30 @@
                                 </tree>
                             </field>
                         </page>
+
+                        <page string="Ventas">
+                            <button name="update_sale_project_cost" type="object" string="Actualizar Ventas" class="btn-primary mt-2"/>
+                            <field name="sale_project_cost_ids" readonly="1">
+                                <tree>
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Costos de Obra">
+                            <button name="update_project_cost" type="object" string="Actualizar Costos Obra" class="btn-primary mt-2"/>
+                            <field name="project_cost_ids" readonly="1">
+                                <tree>
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
                     <group>
                         <field name="notes" nolabel="1" type="html" placeholder="Observaciones..."/>
@@ -292,8 +316,13 @@
                 <field name="date_ini"/>
                 <field name="date_end"/>
                 <field name="project_state"/>
-                <field name="balance"/>
                 <field name="surface"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="balance"/>
+                <field name="sale_total_project_cost"/>
+                <field name="total_project_cost"/>
+                <field name="project_profit"/>
+                <field name="project_margin"/>
                 <field name="state"/>
             </tree>
         </field>
