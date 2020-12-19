@@ -24,6 +24,7 @@ class BimConcepts(models.Model):
                 raise ValidationError(
                     "Ya existe un concepto con ese código en el presupuesto: " + str(concept.budget_id.name))"""
 
+    """
     @api.model
     def default_get(self, default_fields):
         values = super(BimConcepts, self).default_get(default_fields)
@@ -52,7 +53,7 @@ class BimConcepts(models.Model):
                 # En la recarga de vista el "active_id" esta manteniendo el id del Presupuesto
                 budget = self.env['bim.budget'].browse(active_id)
                 values['budget_id'] = budget.id
-        return values
+        return values"""
 
     @api.depends('parent_id', 'type')
     def _get_valid_certification(self):
