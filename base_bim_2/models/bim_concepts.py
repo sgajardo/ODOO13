@@ -9,6 +9,8 @@ from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, emai
 from odoo.tools.misc import formatLang, format_date
 import logging
 _logger = logging.getLogger(__name__)
+import sys
+sys.setrecursionlimit(10000)
 
 
 class BimConcepts(models.Model):
@@ -31,7 +33,7 @@ class BimConcepts(models.Model):
     def default_get(self, default_fields):
         _logger.info("---1---")
         values = super(BimConcepts, self).default_get(default_fields)
-        _logger.info("---2---")
+        
         
         parent_id = self._context.get('default_parent_id', False)
         budget_id = self._context.get('default_budget_id', False)
@@ -58,6 +60,7 @@ class BimConcepts(models.Model):
                 # En la recarga de vista el "active_id" esta manteniendo el id del Presupuesto
                 budget = self.env['bim.budget'].browse(active_id)
                 values['budget_id'] = budget.id
+        _logger.info("---2---")
         return values
 
     @api.depends('parent_id', 'type')
