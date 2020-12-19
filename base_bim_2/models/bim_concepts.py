@@ -1063,6 +1063,7 @@ class BimPredecessorConcept(models.Model):
 
     @api.constrains('name')
     def _check_loops(self):
+        _logger.info("---_check_loops 1 ---")
         def in_loop(concept, predecessors, verified):
             for pred in predecessors:
                 if pred.name in verified:
@@ -1105,3 +1106,4 @@ class BimPredecessorConcept(models.Model):
                 raise ValidationError('No puede escoger un concepto padre')
             if record.name in get_childs(record.concept_id):
                 raise ValidationError('No puede escoger un concepto hijo')
+        _logger.info("---_check_loops 2 ---")
