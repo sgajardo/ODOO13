@@ -427,10 +427,12 @@ class BimConcepts(models.Model):
 
     @api.onchange('parent_id')
     def onchange_parent(self):
+        self.code = "MO"
+        """
         if self.parent_id:
             obj = self.env['bim.concepts'].search([('parent_id', '=', self.parent_id.id)])
             last = len(obj)
-            self.code = self.parent_id.code + "." + str(last+1)
+            self.code = self.parent_id.code + "." + str(last+1)""
 
     @api.depends('code', 'parent_id', 'sequence')
     @api.onchange('type', 'code', 'sequence')
@@ -486,6 +488,7 @@ class BimConcepts(models.Model):
 
     @api.onchange('product_id')
     def onchange_product(self):
+        _logger.info("--- onchange_product 1---")
         if self.type in ['labor', 'equip', 'material']:
             self.name = self.product_id.name
             self.code = self.product_id.default_code or self.code
@@ -508,6 +511,8 @@ class BimConcepts(models.Model):
                 else:
                     self.amount_fixed = self.product_id.lst_price
             self.uom_id = self.product_id.uom_id.id
+            
+            _logger.info("--- onchange_product 2---")
 
     @api.depends('percent_cert', 'type_cert', 'amount_measure_cert', 'quantity_cert')
     @api.onchange('quantity_cert', 'type_cert')
@@ -543,6 +548,7 @@ class BimConcepts(models.Model):
     # --------------------------------------------------------------#
 
     def name_get(self):
+        _logger.info("--- name_get 1---")
         reads = self.read(['name', 'code'])
         res = []
         for record in reads:
@@ -550,6 +556,7 @@ class BimConcepts(models.Model):
             if record['code']:
                 name = record['code'] + ' ' + name
             res.append((record['id'], name))
+        _logger.info("--- name_get 2---")
         return res
 
     def write(self, vals):
