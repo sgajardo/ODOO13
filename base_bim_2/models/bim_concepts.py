@@ -729,12 +729,16 @@ class BimConcepts(models.Model):
                 rec.filter_product_domain_aux = 'Q'
 
     def recursive_amount(self, concept, parent, amount=None):
+        _logger.info("---recursive_amount 1---")
         amount = amount is None and concept.balance or amount or 0.0
         if parent.type == 'departure':
             amount_partial = amount * parent.quantity
+            _logger.info("---recursive_amount 2---")
             return self.recursive_amount(concept, parent.parent_id, amount_partial)
         else:
+            _logger.info("---recursive_amount 2 ---")
             return amount * parent.quantity
+            
 
     def _get_value(self, quantity, product):
         ''' Este metodo Retorna Retorna el Monto
@@ -750,12 +754,16 @@ class BimConcepts(models.Model):
         return float(value)
 
     def recursive_quantity(self, resource, parent, qty=None):
+        _logger.info("---recursive_quantity 1 ---")
         qty = qty is None and resource.quantity_cert or qty
         if parent.type == 'departure':
             qty_partial = qty * parent.quantity_cert
+            _logger.info("---recursive_quantity 2 ---")
             return self.recursive_quantity(resource, parent.parent_id, qty_partial)
         else:
+            _logger.info("---recursive_quantity 2 ---")
             return qty * parent.quantity_cert
+            
 
     def set_recursive_quantity_cert(self, child_ids, qty_cert):
         ''' Este metodo actualiza los Hijos de Partidas
