@@ -658,18 +658,22 @@ class BimConcepts(models.Model):
             _logger.info('_compute_dates 2 !')
 
     def _inverse_date_start(self):
+        _logger.info("---_inverse_date_start 1---")
         for record in self:
             if not record.budget_id.do_compute:
                 continue
             if record.acs_date_start and record.duration:
                 record.acs_date_end = record.acs_date_start + timedelta(days=record.duration)
+            _logger.info("---_inverse_date_start 2---")
 
     def _inverse_date_end(self):
+        _logger.info("---_inverse_date_end 1---")
         for record in self:
             if not record.budget_id.do_compute:
                 continue
             if record.acs_date_end and record.duration:
                 record.acs_date_start = record.acs_date_end - timedelta(days=record.duration)
+        _logger.info("---_inverse_date_end 2---")
 
     @api.depends('child_ids', 'acs_date_start', 'acs_date_end')
     def _compute_duration(self):
