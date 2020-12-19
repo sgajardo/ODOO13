@@ -581,6 +581,8 @@ class BimConcepts(models.Model):
         return record.attachment_ids[0].datas if record.attachment_ids else False
 
     @api.depends('gantt_type', 'child_ids', 'duration',
+                 'acs_date_start', 'acs_date_end',
+                 'parent_id.acs_date_start', 'parent_id.acs_date_end',
                  'budget_id.date_start', 'budget_id.date_end',
                  'bim_predecessor_concept_ids')
     def _compute_dates(self):
