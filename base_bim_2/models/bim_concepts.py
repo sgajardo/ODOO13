@@ -587,7 +587,7 @@ class BimConcepts(models.Model):
                  'bim_predecessor_concept_ids')
     def _compute_dates(self):
         today = fields.Date.today()
-        _logger.info('_compute_dates !')
+        _logger.info('_compute_dates 1 !')
         
         for record in self:
             if record.type not in ['chapter', 'departure']:
@@ -623,6 +623,7 @@ class BimConcepts(models.Model):
             else:
                 record.acs_date_start = date_start or min([d for d in record.child_ids.mapped('acs_date_start') if d], default=today)
                 record.acs_date_end = date_end or max([d for d in record.child_ids.mapped('acs_date_end') if d], default=today)
+            _logger.info('_compute_dates 2 !')
 
     def _inverse_date_start(self):
         for record in self:
