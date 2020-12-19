@@ -587,6 +587,8 @@ class BimConcepts(models.Model):
                  'bim_predecessor_concept_ids')
     def _compute_dates(self):
         today = fields.Date.today()
+        _logger.info('_compute_dates !')
+        """
         for record in self:
             if record.type not in ['chapter', 'departure']:
                 record.acs_date_start = record.parent_id.acs_date_start
@@ -604,7 +606,7 @@ class BimConcepts(models.Model):
                 elif pred.pred_type == 'sf':
                     date_end = pred.name.acs_date_start + timedelta(days=pred.difference)
                 elif pred.pred_type == 'ss':
-                    date_start = pred.name.acs_date_start + timedelta(days=pred.difference)
+                    date_start = pred.name.acs_date_start + timedelta(days=pred.difference)"""
 
             if date_start or date_end:
                 if not date_end:
