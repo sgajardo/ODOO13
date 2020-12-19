@@ -177,9 +177,12 @@ class BimConcepts(models.Model):
         'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
         _logger.info('_compute_price! 1')
+        
         for record in self:
             price_pres = 0
             price_cert = 0
+            
+            """
 
             # Presupuesto
             if record.type in ['labor', 'equip', 'material', 'aux'] or record.amount_type == 'fixed':
@@ -203,9 +206,10 @@ class BimConcepts(models.Model):
                     else:
                         price_cert = price_pres if record.type in ['departure', 'aux'] else sum(l.balance_cert for l in record.child_ids)
                     record.set_qty_cert_child()
-
-            record.amount_compute = price_pres
-            record.amount_compute_cert = price_cert
+            """
+            record.amount_compute = 1
+            record.amount_compute_cert = 2
+           
             _logger.info('_compute_price! 2')
 
     @api.depends('parent_id', 'child_ids', 'child_ids.amount_execute', 'type',
