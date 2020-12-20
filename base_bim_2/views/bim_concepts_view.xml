@@ -238,7 +238,6 @@
                             <field name="gantt_type" invisible="1"/>
                             <field name="export_tmp_id" invisible="1"/>
                             <field name="type" attrs="{'readonly':[('parent_id','=',False)]}"/>
-<!--
                             <field name="acs_date_start"
                                    attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])],
                                            'required': [('gantt_type', 'in', ['end', 'time'])],
@@ -256,7 +255,6 @@
                             <field name="duration" string="Duración"
                                    attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])]}"
                                    help="Duración Máxima en Días"/>
--->
                             <field name="hito" attrs="{'invisible': [('type','!=','departure')]}"/>
                             <field name="available" attrs="{'invisible': [('type','not in', ['labor', 'equip'])]}"/>
                             <field name="subcon"/>
