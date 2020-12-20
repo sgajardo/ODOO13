@@ -335,8 +335,6 @@
                                     <field name="concept_id" invisible="1"/>
                                     <field name="budget_id" invisible="1"/>
                                     <field name="stage_state" readonly="1"/>
-                                    <!-- <button name="action_next" string="Proximo estado" type="object" icon="fa-forward text-primary" attrs="{'invisible': [('stage_state','in',['cancel','approved'])]}"/>
-                                    <button name="action_cancel" string="Cancelar" type="object" icon="fa-times-circle text-danger" attrs="{'invisible': [('stage_state','=','cancel')]}"/>  -->
                                 </tree>
                             </field>
                         </page>
@@ -355,6 +353,7 @@
                             </field>
                         </page>
 
+<!--
                         <page name="execute" string="Ejecución" attrs="{'invisible': [('type','!=','departure')]}">
                             <group>
                                 <group string="Presupuesto" attrs="{'invisible':[('type','!=','departure')]}">
@@ -364,15 +363,9 @@
                                 </group>
                             </group>
                         </page>
+-->
                     </notebook>
                 </sheet>
-<!--
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="activity_ids" widget="mail_activity"/>
-                    <field name="message_ids" widget="mail_thread"/>
-                </div>
--->
             </form>
         </field>
     </record>
