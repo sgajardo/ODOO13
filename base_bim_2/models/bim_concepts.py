@@ -7,12 +7,6 @@ from math import *
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, email_split, email_escape_char, email_re
 from odoo.tools.misc import formatLang, format_date
-import logging
-_logger = logging.getLogger(__name__)
-"""
-import sys
-sys.setrecursionlimit(10000)
-"""
 
 
 class BimConcepts(models.Model):
@@ -30,13 +24,9 @@ class BimConcepts(models.Model):
                 raise ValidationError(
                     "Ya existe un concepto con ese código en el presupuesto: " + str(concept.budget_id.name))"""
 
-    
     @api.model
     def default_get(self, default_fields):
-        _logger.info("---1---")
         values = super(BimConcepts, self).default_get(default_fields)
-        
-        
         parent_id = self._context.get('default_parent_id', False)
         budget_id = self._context.get('default_budget_id', False)
         active_id = self._context.get('active_id')
@@ -62,7 +52,6 @@ class BimConcepts(models.Model):
                 # En la recarga de vista el "active_id" esta manteniendo el id del Presupuesto
                 budget = self.env['bim.budget'].browse(active_id)
                 values['budget_id'] = budget.id
-        _logger.info("---2---")
         return values
 
     @api.depends('parent_id', 'type')
@@ -84,7 +73,6 @@ class BimConcepts(models.Model):
 
     @api.depends('child_ids')
     def _get_amount_count(self):
-        _logger.info("---_get_amount_count 1---")
         for rec in self:
             aux_amount = 0
             equip_amount = 0
@@ -110,7 +98,6 @@ class BimConcepts(models.Model):
             rec.equip_amount_count = equip_amount
             rec.labor_amount_count = labor_amount
             rec.material_amount_count = material_amount
-            _logger.info("---_get_amount_count 2---")
 
     @api.depends('parent_id')
     def _get_level(self):
@@ -153,7 +140,6 @@ class BimConcepts(models.Model):
         'code', 'type_cert', 'parent_id', 'update', 'parent_id.update',
         'budget_type', 'quantity_cert', 'amount_fixed_cert', 'amount_compute_cert')
     def _compute_amount_cert(self):
-        _logger.info("---_compute_amount_cert 1 ---")
         for record in self:
             balance_cert = 0
             if record.budget_type == 'certification':
@@ -161,16 +147,13 @@ class BimConcepts(models.Model):
                 balance_cert = round(record.quantity_cert * amount, 2)
                 if record.type == 'chapter':
                     balance_cert = sum(child.balance_cert for child in record.child_ids)
-            _logger.info("---_compute_amount_cert 2 ---")
-            record.balance_cert = 100
+            record.balance_cert = balance_cert
 
     @api.depends('quantity', 'type', 'amount_fixed', 'amount_compute', 'product_id', 'update')
     def _compute_amount(self):
-        _logger.info('_compute_amount! 1')
         for record in self:
             price = record.amount_fixed if (record.type in ['labor', 'equip', 'material'] or record.amount_type == 'fixed') else record.amount_compute
             record.balance = record.quantity * price
-        _logger.info('_compute_amount! 2')
 
     @api.depends(
         'child_ids.type',
@@ -182,13 +165,9 @@ class BimConcepts(models.Model):
         'child_ids.amount_compute',
         'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
-        _logger.info('_compute_price! 1')
-        
         for record in self:
             price_pres = 0
             price_cert = 0
-            
-            """
 
             # Presupuesto
             if record.type in ['labor', 'equip', 'material', 'aux'] or record.amount_type == 'fixed':
@@ -212,16 +191,13 @@ class BimConcepts(models.Model):
                     else:
                         price_cert = price_pres if record.type in ['departure', 'aux'] else sum(l.balance_cert for l in record.child_ids)
                     record.set_qty_cert_child()
-            """
-            record.amount_compute = 1
-            record.amount_compute_cert = 2
-           
-            _logger.info('_compute_price! 2')
+
+            record.amount_compute = price_pres
+            record.amount_compute_cert = price_cert
 
     @api.depends('parent_id', 'child_ids', 'child_ids.amount_execute', 'type',
                  'aux_amount_count', 'equip_amount_count', 'labor_amount_count', 'material_amount_count')
     def _compute_execute(self):
-        _logger.info('_compute_execute! 1')
         stock_obj = self.env['stock.picking']
         part_obj = self.env['bim.part']
         for record in self:
@@ -281,8 +257,6 @@ class BimConcepts(models.Model):
                             execute_labor += line.price_subtotal
             else:
                 executed = sum(child.amount_execute for child in record.child_ids)
-                
-            
 
             #record.qty_execute = quantity
             record.amount_execute = executed
@@ -290,8 +264,6 @@ class BimConcepts(models.Model):
             record.amount_execute_labor = execute_labor
             record.amount_execute_material = execute_material
             record.balance_execute = execute_equip + execute_labor + execute_material
-            
-            _logger.info('_compute_execute! 2')
 
     sequence = fields.Integer('Secuencia', default=1)
     display_name = fields.Char(compute='_compute_display_name', store=True, index=True)
@@ -397,13 +369,11 @@ class BimConcepts(models.Model):
     @api.depends('measuring_ids', 'amount_measure', 'amount_measure_cert')
     @api.onchange('measuring_ids')
     def onchange_qty(self):
-        _logger.info("---onchange_qty 1 ---")
         for record in self:
             if record.measuring_ids:
                 record.quantity = abs(record.amount_measure)
                 if record.type_cert == 'measure':
                     record.quantity_cert = abs(record.amount_measure_cert)
-        _logger.info("---onchange_qty 2 ---")
 
     @api.depends('certification_stage_ids', 'amount_stage_cert')
     @api.onchange('certification_stage_ids')
@@ -429,17 +399,14 @@ class BimConcepts(models.Model):
 
     @api.onchange('parent_id')
     def onchange_parent(self):
-        self.code = "MO"
-        """
         if self.parent_id:
             obj = self.env['bim.concepts'].search([('parent_id', '=', self.parent_id.id)])
             last = len(obj)
-            self.code = self.parent_id.code + "." + str(last+1)"""
+            self.code = self.parent_id.code + "." + str(last+1)
 
     @api.depends('code', 'parent_id', 'sequence')
     @api.onchange('type', 'code', 'sequence')
     def onchange_function(self):
-        _logger.info("---onchange_function 1 ---")
         # Inicializacion de certificacion para recurso hijo de capitulo
         if self.type in ['labor', 'equip', 'material'] and self.parent_id.type == 'chapter':
             self.type_cert = 'fixed'
@@ -486,11 +453,9 @@ class BimConcepts(models.Model):
                 afecto_cert = sum(concept.balance_cert for concept in self.budget_id.concept_ids.filtered(lambda c: c.type == 'chapter'))
                 self.quantity = afecto * 0.01
                 self.percent_cert = ((afecto_cert - self.balance_cert) / afecto) * 100
-            _logger.info("---onchange_function 2 ---")
 
     @api.onchange('product_id')
     def onchange_product(self):
-        _logger.info("--- onchange_product 1---")
         if self.type in ['labor', 'equip', 'material']:
             self.name = self.product_id.name
             self.code = self.product_id.default_code or self.code
@@ -513,8 +478,6 @@ class BimConcepts(models.Model):
                 else:
                     self.amount_fixed = self.product_id.lst_price
             self.uom_id = self.product_id.uom_id.id
-            
-            _logger.info("--- onchange_product 2---")
 
     @api.depends('percent_cert', 'type_cert', 'amount_measure_cert', 'quantity_cert')
     @api.onchange('quantity_cert', 'type_cert')
@@ -550,7 +513,6 @@ class BimConcepts(models.Model):
     # --------------------------------------------------------------#
 
     def name_get(self):
-        _logger.info("--- name_get 1---")
         reads = self.read(['name', 'code'])
         res = []
         for record in reads:
@@ -558,7 +520,6 @@ class BimConcepts(models.Model):
             if record['code']:
                 name = record['code'] + ' ' + name
             res.append((record['id'], name))
-        _logger.info("--- name_get 2---")
         return res
 
     def write(self, vals):
@@ -570,15 +531,12 @@ class BimConcepts(models.Model):
 
     def update_amount(self):
         for record in self:
-            _logger.info('======================== ... =====================')
-            """
             #record.update = 'start'
             #record.update = 'stop'
-           
             record._compute_price()
             record._compute_amount()
             if record.to_certify:
-                record._compute_amount_cert()"""
+                record._compute_amount_cert()
 
     def update_certify(self):
         for record in self:
@@ -621,8 +579,6 @@ class BimConcepts(models.Model):
                  'bim_predecessor_concept_ids')
     def _compute_dates(self):
         today = fields.Date.today()
-        _logger.info('_compute_dates 1 !')
-        
         for record in self:
             if record.type not in ['chapter', 'departure']:
                 record.acs_date_start = record.parent_id.acs_date_start
@@ -657,25 +613,20 @@ class BimConcepts(models.Model):
             else:
                 record.acs_date_start = date_start or min([d for d in record.child_ids.mapped('acs_date_start') if d], default=today)
                 record.acs_date_end = date_end or max([d for d in record.child_ids.mapped('acs_date_end') if d], default=today)
-            _logger.info('_compute_dates 2 !')
 
     def _inverse_date_start(self):
-        _logger.info("---_inverse_date_start 1---")
         for record in self:
             if not record.budget_id.do_compute:
                 continue
             if record.acs_date_start and record.duration:
                 record.acs_date_end = record.acs_date_start + timedelta(days=record.duration)
-            _logger.info("---_inverse_date_start 2---")
 
     def _inverse_date_end(self):
-        _logger.info("---_inverse_date_end 1---")
         for record in self:
             if not record.budget_id.do_compute:
                 continue
             if record.acs_date_end and record.duration:
                 record.acs_date_start = record.acs_date_end - timedelta(days=record.duration)
-        _logger.info("---_inverse_date_end 2---")
 
     @api.depends('child_ids', 'acs_date_start', 'acs_date_end')
     def _compute_duration(self):
@@ -735,16 +686,12 @@ class BimConcepts(models.Model):
                 rec.filter_product_domain_aux = 'Q'
 
     def recursive_amount(self, concept, parent, amount=None):
-        _logger.info("---recursive_amount 1---")
         amount = amount is None and concept.balance or amount or 0.0
         if parent.type == 'departure':
             amount_partial = amount * parent.quantity
-            _logger.info("---recursive_amount 2---")
             return self.recursive_amount(concept, parent.parent_id, amount_partial)
         else:
-            _logger.info("---recursive_amount 2 ---")
             return amount * parent.quantity
-            
 
     def _get_value(self, quantity, product):
         ''' Este metodo Retorna Retorna el Monto
@@ -760,16 +707,12 @@ class BimConcepts(models.Model):
         return float(value)
 
     def recursive_quantity(self, resource, parent, qty=None):
-        _logger.info("---recursive_quantity 1 ---")
         qty = qty is None and resource.quantity_cert or qty
         if parent.type == 'departure':
             qty_partial = qty * parent.quantity_cert
-            _logger.info("---recursive_quantity 2 ---")
             return self.recursive_quantity(resource, parent.parent_id, qty_partial)
         else:
-            _logger.info("---recursive_quantity 2 ---")
             return qty * parent.quantity_cert
-            
 
     def set_recursive_quantity_cert(self, child_ids, qty_cert):
         ''' Este metodo actualiza los Hijos de Partidas
@@ -1100,7 +1043,6 @@ class BimPredecessorConcept(models.Model):
 
     @api.constrains('name')
     def _check_loops(self):
-        _logger.info("---_check_loops 1 ---")
         def in_loop(concept, predecessors, verified):
             for pred in predecessors:
                 if pred.name in verified:
@@ -1143,4 +1085,3 @@ class BimPredecessorConcept(models.Model):
                 raise ValidationError('No puede escoger un concepto padre')
             if record.name in get_childs(record.concept_id):
                 raise ValidationError('No puede escoger un concepto hijo')
-        _logger.info("---_check_loops 2 ---")
