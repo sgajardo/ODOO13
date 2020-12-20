@@ -141,13 +141,10 @@
                     <button name="%(copy_measures_wizard_action)d" type="action" context="{'default_concept_id': id}"
                             string="Copiar mediciones" attrs="{'invisible': [('measuring_ids','=',[])]}"/>
                 </header>
-<!--
                 <div class="alert alert-danger" role="alert" attrs="{'invisible': ['|',('type', '!=', 'departure'),('amount_measure','>=', 0)]}">
                     <strong>ADVERTENCIA</strong>: El total de las mediciones no puede ser negativo.
                 </div>
--->
                 <sheet>
-<!--
                      <div class="oe_button_box" name="button_box">
                         <button name="action_view_equip" type="object" class="oe_stat_button" icon="fa-gears" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('equip_amount_count', '=', 0)]}">
                             <div class="o_form_field o_stat_info">
@@ -200,7 +197,6 @@
                             string="Actualizar Importe">
                         </button>
                     </div>
--->
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('type','!=','aux')]}">
                         <strong>USO FUNCIONES</strong>: Para las funciones se usará
                                     el simbolo de (%) en el código, y solo deberá introducir en
