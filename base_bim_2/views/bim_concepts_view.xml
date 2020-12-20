@@ -280,7 +280,6 @@
 -->
                             <field name="id_bim"/>
                       </group>
-<!--
                        <group string="Certificación" attrs="{'invisible':['|',('budget_type','!=','certification'),('to_certify','=',False)]}">
                             <field name="type_cert"  widget="radio" attrs="{'invisible':['|','|',('to_certify','=',False),('auto_certify','=',True),('manual_certify','=',True)]}"/>
                             <field name="amount_fixed_cert" attrs="{'invisible':['|',('type_cert','!=','fixed'),('to_certify','=',False)]}" widget="monetary"/>
@@ -289,7 +288,6 @@
                             <field name="percent_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="balance_cert" widget="monetary"/>
                       </group>
--->
 <!--
                        <group string="Ejecutado" name="execute_mode" attrs="{'invisible':['|',('budget_type','!=','execution'),('type','!=','departure')]}">
                             <field name="amount_execute" string="Precio Ejecutado" widget="monetary"/>
