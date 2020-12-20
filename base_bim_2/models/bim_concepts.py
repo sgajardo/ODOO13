@@ -162,7 +162,6 @@ class BimConcepts(models.Model):
         'child_ids.currency_id',
         'child_ids.product_id',
         'child_ids.amount_fixed',
-        #~ 'child_ids.amount_compute',
         'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
         for record in self:
