@@ -266,9 +266,7 @@
                             <field name="product_id" domain="[('resource_type', 'in', [filter_product_domain,filter_product_domain_aux])]" options="{'no_create': True, 'no_edit': True}"
                                    attrs="{'invisible':['|',('type','=',False),('type','not in',['labor','equip','material'])],'required':[('type','in',['labor','equip','material'])]}"/>
                             <field name="amount_type"  widget="radio" attrs="{'invisible':[('type','not in',['chapter','departure'])]}"/>
-<!--
                             <field name="amount_fixed" attrs="{'invisible':[('amount_type','in',['compute','locked']),('type','in',['chapter','departure'])]}" widget="monetary"/>
--->
 <!--
                             <field name="amount_compute" attrs="{'invisible':['|',('amount_type','=','fixed'),('type','not in',['chapter','departure'])]}" widget="monetary"/>
 -->
