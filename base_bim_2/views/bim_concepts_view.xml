@@ -333,7 +333,10 @@
                         </page>
 -->
 
+<!--
                         <page name="measuring" string="Medición" attrs="{'invisible': ['|',('type','!=','departure'),'&amp;',('budget_type','!=','budget'),('type_cert','!=','measure')]}">
+-->
+                        <page name="measuring" string="Medición">
                             <field name="measuring_ids">
                                 <tree editable="bottom" decoration-bf="stage_state =='process'" decoration-danger="stage_state =='cancel'" decoration-muted="stage_state =='draft'">
                                     <field name="space_id" domain="[('budget_id', '=', budget_id)]" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}" required="1"/>
