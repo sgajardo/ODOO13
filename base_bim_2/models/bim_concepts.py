@@ -336,7 +336,7 @@ class BimConcepts(models.Model):
     # Ejecucion
     amount_execute = fields.Float("Precio Ejec", digits='BIM price')
     qty_execute = fields.Float("Cant Ejec",  digits='BIM qty')  # compute="_compute_execute",
-    balance_execute = fields.Monetary(string="Importe Ejec", store=True)
+    balance_execute = fields.Monetary(string="Importe Ejec")
     amount_execute_equip = fields.Monetary('Ejecutado equipos')
     amount_execute_labor = fields.Monetary('Ejecutado mano de obra')
     amount_execute_material = fields.Monetary('Ejecutado material')
