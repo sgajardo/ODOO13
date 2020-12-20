@@ -178,6 +178,29 @@ class bim_project(models.Model):
                 cost += line.attendance_cost
             record.executed_attendance = executed
             record.attendance_cost = cost
+
+    def compute_total_project_cost(self):
+        for record in self:
+            total = 0
+            for line in record.project_cost_ids:
+                total += line.amount
+            record.total_project_cost = total
+
+    def compute_sale_total_project_cost(self):
+        for record in self:
+            total = 0
+            for line in record.sale_project_cost_ids:
+                total += line.amount
+            record.sale_total_project_cost = total
+
+    def compute_project_profit(self):
+        for record in self:
+            record.project_profit = record.sale_total_project_cost - record.total_project_cost
+
+    def compute_project_margin(self):
+        for record in self:
+            record.project_margin = (1 - (record.total_project_cost / record.sale_total_project_cost)) * 100 if record.sale_total_project_cost > 0 else 0
+
     # Datos
     name = fields.Char('Código', translate=True, default="Nuevo", track_visibility='onchange', copy=False)
     nombre = fields.Char('Nombre', translate=True, track_visibility='onchange', copy=True)
@@ -295,7 +318,13 @@ class bim_project(models.Model):
     price_agreed_ids = fields.One2many('bim.list.price.agreed', 'project_id', string='Precios Acordados')
     project_attendance_ids = fields.One2many('hr.attendance', 'project_id')
     executed_attendance = fields.Float(compute='compute_executed_attendance_and_cost')
-    attendance_cost = fields.Float(compute='compute_executed_attendance_and_cost')
+    attendance_cost = fields.Monetary(compute='compute_executed_attendance_and_cost')
+    project_cost_ids = fields.One2many('bim.project.cost', 'project_id', readonly=True)
+    sale_project_cost_ids = fields.One2many('bim.project.sale', 'project_id', readonly=True)
+    total_project_cost = fields.Monetary(string='Costo Obra', compute='compute_total_project_cost')
+    sale_total_project_cost = fields.Monetary(string='Ventas', compute='compute_sale_total_project_cost')
+    project_profit = fields.Monetary(string='Beneficio', compute='compute_project_profit')
+    project_margin = fields.Float(string='Margen %', compute='compute_project_margin')
 
     @api.onchange('warehouse_id','stock_location_id')
     def onchange_stock(self):
@@ -588,6 +617,66 @@ class bim_project(models.Model):
         action['context'] = {'default_project_id': self.id}
         return action
 
+    def update_project_cost(self):
+        for line in self.project_cost_ids:
+            line.unlink()
+        #Creando líneas para costos de Asistencia
+        total = 0
+        cost_obj = self.env['bim.project.cost']
+        for attendance in self.project_attendance_ids:
+            total += attendance.attendance_cost
+        if total > 0:
+            cost_obj.create({
+                'project_id': self.id,
+                'type': 'attendance',
+                'amount': total
+            })
+        ##Creando líneas para costos de Facturacion
+        total = 0
+        invoice_lines = self.env['account.move.line'].search(
+            [('analytic_account_id', '=', self.analytic_id.id), ('move_id.type', '=', 'in_invoice'), ('product_id', '!=', False)])
+        for line in invoice_lines:
+            total += line.price_total
+        if total > 0:
+            cost_obj.create({
+                'project_id': self.id,
+                'type': 'purchase_invo',
+                'amount': total
+            })
+        total = 0
+        for budget in self.budget_ids:
+            for concept in budget.concept_ids.filtered(lambda c: c.type == 'departure'):
+                for part in concept.part_ids.filtered(lambda c: c.state == 'validated'):
+                    for line in part.lines_ids:
+                        total += line.price_subtotal
+        if total > 0:
+            cost_obj.create({
+                'project_id': self.id,
+                'type': 'report',
+                'amount': total
+            })
+        return True
+
+    def update_sale_project_cost(self):
+        for line in self.sale_project_cost_ids:
+            line.unlink()
+        #Creando líneas para costos de Asistencia
+        total = 0
+        cost_obj = self.env['bim.project.sale']
+        ##Creando líneas para costos de Facturacion
+        invoice_lines = self.env['account.move.line'].search(
+            [('analytic_account_id', '=', self.analytic_id.id), ('move_id.type', '=', 'out_invoice'), ('product_id', '!=', False)])
+        for line in invoice_lines:
+            total += line.price_total
+        if total > 0:
+            cost_obj.create({
+                'project_id': self.id,
+                'type': 'sale_invo',
+                'amount': total
+            })
+        return True
+
+
 
 class BimProjectOutsourcing(models.Model):
     _description = "Gastos Subcontratos Obra"
@@ -703,3 +792,22 @@ class bim_obra_indicator(models.Model):
     real = fields.Monetary('Real Certificado', help="Valor real representado en el presupuesto adjudicado", readonly=True)
     projected = fields.Float('Proyectado', help="Diferencia entre el proyectado y el real", compute="_compute_diff")
     percent = fields.Float('%', help="Porcentaje dado por el valor real entre valor estimado", compute="_compute_percent")
+
+
+class BimProjectCost(models.Model):
+    _description = "Costos de Obra"
+    _name = 'bim.project.cost'
+
+    type = fields.Selection([('attendance','Asistencia'),('report','Partes de Obra'),('purchase_invo','Facturas Compras')], string='Tipo')
+    amount = fields.Monetary(string='Monto')
+    project_id = fields.Many2one('bim.project')
+    currency_id = fields.Many2one('res.currency', related='project_id.currency_id')
+
+class BimProjectCost(models.Model):
+    _description = "Ventas Obra"
+    _name = 'bim.project.sale'
+
+    type = fields.Selection([('sale_invo','Facturas Ventas')], string='Tipo')
+    amount = fields.Monetary(string='Monto')
+    project_id = fields.Many2one('bim.project')
+    currency_id = fields.Many2one('res.currency', related='project_id.currency_id')
