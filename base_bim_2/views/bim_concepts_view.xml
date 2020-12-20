@@ -242,10 +242,8 @@
 <!--
                             <field name="manual_certify" invisible="1"/>
 -->
-<!--
                             <field name="amount_measure" invisible="1"/>
                             <field name="amount_stage_cert" invisible="1"/>
--->
                             <field name="sequence" invisible="1"/>
                             <field name="gantt_type" invisible="1"/>
                             <field name="export_tmp_id" invisible="1"/>
@@ -275,23 +273,15 @@
                       </group>
 
                       <group string="Presupuesto">
-<!--
                             <field name="product_id" domain="[('resource_type', 'in', [filter_product_domain,filter_product_domain_aux])]" options="{'no_create': True, 'no_edit': True}"
                                    attrs="{'invisible':['|',('type','=',False),('type','not in',['labor','equip','material'])],'required':[('type','in',['labor','equip','material'])]}"/>
--->
                             <field name="amount_type"  widget="radio" attrs="{'invisible':[('type','not in',['chapter','departure'])]}"/>
-<!--
                             <field name="amount_fixed" attrs="{'invisible':[('amount_type','in',['compute','locked']),('type','in',['chapter','departure'])]}" widget="monetary"/>
                             <field name="amount_compute" attrs="{'invisible':['|',('amount_type','=','fixed'),('type','not in',['chapter','departure'])]}" widget="monetary"/>
--->
-<!--
                             <field name="quantity" attrs="{'invisible':['|',('type','=',False),('type','in',['chapter'])],'readonly':[('amount_measure','>',0)]}" force_save="1"/>
--->
                             <field name="product_uom_category_id" invisible="1"/>
                             <field name="uom_id" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible':[('type','in',['chapter'])]}"/>
-<!--
                             <field name="balance" attrs="{'invisible':[('type','=',False)]}" widget="monetary"/>
--->
                             <field name="id_bim"/>
                       </group>
 <!--
