@@ -226,11 +226,9 @@
                             <field name="level"  invisible="1"/>
                             <field name="update"  invisible="1"/>
                             <field name="budget_type"  invisible="1"/>
-<!--
                             <field name="filter_type_domain" invisible="1"/>
                             <field name="filter_product_domain" invisible="1"/>
                             <field name="filter_product_domain_aux" invisible="1"/>
--->
 <!--
                             <field name="equip_amount_count" invisible="1"/>
                             <field name="material_amount_count" invisible="1"/>
