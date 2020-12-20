@@ -169,28 +169,28 @@ class BimConcepts(models.Model):
             price_pres = 0
             price_cert = 0
 
-            # Presupuesto
-            if record.type in ['labor', 'equip', 'material', 'aux'] or record.amount_type == 'fixed':
-                price_pres = record.amount_fixed
-            else:
-                price_pres = sum(l.balance for l in record.child_ids)
+            #~ # Presupuesto
+            #~ if record.type in ['labor', 'equip', 'material', 'aux'] or record.amount_type == 'fixed':
+                #~ price_pres = record.amount_fixed
+            #~ else:
+                #~ price_pres = sum(l.balance for l in record.child_ids)
 
-                # Recalculo funciones
-                if any(l.id for l in record.child_ids if l.type == 'aux'):
-                    for res in record.child_ids:
-                        if res.type == 'aux':
-                            res.onchange_function()
+                #~ # Recalculo funciones
+                #~ if any(l.id for l in record.child_ids if l.type == 'aux'):
+                    #~ for res in record.child_ids:
+                        #~ if res.type == 'aux':
+                            #~ res.onchange_function()
 
-            # Certificacion
-            if record.budget_type == 'certification':
-                if record.type in ['labor', 'equip', 'material']:
-                    price_cert = price_pres
-                else:
-                    if record.type_cert == 'fixed':
-                        price_cert = record.amount_fixed_cert if record.amount_fixed_cert != 0 else price_pres
-                    else:
-                        price_cert = price_pres if record.type in ['departure', 'aux'] else sum(l.balance_cert for l in record.child_ids)
-                    record.set_qty_cert_child()
+            #~ # Certificacion
+            #~ if record.budget_type == 'certification':
+                #~ if record.type in ['labor', 'equip', 'material']:
+                    #~ price_cert = price_pres
+                #~ else:
+                    #~ if record.type_cert == 'fixed':
+                        #~ price_cert = record.amount_fixed_cert if record.amount_fixed_cert != 0 else price_pres
+                    #~ else:
+                        #~ price_cert = price_pres if record.type in ['departure', 'aux'] else sum(l.balance_cert for l in record.child_ids)
+                    #~ record.set_qty_cert_child()
 
             record.amount_compute = price_pres
             record.amount_compute_cert = price_cert
