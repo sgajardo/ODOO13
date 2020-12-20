@@ -141,10 +141,13 @@
                     <button name="%(copy_measures_wizard_action)d" type="action" context="{'default_concept_id': id}"
                             string="Copiar mediciones" attrs="{'invisible': [('measuring_ids','=',[])]}"/>
                 </header>
+<!--
                 <div class="alert alert-danger" role="alert" attrs="{'invisible': ['|',('type', '!=', 'departure'),('amount_measure','>=', 0)]}">
                     <strong>ADVERTENCIA</strong>: El total de las mediciones no puede ser negativo.
                 </div>
+-->
                 <sheet>
+<!--
                      <div class="oe_button_box" name="button_box">
                         <button name="action_view_equip" type="object" class="oe_stat_button" icon="fa-gears" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('equip_amount_count', '=', 0)]}">
                             <div class="o_form_field o_stat_info">
@@ -197,6 +200,7 @@
                             string="Actualizar Importe">
                         </button>
                     </div>
+-->
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('type','!=','aux')]}">
                         <strong>USO FUNCIONES</strong>: Para las funciones se usará
                                     el simbolo de (%) en el código, y solo deberá introducir en
@@ -209,10 +213,10 @@
                         </h1>
                         <label for="parent_id" string="Padre: "/>
                         <!-- Parent es CAPITULO (para Partida)-->
-                        <field name="parent_id" string="Padre (Capítulo)" domain="[('type', '=?', filter_type_domain),('parent_id', '=', False),('budget_id', '=', budget_id)]"
+                        <field name="parent_id" string="Padre (Capítulo)" domain="[('parent_id', '=', False),('budget_id', '=', budget_id)]"
                                attrs="{'invisible':['|',('type','=',False),('type','not in',['departure','chapter'])]}" readonly="1"/>
                          <!-- Parent es PARTIDA (para Mano de obra, Materiales y Equipos)-->
-                        <field name="parent_id" string="Padre (Partida)" domain="[('type', '=?', filter_type_domain)]"
+                        <field name="parent_id" string="Padre (Partida)"
                                attrs="{'invisible':['|',('type','=',False),('type','in',['chapter','departure'])]}" readonly="1"/>
                     </div>
 
@@ -275,14 +279,18 @@
                       </group>
 
                       <group string="Presupuesto">
+<!--
                             <field name="product_id" domain="[('resource_type', 'in', [filter_product_domain,filter_product_domain_aux])]" options="{'no_create': True, 'no_edit': True}"
                                    attrs="{'invisible':['|',('type','=',False),('type','not in',['labor','equip','material'])],'required':[('type','in',['labor','equip','material'])]}"/>
+-->
                             <field name="amount_type"  widget="radio" attrs="{'invisible':[('type','not in',['chapter','departure'])]}"/>
 <!--
                             <field name="amount_fixed" attrs="{'invisible':[('amount_type','in',['compute','locked']),('type','in',['chapter','departure'])]}" widget="monetary"/>
                             <field name="amount_compute" attrs="{'invisible':['|',('amount_type','=','fixed'),('type','not in',['chapter','departure'])]}" widget="monetary"/>
 -->
+<!--
                             <field name="quantity" attrs="{'invisible':['|',('type','=',False),('type','in',['chapter'])],'readonly':[('amount_measure','>',0)]}" force_save="1"/>
+-->
                             <field name="product_uom_category_id" invisible="1"/>
                             <field name="uom_id" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible':[('type','in',['chapter'])]}"/>
 <!--
@@ -290,16 +298,16 @@
 -->
                             <field name="id_bim"/>
                       </group>
+<!--
                        <group string="Certificación" attrs="{'invisible':['|',('budget_type','!=','certification'),('to_certify','=',False)]}">
                             <field name="type_cert"  widget="radio" attrs="{'invisible':['|','|',('to_certify','=',False),('auto_certify','=',True),('manual_certify','=',True)]}"/>
-<!--
                             <field name="amount_fixed_cert" attrs="{'invisible':['|',('type_cert','!=','fixed'),('to_certify','=',False)]}" widget="monetary"/>
                             <field name="amount_compute_cert" attrs="{'invisible':['|',('type_cert','=','fixed'),('to_certify','=',False)]}" widget="monetary"/>
                             <field name="quantity_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="percent_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="balance_cert" widget="monetary"/>
--->
                       </group>
+-->
 <!--
                        <group string="Ejecutado" name="execute_mode" attrs="{'invisible':['|',('budget_type','!=','execution'),('type','!=','departure')]}">
                             <field name="amount_execute" string="Precio Ejecutado" widget="monetary"/>
@@ -309,9 +317,10 @@
 -->
                     </group>
 
+<!--
                     <notebook>
                         <page name="description_page" string="Notas">
-                            <field name="note" /> <!-- widget="html" -->
+                            <field name="note" />
                             <div class="oe_clear"/>
                         </page>
 
@@ -375,7 +384,6 @@
                             </field>
                         </page>
 
-<!--
                         <page name="execute" string="Ejecución" attrs="{'invisible': [('type','!=','departure')]}">
                             <group>
                                 <group string="Presupuesto" attrs="{'invisible':[('type','!=','departure')]}">
@@ -385,8 +393,8 @@
                                 </group>
                             </group>
                         </page>
--->
                     </notebook>
+-->
                 </sheet>
             </form>
         </field>
