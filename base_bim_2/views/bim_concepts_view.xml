@@ -223,9 +223,7 @@
                     <group col="3" name="budget_concept">
                       <group string="General">
                             <field name="id" invisible="1"/>
-<!--
                             <field name="level"  invisible="1"/>
--->
                             <field name="update"  invisible="1"/>
                             <field name="budget_type"  invisible="1"/>
 <!--
