@@ -219,21 +219,33 @@
                     <group col="3" name="budget_concept">
                       <group string="General">
                             <field name="id" invisible="1"/>
+<!--
                             <field name="level"  invisible="1"/>
+-->
                             <field name="update"  invisible="1"/>
                             <field name="budget_type"  invisible="1"/>
+<!--
                             <field name="filter_type_domain" invisible="1"/>
                             <field name="filter_product_domain" invisible="1"/>
                             <field name="filter_product_domain_aux" invisible="1"/>
+-->
+<!--
                             <field name="equip_amount_count" invisible="1"/>
                             <field name="material_amount_count" invisible="1"/>
                             <field name="labor_amount_count" invisible="1"/>
+-->
                             <field name="budget_id" invisible="1"/>
                             <field name="to_certify" invisible="1"/>
+<!--
                             <field name="auto_certify" invisible="1"/>
+-->
+<!--
                             <field name="manual_certify" invisible="1"/>
+-->
+<!--
                             <field name="amount_measure" invisible="1"/>
                             <field name="amount_stage_cert" invisible="1"/>
+-->
                             <field name="sequence" invisible="1"/>
                             <field name="gantt_type" invisible="1"/>
                             <field name="export_tmp_id" invisible="1"/>
@@ -266,12 +278,16 @@
                             <field name="product_id" domain="[('resource_type', 'in', [filter_product_domain,filter_product_domain_aux])]" options="{'no_create': True, 'no_edit': True}"
                                    attrs="{'invisible':['|',('type','=',False),('type','not in',['labor','equip','material'])],'required':[('type','in',['labor','equip','material'])]}"/>
                             <field name="amount_type"  widget="radio" attrs="{'invisible':[('type','not in',['chapter','departure'])]}"/>
+<!--
                             <field name="amount_fixed" attrs="{'invisible':[('amount_type','in',['compute','locked']),('type','in',['chapter','departure'])]}" widget="monetary"/>
                             <field name="amount_compute" attrs="{'invisible':['|',('amount_type','=','fixed'),('type','not in',['chapter','departure'])]}" widget="monetary"/>
+-->
                             <field name="quantity" attrs="{'invisible':['|',('type','=',False),('type','in',['chapter'])],'readonly':[('amount_measure','>',0)]}" force_save="1"/>
                             <field name="product_uom_category_id" invisible="1"/>
                             <field name="uom_id" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible':[('type','in',['chapter'])]}"/>
+<!--
                             <field name="balance" attrs="{'invisible':[('type','=',False)]}" widget="monetary"/>
+-->
                             <field name="id_bim"/>
                       </group>
                        <group string="Certificación" attrs="{'invisible':['|',('budget_type','!=','certification'),('to_certify','=',False)]}">
