@@ -284,7 +284,9 @@
                       </group>
                       <group string="Ejecutado" name="execute_mode" attrs="{'invisible':['|',('budget_type','!=','execution'),('type','!=','departure')]}">
 
+<!--
                             <field name="amount_execute" string="Precio Ejecutado" widget="monetary"/>
+-->
 
                             <field name="qty_execute" string="Cantidad Ejecutado"/>
                             <field name="balance_execute" string="Importe Ejecutado" widget="monetary"/>
