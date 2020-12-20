@@ -194,8 +194,6 @@ class BimConcepts(models.Model):
             record.amount_compute = price_pres
             record.amount_compute_cert = price_cert
 
-    @api.depends('parent_id', 'child_ids', 'type',
-                 'aux_amount_count', 'equip_amount_count', 'labor_amount_count', 'material_amount_count')
     def _compute_execute(self):
         stock_obj = self.env['stock.picking']
         part_obj = self.env['bim.part']
