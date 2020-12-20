@@ -532,6 +532,7 @@ class BimConcepts(models.Model):
             #record.update = 'stop'
             record._compute_price()
             record._compute_amount()
+            record._compute_execute()
             if record.to_certify:
                 record._compute_amount_cert()
 
