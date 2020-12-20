@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<!--
     <record id="view_bim_concepts_workorder_form_inherit" model="ir.ui.view">
       <field name='name'>bim.concepts.workorder.form.inherited</field>
       <field name='model'>bim.concepts</field>
@@ -23,7 +22,6 @@
 
        </field>
     </record>
--->
 
     <record id="view_bim_concepts_workorder_hierarchy_inherit" model="ir.ui.view">
       <field name='name'>bim.concepts.workorder.hierarchy.inherited</field>
