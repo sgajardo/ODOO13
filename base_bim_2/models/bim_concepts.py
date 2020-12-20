@@ -7,6 +7,7 @@ from math import *
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare, safe_eval, date_utils, email_split, email_escape_char, email_re
 from odoo.tools.misc import formatLang, format_date
+import sys
 
 
 class BimConcepts(models.Model):
