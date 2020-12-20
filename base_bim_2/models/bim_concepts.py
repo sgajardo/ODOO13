@@ -202,61 +202,61 @@ class BimConcepts(models.Model):
         part_obj = self.env['bim.part']
         for record in self:
             execute_equip = execute_labor = execute_material = executed = 0
-            quantity = 1
-            departure = self.get_departure_parent(record.parent_id)
+            #~ quantity = 1
+            #~ departure = self.get_departure_parent(record.parent_id)
 
-            if record.type == 'material':
-                if departure:
-                    pickings = stock_obj.search([('bim_concept_id', '=', departure.id)])
-                    for pick in pickings:
-                        for move in pick.move_lines:
-                            if move.product_id == record.product_id:
-                                quantity += move.product_uom_qty
-                                executed += self._get_value(move.product_uom_qty, move.product_id)
+            #~ if record.type == 'material':
+                #~ if departure:
+                    #~ pickings = stock_obj.search([('bim_concept_id', '=', departure.id)])
+                    #~ for pick in pickings:
+                        #~ for move in pick.move_lines:
+                            #~ if move.product_id == record.product_id:
+                                #~ quantity += move.product_uom_qty
+                                #~ executed += self._get_value(move.product_uom_qty, move.product_id)
 
-            elif record.type == 'labor':
-                if departure:
-                    for part in departure.part_ids:
-                        for line in part.lines_ids:
-                            if line.resource_type == 'H' and line.name == record.product_id:
-                                quantity += line.product_uom_qty
-                                executed += line.price_subtotal
+            #~ elif record.type == 'labor':
+                #~ if departure:
+                    #~ for part in departure.part_ids:
+                        #~ for line in part.lines_ids:
+                            #~ if line.resource_type == 'H' and line.name == record.product_id:
+                                #~ quantity += line.product_uom_qty
+                                #~ executed += line.price_subtotal
 
-            elif record.type == 'equip':
-                if departure:
-                    for part in departure.part_ids:
-                        for line in part.lines_ids:
-                            if line.resource_type == 'Q' and line.name == record.product_id:
-                                quantity += line.product_uom_qty
-                                executed += line.price_subtotal
+            #~ elif record.type == 'equip':
+                #~ if departure:
+                    #~ for part in departure.part_ids:
+                        #~ for line in part.lines_ids:
+                            #~ if line.resource_type == 'Q' and line.name == record.product_id:
+                                #~ quantity += line.product_uom_qty
+                                #~ executed += line.price_subtotal
 
-            elif record.type == 'aux':
-                if departure:
-                    total_indicators = departure.equip_amount_count + departure.labor_amount_count + departure.material_amount_count
-                    executed = (departure.amount_execute / total_indicators * departure.aux_amount_count) if total_indicators else 0.0  # self.recursive_amount(record,record.parent_id,None)# #
+            #~ elif record.type == 'aux':
+                #~ if departure:
+                    #~ total_indicators = departure.equip_amount_count + departure.labor_amount_count + departure.material_amount_count
+                    #~ executed = (departure.amount_execute / total_indicators * departure.aux_amount_count) if total_indicators else 0.0  # self.recursive_amount(record,record.parent_id,None)# #
 
-            elif record.type == 'departure':
-                pickings = stock_obj.search([('bim_concept_id', '=', record.id)])
-                for pick in pickings:
-                    for move in pick.move_lines:
-                        quantity += move.product_uom_qty
-                        executed += self._get_value(move.product_uom_qty, move.product_id)
-                        execute_material += self._get_value(move.product_uom_qty, move.product_id)
+            #~ elif record.type == 'departure':
+                #~ pickings = stock_obj.search([('bim_concept_id', '=', record.id)])
+                #~ for pick in pickings:
+                    #~ for move in pick.move_lines:
+                        #~ quantity += move.product_uom_qty
+                        #~ executed += self._get_value(move.product_uom_qty, move.product_id)
+                        #~ execute_material += self._get_value(move.product_uom_qty, move.product_id)
 
-                parts = part_obj.search([('concept_id', '=', record.id)])
-                for part in parts:
-                    for line in part.lines_ids:
-                        if line.resource_type == 'Q':
-                            quantity += line.product_uom_qty
-                            executed += line.price_subtotal
-                            execute_equip += line.price_subtotal
+                #~ parts = part_obj.search([('concept_id', '=', record.id)])
+                #~ for part in parts:
+                    #~ for line in part.lines_ids:
+                        #~ if line.resource_type == 'Q':
+                            #~ quantity += line.product_uom_qty
+                            #~ executed += line.price_subtotal
+                            #~ execute_equip += line.price_subtotal
 
-                        elif line.resource_type == 'H':
-                            quantity += line.product_uom_qty
-                            executed += line.price_subtotal
-                            execute_labor += line.price_subtotal
-            else:
-                executed = sum(child.amount_execute for child in record.child_ids)
+                        #~ elif line.resource_type == 'H':
+                            #~ quantity += line.product_uom_qty
+                            #~ executed += line.price_subtotal
+                            #~ execute_labor += line.price_subtotal
+            #~ else:
+                #~ executed = sum(child.amount_execute for child in record.child_ids)
 
             #record.qty_execute = quantity
             record.amount_execute = executed
