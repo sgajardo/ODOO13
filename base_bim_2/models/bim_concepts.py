@@ -162,7 +162,6 @@ class BimConcepts(models.Model):
         'child_ids.currency_id',
         'child_ids.product_id',
         'child_ids.amount_fixed',
-        'child_ids.amount_compute',
         'type', 'amount_fixed', 'product_id', 'parent_id', 'update', 'parent_id.update')
     def _compute_price(self):
         for record in self:
@@ -195,8 +194,6 @@ class BimConcepts(models.Model):
             record.amount_compute = price_pres
             record.amount_compute_cert = price_cert
 
-    @api.depends('parent_id', 'child_ids', 'child_ids.amount_execute', 'type',
-                 'aux_amount_count', 'equip_amount_count', 'labor_amount_count', 'material_amount_count')
     def _compute_execute(self):
         stock_obj = self.env['stock.picking']
         part_obj = self.env['bim.part']
@@ -337,12 +334,12 @@ class BimConcepts(models.Model):
         ('aux', 'FUNCION / ADMINISTRATIVO')], string="Concepto", required=True, tracking=True)
 
     # Ejecucion
-    amount_execute = fields.Float("Precio Ejec", compute="_compute_execute", digits='BIM price')
+    amount_execute = fields.Float("Precio Ejec", digits='BIM price')
     qty_execute = fields.Float("Cant Ejec",  digits='BIM qty')  # compute="_compute_execute",
-    balance_execute = fields.Monetary(string="Importe Ejec", compute="_compute_execute", store=True)
-    amount_execute_equip = fields.Monetary('Ejecutado equipos', compute="_compute_execute")
-    amount_execute_labor = fields.Monetary('Ejecutado mano de obra', compute="_compute_execute")
-    amount_execute_material = fields.Monetary('Ejecutado material', compute="_compute_execute")
+    balance_execute = fields.Monetary(string="Importe Ejec")
+    amount_execute_equip = fields.Monetary('Ejecutado equipos')
+    amount_execute_labor = fields.Monetary('Ejecutado mano de obra')
+    amount_execute_material = fields.Monetary('Ejecutado material')
 
     # Certificacion
     amount_fixed_cert = fields.Monetary("Precio Cert", digits='BIM price', copy=False)
@@ -535,6 +532,7 @@ class BimConcepts(models.Model):
             #record.update = 'stop'
             record._compute_price()
             record._compute_amount()
+            record._compute_execute()
             if record.to_certify:
                 record._compute_amount_cert()
 
