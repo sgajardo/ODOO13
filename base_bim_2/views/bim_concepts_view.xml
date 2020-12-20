@@ -141,13 +141,10 @@
                     <button name="%(copy_measures_wizard_action)d" type="action" context="{'default_concept_id': id}"
                             string="Copiar mediciones" attrs="{'invisible': [('measuring_ids','=',[])]}"/>
                 </header>
-<!--
                 <div class="alert alert-danger" role="alert" attrs="{'invisible': ['|',('type', '!=', 'departure'),('amount_measure','>=', 0)]}">
                     <strong>ADVERTENCIA</strong>: El total de las mediciones no puede ser negativo.
                 </div>
--->
                 <sheet>
-<!--
                      <div class="oe_button_box" name="button_box">
                         <button name="action_view_equip" type="object" class="oe_stat_button" icon="fa-gears" groups="base_bim_2.group_user_bim" attrs="{'invisible': [('equip_amount_count', '=', 0)]}">
                             <div class="o_form_field o_stat_info">
@@ -200,7 +197,6 @@
                             string="Actualizar Importe">
                         </button>
                     </div>
--->
                     <div class="alert alert-info" role="alert" attrs="{'invisible': [('type','!=','aux')]}">
                         <strong>USO FUNCIONES</strong>: Para las funciones se usará
                                     el simbolo de (%) en el código, y solo deberá introducir en
@@ -213,10 +209,10 @@
                         </h1>
                         <label for="parent_id" string="Padre: "/>
                         <!-- Parent es CAPITULO (para Partida)-->
-                        <field name="parent_id" string="Padre (Capítulo)" domain="[('parent_id', '=', False),('budget_id', '=', budget_id)]"
+                        <field name="parent_id" string="Padre (Capítulo)" domain="[('type', '=?', filter_type_domain),('parent_id', '=', False),('budget_id', '=', budget_id)]"
                                attrs="{'invisible':['|',('type','=',False),('type','not in',['departure','chapter'])]}" readonly="1"/>
                          <!-- Parent es PARTIDA (para Mano de obra, Materiales y Equipos)-->
-                        <field name="parent_id" string="Padre (Partida)"
+                        <field name="parent_id" string="Padre (Partida)" domain="[('type', '=?', filter_type_domain)]"
                                attrs="{'invisible':['|',('type','=',False),('type','in',['chapter','departure'])]}" readonly="1"/>
                     </div>
 
@@ -229,28 +225,19 @@
                             <field name="filter_type_domain" invisible="1"/>
                             <field name="filter_product_domain" invisible="1"/>
                             <field name="filter_product_domain_aux" invisible="1"/>
-<!--
                             <field name="equip_amount_count" invisible="1"/>
                             <field name="material_amount_count" invisible="1"/>
                             <field name="labor_amount_count" invisible="1"/>
--->
                             <field name="budget_id" invisible="1"/>
                             <field name="to_certify" invisible="1"/>
-<!--
                             <field name="auto_certify" invisible="1"/>
--->
-<!--
                             <field name="manual_certify" invisible="1"/>
--->
                             <field name="amount_measure" invisible="1"/>
-<!--
                             <field name="amount_stage_cert" invisible="1"/>
--->
                             <field name="sequence" invisible="1"/>
                             <field name="gantt_type" invisible="1"/>
                             <field name="export_tmp_id" invisible="1"/>
                             <field name="type" attrs="{'readonly':[('parent_id','=',False)]}"/>
-<!--
                             <field name="acs_date_start"
                                    attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])],
                                            'required': [('gantt_type', 'in', ['end', 'time'])],
@@ -268,7 +255,6 @@
                             <field name="duration" string="Duración"
                                    attrs="{'invisible': [('type', 'not in', ['chapter', 'departure'])]}"
                                    help="Duración Máxima en Días"/>
--->
                             <field name="hito" attrs="{'invisible': [('type','!=','departure')]}"/>
                             <field name="available" attrs="{'invisible': [('type','not in', ['labor', 'equip'])]}"/>
                             <field name="subcon"/>
@@ -278,21 +264,16 @@
                             <field name="product_id" domain="[('resource_type', 'in', [filter_product_domain,filter_product_domain_aux])]" options="{'no_create': True, 'no_edit': True}"
                                    attrs="{'invisible':['|',('type','=',False),('type','not in',['labor','equip','material'])],'required':[('type','in',['labor','equip','material'])]}"/>
                             <field name="amount_type"  widget="radio" attrs="{'invisible':[('type','not in',['chapter','departure'])]}"/>
-<!--
                             <field name="amount_fixed" attrs="{'invisible':[('amount_type','in',['compute','locked']),('type','in',['chapter','departure'])]}" widget="monetary"/>
--->
 <!--
                             <field name="amount_compute" attrs="{'invisible':['|',('amount_type','=','fixed'),('type','not in',['chapter','departure'])]}" widget="monetary"/>
 -->
                             <field name="quantity" attrs="{'invisible':['|',('type','=',False),('type','in',['chapter'])],'readonly':[('amount_measure','>',0)]}" force_save="1"/>
                             <field name="product_uom_category_id" invisible="1"/>
                             <field name="uom_id" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible':[('type','in',['chapter'])]}"/>
-<!--
                             <field name="balance" attrs="{'invisible':[('type','=',False)]}" widget="monetary"/>
--->
                             <field name="id_bim"/>
                       </group>
-<!--
                        <group string="Certificación" attrs="{'invisible':['|',('budget_type','!=','certification'),('to_certify','=',False)]}">
                             <field name="type_cert"  widget="radio" attrs="{'invisible':['|','|',('to_certify','=',False),('auto_certify','=',True),('manual_certify','=',True)]}"/>
                             <field name="amount_fixed_cert" attrs="{'invisible':['|',('type_cert','!=','fixed'),('to_certify','=',False)]}" widget="monetary"/>
@@ -301,20 +282,16 @@
                             <field name="percent_cert" attrs="{'readonly':[('type_cert','!=','fixed')]}" force_save="1"/>
                             <field name="balance_cert" widget="monetary"/>
                       </group>
--->
-<!--
                        <group string="Ejecutado" name="execute_mode" attrs="{'invisible':['|',('budget_type','!=','execution'),('type','!=','departure')]}">
                             <field name="amount_execute" string="Precio Ejecutado" widget="monetary"/>
                             <field name="qty_execute" string="Cantidad Ejecutado"/>
                             <field name="balance_execute" string="Importe Ejecutado" widget="monetary"/>
                       </group>
--->
                     </group>
 
                     <notebook>
-<!--
                         <page name="description_page" string="Notas">
-                            <field name="note" />
+                            <field name="note" /> <!-- widget="html" -->
                             <div class="oe_clear"/>
                         </page>
 
@@ -325,39 +302,28 @@
                         <page string="Conceptos" attrs="{'invisible': [('child_ids','=',[])]}">
                             <field name="child_ids" readonly="1" widget="many2many_tags" nolabel="1"/>
                         </page>
--->
 
-<!--
                         <page name="measuring" string="Medición" attrs="{'invisible': ['|',('type','!=','departure'),'&amp;',('budget_type','!=','budget'),('type_cert','!=','measure')]}">
--->
-                        <page name="measuring" string="Medición">
                             <field name="measuring_ids">
                                 <tree editable="bottom" decoration-bf="stage_state =='process'" decoration-danger="stage_state =='cancel'" decoration-muted="stage_state =='draft'">
                                     <field name="space_id" domain="[('budget_id', '=', budget_id)]" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}" required="1"/>
                                     <field name="name"/>
-<!--
                                     <field name="stage_id" domain="[('budget_id', '=', budget_id)]" options="{'no_open':True, 'no_quick_create': True, 'no_create_edit': True}" invisible="context.get('budget_type') == 'budget'" attrs="{'readonly': [('type_certify','=','fixed'),('to_certify','=',True)]}"/>
--->
                                     <field name="qty"/>
                                     <field name="length"/>
                                     <field name="width"/>
                                     <field name="height"/>
                                     <field name="formula" options="{'no_open':True}"/>
-<!--
                                     <field name="amount_subtotal" sum="me"/>
--->
                                     <field name="characteristic" required="1"/>
                                     <field name="concept_id" invisible="1"/>
                                     <field name="budget_id" invisible="1"/>
-<!--
                                     <field name="to_certify" invisible="1"/>
                                     <field name="type_certify" invisible="1"/>
--->
                                     <field name="stage_state" readonly="1" invisible="context.get('budget_type') == 'budget'"/>
                                 </tree>
                             </field>
                         </page>
-<!--
                         <page name="stage_certification" string="Certificación por Etapas" attrs="{'invisible': ['|','|',('type','!=','departure'),('budget_type','!=','certification'),('type_cert','!=','stage')]}">
                             <field name="certification_stage_ids">
                                 <tree editable="bottom" create="0" delete="1" decoration-bf="stage_state =='process'" decoration-primary="stage_state =='process'" decoration-danger="stage_state =='cancel'" decoration-muted="stage_state =='draft'">
@@ -371,6 +337,8 @@
                                     <field name="concept_id" invisible="1"/>
                                     <field name="budget_id" invisible="1"/>
                                     <field name="stage_state" readonly="1"/>
+                                    <!-- <button name="action_next" string="Proximo estado" type="object" icon="fa-forward text-primary" attrs="{'invisible': [('stage_state','in',['cancel','approved'])]}"/>
+                                    <button name="action_cancel" string="Cancelar" type="object" icon="fa-times-circle text-danger" attrs="{'invisible': [('stage_state','=','cancel')]}"/>  -->
                                 </tree>
                             </field>
                         </page>
@@ -398,9 +366,15 @@
                                 </group>
                             </group>
                         </page>
--->
                     </notebook>
                 </sheet>
+<!--
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+-->
             </form>
         </field>
     </record>
