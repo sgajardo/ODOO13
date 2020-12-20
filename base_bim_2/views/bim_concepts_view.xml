@@ -300,7 +300,6 @@
                     </group>
 
                     <notebook>
-<!--
                         <page name="description_page" string="Notas">
                             <field name="note" />
                             <div class="oe_clear"/>
@@ -313,7 +312,6 @@
                         <page string="Conceptos" attrs="{'invisible': [('child_ids','=',[])]}">
                             <field name="child_ids" readonly="1" widget="many2many_tags" nolabel="1"/>
                         </page>
--->
 
 <!--
                         <page name="measuring" string="Medición" attrs="{'invisible': ['|',('type','!=','departure'),'&amp;',('budget_type','!=','budget'),('type_cert','!=','measure')]}">
