@@ -283,7 +283,9 @@
                             <field name="quantity" attrs="{'invisible':['|',('type','=',False),('type','in',['chapter'])],'readonly':[('amount_measure','>',0)]}" force_save="1"/>
                             <field name="product_uom_category_id" invisible="1"/>
                             <field name="uom_id" options="{'no_create': True, 'no_edit': True}" attrs="{'invisible':[('type','in',['chapter'])]}"/>
+<!--
                             <field name="balance" attrs="{'invisible':[('type','=',False)]}" widget="monetary"/>
+-->
                             <field name="id_bim"/>
                       </group>
 <!--
