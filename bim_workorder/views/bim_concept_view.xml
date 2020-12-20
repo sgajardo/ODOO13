@@ -8,6 +8,7 @@
       <field name='type'>form</field>
       <field name='arch' type='xml'>
 
+<!--
             <xpath expr="//page[@name='execute']/group" position="inside">
                 <group name="excecute_ot_vals" string="Ordenes de Trabajo">
                     <field name="quantity_ot"/>
@@ -19,6 +20,7 @@
                 <field name="qty_execute_ot"/>
                 <field name="qty_execute_total"/>
             </field>
+-->
 
        </field>
     </record>
