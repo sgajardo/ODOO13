@@ -243,7 +243,9 @@
                             <field name="manual_certify" invisible="1"/>
 -->
                             <field name="amount_measure" invisible="1"/>
+<!--
                             <field name="amount_stage_cert" invisible="1"/>
+-->
                             <field name="sequence" invisible="1"/>
                             <field name="gantt_type" invisible="1"/>
                             <field name="export_tmp_id" invisible="1"/>
