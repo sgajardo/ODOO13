@@ -163,7 +163,7 @@ class HrPayslip(models.Model):
     @api.model
     def get_inputs(self, contracts, date_from, date_to):
         res = []
-        inicio_horas_extras = self.env['ir.config_parameter'].get_param('extra.hours.start', '0')
+        inicio_horas_extras = self.env['ir.config_parameter'].sudo().get_param('extra.hours.start', '0')
         if inicio_horas_extras.isdigit():
             inicio_horas_extras = int(inicio_horas_extras)
             if inicio_horas_extras < 0 or inicio_horas_extras > 28:

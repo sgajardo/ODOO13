@@ -23,7 +23,7 @@ class HrStats(models.Model):
         """ Actualizamos los indicadores """
         name_ind = str(datetime.today())[:7]
         """ Revisamos que no exista el indicador """
-        param_obj = self.env['ir.config_parameter']
+        param_obj = self.env['ir.config_parameter'].sudo()
         day = int(param_obj.get_param('day_min_previred'))
         day_today = int(str(datetime.today())[8:10])
         if day_today > day:

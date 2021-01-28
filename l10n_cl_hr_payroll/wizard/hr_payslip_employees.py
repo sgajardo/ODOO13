@@ -45,8 +45,8 @@ class HrPayslipEmployees(models.TransientModel):
         # Borramos las entradas del periodo
         self.env['hr.work.entry'].search([
             ('employee_id', 'in', self.employee_ids.ids),
-            ('date_start', '>=', datetime.combine(payslip_run.date_start, datetime.min.time())),
-            ('date_stop', '<=', datetime.combine(payslip_run.date_end, datetime.max.time())),
+            ('date_start', '<=', datetime.combine(payslip_run.date_end, datetime.max.time())),
+            ('date_stop', '>=', datetime.combine(payslip_run.date_start, datetime.min.time())),
         ]).unlink()
         contracts = self.employee_ids._get_contracts(payslip_run.date_start, payslip_run.date_end, states=['open', 'close'])
         date_generated = datetime.combine(payslip_run.date_start, datetime.min.time())

@@ -499,12 +499,12 @@ class HrHd(models.Model):
                     ('employee_id', '=', record.employee_id.id)])
 
             if repetidos:
-                raise ValidationError(_('Ya existe el bono %s dentro del mismo rango de fechas para %s') % (record.balance_id.desc, record.employee_id.balance_id))
+                raise ValidationError(_('Ya existe el bono %s dentro del mismo rango de fechas para %s') % (record.balance_id.desc, record.employee_id.name))
 
     @api.model
     def cron_hr_hd(self):
         today = fields.Date.today()
-        meses_hyd = self.env['ir.config_parameter'].get_param('hr.balance.months', '3')
+        meses_hyd = self.env['ir.config_parameter'].sudo().get_param('hr.balance.months', '3')
         if meses_hyd.isdigit():
             meses_hyd = int(meses_hyd)
         else:
