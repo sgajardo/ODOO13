@@ -134,13 +134,15 @@ class HrEmployee(models.Model):
     def _compute_hired(self):
         today = fields.Date.today()
         for record in self:
-            record.hired = bool(record.contract_ids.filtered(lambda c: c.date_start <= today and ((c.date_end and c.date_end >= today) or not c.date_end)))
+            record.hired = bool(record.contract_ids.filtered(lambda c: c.date_start <= today and ((c.date_end and c.date_end >= (today + relativedelta(day=1))) or not c.date_end)))
 
     def _search_hired(self, operator, value):
         if operator not in ['=', '!=']:
             raise ValidationError(_('El operator "%s" no es soportado para el campo "Contratado"') % operator)
         today = fields.Date.today()
-        contracts = self.env['hr.contract'].search(['&', ('date_start', '<=', today), '|', ('date_end', '>=', today), ('date_end', '=', False)])
+        start_this_month = today + relativedelta(day=1)
+        end_this_month = today + relativedelta(months=1, day=1, days=-1)
+        contracts = self.env['hr.contract'].search(['&', ('date_start', '<=', end_this_month), '|', ('date_end', '>=', start_this_month), ('date_end', '=', False)])
         operator = 'in' if value else 'not in'
         return [('id', operator, contracts.mapped('employee_id.id'))]
 

@@ -12,6 +12,15 @@
                         options="{'no_create': 1, 'no_open': 1}"
                         groups="analytic.group_analytic_accounting"/>
                 </group>
+            <field name="employee_ids">
+                <tree decoration-danger="not calculate_payroll">
+                    <field name="name"/>
+                    <field name="identification_id" string="RUT"/>
+                    <field name="contracts"/>
+                    <field name="hired"/>
+                    <field name="calculate_payroll" widget="boolean_toggle"/>
+                </tree>
+            </field>
             </xpath>
         </field>
     </record>
