@@ -23,19 +23,19 @@
                                 <div class="content-group">
                                     <div class="row mt16">
                                         <label for="journal_id" string="Diario" class="col-lg-3 o_light_label"/>
-                                        <field name="journal_id" widget="selection"/>
+                                        <field name="journal_id"/>
                                     </div>
                                     <div class="row mt16">
                                         <label for="paidstate_product" string="Producto" class="col-lg-3 o_light_label"/>
-                                        <field name="paidstate_product" widget="selection"/>
+                                        <field name="paidstate_product"/>
                                     </div>
                                     <div class="row mt16">
                                         <label for="paidstate_product_mant" string="Producto Mantencion" class="col-lg-3 o_light_label"/>
-                                        <field name="paidstate_product_mant" widget="selection"/>
+                                        <field name="paidstate_product_mant"/>
                                     </div>
                                     <div class="row mt16">
                                         <label for="retention_product" string="Producto de Retención" class="col-lg-3 o_light_label"/>
-                                        <field name="retention_product" widget="selection"/>
+                                        <field name="retention_product"/>
                                     </div>
                                 </div>
                             </div>

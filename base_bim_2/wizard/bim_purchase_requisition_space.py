@@ -63,7 +63,7 @@ class BimRequisitionSpace(models.TransientModel):
                         val = {
                             'product_id': product.id,
                             'um_id': resource.uom_id.id,
-                            'quant': quantity,
+                            'quant': resource.quantity * quantity,
                             'analytic_id': budget.project_id.analytic_id.id or False  }
                         # Solo puedo insertar los materiales
                         if product.resource_type == 'M':

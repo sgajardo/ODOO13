@@ -145,6 +145,9 @@ class BimImportTemp(models.Model):
             # Verificamos la columna "parcial" (J si tiene las mediciones, D si no tiene)
             parcial_row = row[9 if has_measures else 3]
             parent_close_code = parcial_row.value.strip() if (parcial_row.ctype == 1 and not row[0].value and not row[1].value and not row[2].value) else False
+            # Es posible que en presto 19 la columna "parcial" inicie con la palabra "Total", así que se la quitaremos
+            if isinstance(parent_close_code, str):
+                parent_close_code = parent_close_code.replace('Total', '').replace('total', '').replace('TOTAL', '').strip()
 
             # Si tenemos código en la "parcial", buscamos el index en el set de
             # padres, para tomar a todos los conceptos después de este y así
@@ -161,7 +164,8 @@ class BimImportTemp(models.Model):
                     for seq, child in enumerate(children, 1):
                         child.sequence = seq
                     concepts_without_parent -= children
-                    parent.amount_type = 'compute'  # Si ya es padre, entonces lo hacemos calculado.
+                    if parent.child_ids:
+                        parent.amount_type = 'compute'  # Si ya es padre, entonces lo hacemos calculado.
 
             uom_id = uoms.get(row[2].value, uom_obj.browse())
             # Creamos el concepto base, luego nos preocupamos de su naturaleza.
@@ -353,8 +357,8 @@ class BimImportTemp(models.Model):
                             concept_copies += copy_concept
 
                 concepts += concept
-                if concept_copies:
-                    concepts += concept_copies
+                # if concept_copies:
+                #     concepts += concept_copies
             elif row[1] == 'D':
                 datas = row[3:-1].split('|')
                 parent_code = datas[0].replace('#', '')

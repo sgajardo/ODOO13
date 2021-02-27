@@ -63,3 +63,4 @@ access_bim_certification_fixed_certification,bim.certification.fixed.certificati
 access_bim_product_rectify_detailed,bim.product.rectify.detailed,model_bim_product_rectify_detailed,,1,1,1,1
 access_bim_project_cost,bim.project.cost,model_bim_project_cost,,1,1,1,1
 access_bim_project_sale,bim.project.sale,model_bim_project_sale,,1,1,1,1
+access_bim_res_users,bim.res.users,base.model_res_users,,1,1,0,0

@@ -326,6 +326,12 @@ class bim_project(models.Model):
     project_profit = fields.Monetary(string='Beneficio', compute='compute_project_profit')
     project_margin = fields.Float(string='Margen %', compute='compute_project_margin')
 
+    @api.onchange('customer_id')
+    def onchange_customer_id(self):
+        for record in self:
+            if record.analytic_id:
+                record.analytic_id.partner_id = record.customer_id.id
+
     @api.onchange('warehouse_id','stock_location_id')
     def onchange_stock(self):
         if not self.stock_location_id and self.warehouse_id:
