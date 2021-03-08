@@ -20,8 +20,17 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
         for line in resource_lines:
             product = line.resource_id.product_id if line.type == 'budget_in' else line.product_id
             departure = line.concept_id if line.type == 'budget_in' else line.departure_id
-            if product:
-                lines.append((0,0,{
+            found = False
+            pos = 0
+            for res in lines:
+                if product.id == res[2]['product_id']:
+                    found = True
+                    break
+                else:
+                    pos += 1
+
+            if not found and product:
+                lines.append((0, 0, {
                     'product_id': product.id,
                     'quantity': line.qty_ordered,
                     'cost_price': line.price_unit,
@@ -30,10 +39,12 @@ class WizardCreatePurchaseWorkorder(models.TransientModel):
                     'resource_id': line.id,
                     'departure_id': departure.id,
                 }))
+            elif found and product:
+                lines[pos][2]['quantity'] = int(lines[pos][2]['quantity']) + line.qty_ordered
         if not lines:
             raise UserError('No hay líneas nuevas para comprar')
-        res['line_ids'] = lines
-        return res
+
+        return {'line_ids': lines}
 
     line_ids = fields.One2many('wizard.create.purchase.workorder.line','wizard_id','Líneas')
     filter_categ = fields.Boolean(string="Agrupar por Categoría")
