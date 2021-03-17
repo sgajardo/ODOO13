@@ -60,7 +60,7 @@
                       </page>
                       <page name="concepts" string="Partidas y Mediciones">
                         <field name="concept_ids">
-                            <tree editable="bottom">
+                            <tree editable="bottom" decoration-danger="inconsistent_space == True">
                                 <field name="concept_id" options='{"no_create": 1, "no_open": 1}'/>
                                 <field name="name"/>
                                 <field name="qty_budget"/>
@@ -73,6 +73,7 @@
                                 <field name="workorder_id" invisible="1"/>
                                 <field name="budget_id" invisible="1"/>
                                 <field name="space_id" invisible="1"/>
+                                <field name="inconsistent_space" invisible="1"/>
                             </tree>
                         </field>
                       </page>

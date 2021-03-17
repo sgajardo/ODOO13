@@ -2,7 +2,7 @@
 from odoo.tools.float_utils import float_compare
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models,_
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 #from tkinter import messagebox
 from datetime import datetime
 class BimWorkorder(models.Model):
@@ -476,6 +476,31 @@ class BimWorkorder(models.Model):
             else:
                 record.decoration = False
 
+    @api.onchange('space_id')
+    def check_space_id_for_lines(self):
+        for line in self.concept_ids:
+            found = False
+            for measuring in line.concept_id.measuring_ids:
+                if measuring.space_id == self.space_id:
+                    found = True
+                    break
+            if not found:
+                line.inconsistent_space = True
+            else:
+                line.inconsistent_space = False
+
+    def write(self, vals):
+        res = super(BimWorkorder, self).write(vals)
+        for line in self.concept_ids:
+            found = False
+            for measuring in line.concept_id.measuring_ids:
+                if measuring.space_id == self.space_id:
+                    found = True
+                    break
+            if not found:
+                line.unlink()
+        return res
+
 class BimWorkorderConcepts(models.Model):
     _name = 'bim.workorder.concepts'
     _description = "Partidas y Mediciones Orden de Trabajo BIM"
@@ -525,7 +550,19 @@ class BimWorkorderConcepts(models.Model):
     workorder_id = fields.Many2one('bim.workorder', string="Orden")
     budget_id = fields.Many2one('bim.budget',related='workorder_id.budget_id', string="Presupuesto")
     space_id = fields.Many2one('bim.budget.space',related='workorder_id.space_id', string="Espacio")
-    concept_id = fields.Many2one('bim.concepts', string="Partida", domain="[('budget_id', '=', budget_id),('type', '=', 'departure')]")
+    concept_id = fields.Many2one('bim.concepts', string="Partida")
+    inconsistent_space = fields.Boolean()
+
+    @api.onchange('budget_id')
+    def onchange_budget(self):
+        domain = []
+        possible_ids = self.env['bim.concepts'].search([('budget_id', '=', self.budget_id.id),('type', '=', 'departure')])
+        for future in possible_ids:
+            for measure in future.measuring_ids:
+                if measure.space_id == self.space_id:
+                    domain.append(future.id)
+                    break
+        return {'domain': {'concept_id': [('id', 'in', domain)]}}
 
     @api.onchange('concept_id')
     def onchange_concept(self):
