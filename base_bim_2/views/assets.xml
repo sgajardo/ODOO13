@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="assets_backend" name="tree icon button" inherit_id="web.assets_backend">
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" type="text/scss" href="/base_bim_2/static/src/scss/hierarchy.scss"/>
+        </xpath>
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/base_bim_2/static/src/js/list_button_renderer.js"/>
+            <script type="text/javascript" src="/base_bim_2/static/src/js/hierarchy.js"/>
+        </xpath>
+    </template>
+
+</odoo>

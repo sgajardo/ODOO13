@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="view_company_inherit_form">
+        <field name="name">res.company.form.inherit</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="model">res.company</field>
+        <field name="arch" type="xml">
+            <notebook>
+                <page string="Recursos Humanos Chile">
+                    <group>
+                        <group string="Historial" name="history">
+                            <field name="hr_period" />
+                        </group>
+                        <group string="Mutual Seguridad" name="mutual">
+                            <field name="mutualidad_id" />
+                            <field name="mutual_seguridad" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Caja" name="caja">
+                            <field name="ccaf_id" />
+                            <field name="caja_compensacion" />
+                        </group>
+                    </group>
+
+                </page>
+            </notebook>
+        </field>
+    </record>
+<!--     
+    <template id="periodo" inherit_id="web.menu_secondary">
+        <xpath expr="//span[@class='oe_logo_edit']" position="before">
+            <t>
+                <div id="db_div" style="height:20px;text-align:center;background-color:#7c7bad;color:#ffffff;">
+                    (<t t-esc="request.env.user.company_id.hr_period"/>)
+                </div>
+            </t>
+        </xpath>
+    </template> -->
+
+</odoo>

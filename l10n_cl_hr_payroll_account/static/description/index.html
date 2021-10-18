@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <section class="oe_container oe_dark">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Contabilidad en Nómina</h2>
+            <h3 class="oe_slogan">Cree los asientos contables a partir de un proceso de nómina de los empleados</h3>
+        </div>
+    </section>
+
+    <section class="oe_container">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Configuración</h2>
+            <p>
+                Se deben configurar las reglas salariales que se mostrarán en el asiento, estas son tomadas de las nominas de los empleados
+                según la estructura salarial que tengan en sus contratos. Se debe ir a la pestaña
+                <b style="color:#875A7B;">Contabilidad</b> en la vista de las reglas salariales para configurar los campos:
+            </p>
+            <ul>
+                <li>
+                    <b style="color:#875A7B;">Partner</b>: éste será reflejado en el apunte del asiento, en caso de dejarlo en blanco, se tomará al
+                    empleado.
+                </li>
+                <li>
+                    <b style="color:#875A7B;">Debe/Haber</b>: Se debe indicar el tipo de cuenta, si será reflejado por Debe o por Haber en el apunte
+                    contable.
+                </li>
+                <li>
+                    <b style="color:#875A7B;">Cuenta Contable</b>: Requerido para indicar en el apunte la cuenta a tomar.
+                </li>
+                <li>
+                    <b style="color:#875A7B;">Gasto</b>: Si se marca, se tomará la cuenta analítica en el contrato del empleado, a menos que haya un
+                    partner seleccionado en la regla salarial.
+                </li>
+                <li>
+                    <b style="color:#875A7B;">Cuenta Analítica</b>: Si la opcion gasto está marcada y además se tiene un partner en la regla salarial,
+                    esta será la cuenta analítica que se reflejará en el apunte contable.
+                </li>
+            </ul>
+            <img class="oe_picture oe_screenshot" src="regla.png">
+        </div>
+    </section>
+    <section class="oe_container oe_dark">
+        <div class="oe_row oe_spaced">
+            <h2 class="oe_slogan" style="color:#875A7B;">Instrucciones de Uso</h2>
+            <p class="oe_mt32">
+                Una vez creado el proceso de nómina, y luego de haber generado las nóminas que se van a pagar, se debe cerrar la misma (dejar
+                en estado Cerrado) para que se habilite el botón <b style="color:#875A7B;">Centralizar</b> en la cabecera del documento. Se deberá
+                indicar dentro del proceso cual será el <b style="color:#875A7B;">Diario</b> y la <b style="color:#875A7B;">Fecha Contable</b> para poder centralizar las nóminas.
+                Al pulsar el botón <b style="color:#875A7B;">Centralizar</b> se correrá el proceso interno donde se agruparán las reglas salariales
+                y se crearán los apuntes contables dentro del asiento contable, y el proceso de nómina pasará a estado <b style="color:#875A7B;">Centralizado</b>,
+                donde se habilitará un campo <b style="color:#875A7B;">Asiento</b> que enlazará al asiento contable recién creado.
+            </p>
+            <div class="col-xs-6"><img class="oe_picture oe_screenshot oe_centered" src="nomina_cerrada.png"></div>
+            <div class="col-xs-6"><img class="oe_picture oe_screenshot oe_centered" src="asiento.png"></div>
+            <p class="oe_mt32">
+                Este proceso puede ser reversado, una vez centralizadas las nóminas y el proceso se muestre en estado <b style="color:#875A7B;">Centralizado</b>, se habilitará
+                un botón en la cabecera del documento del proceso <b style="color:#875A7B;">Descentralizar</b>, con el cual se podrá devolver el mismo
+                a estado <b style="color:#875A7B;">Cerrado</b> y se borrará el asiento contable, esto con el fin de hacer correcciones a las nóminas
+                de ser necesario.
+            </p>
+            <img class="oe_picture oe_screenshot oe_centered" src="descentralizar.png">
+        </div>
+    </section>
+</body>
+
+</html>

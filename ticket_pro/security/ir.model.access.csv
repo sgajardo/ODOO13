@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ticket_pro_user,access.ticket.pro.user,ticket_pro.model_ticket_pro,ticket_pro.tiket_pro_user_group,1,1,1,1
+access_ticket_pro_admin,access.ticket.pro.admin,ticket_pro.model_ticket_pro,ticket_pro.tiket_pro_manager_group,1,1,1,1
+,,,,,,,
+,,,,,,,
+access_ticket_category_user,access.ticket.category.user,ticket_pro.model_ticket_category,ticket_pro.tiket_pro_user_group,1,0,0,0
+access_ticket_category_admin,access.ticket.category.admin,ticket_pro.model_ticket_category,ticket_pro.tiket_pro_manager_group,1,1,1,1
+,,,,,,,
+access_hours_task_user,access.hours.task.user,ticket_pro.model_hours_task,ticket_pro.tiket_pro_user_group,1,1,1,1
+access_hours_task_admin,access.hours.task.admin,ticket_pro.model_hours_task,ticket_pro.tiket_pro_manager_group,1,1,1,1
+,,,,,,,
+,,,,,,,
+access_change_project_user,access.change.project.user,ticket_pro.model_change_project,ticket_pro.tiket_pro_user_group,1,1,1,1
+access_change_project_admin,access.change.project.admin,ticket_pro.model_change_project,ticket_pro.tiket_pro_manager_group,1,1,1,1
+access_ticket_notes_admin,ticket.notes,ticket_pro.model_ticket_notes,ticket_pro.tiket_pro_manager_group,1,1,1,1

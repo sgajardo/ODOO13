@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<menuitem id="menu_cl_hr_payroll_configuration"
+        name="Configuración Chilena"
+        parent="hr_payroll.menu_hr_payroll_root"
+        sequence="12"/>
+
+    <record id="hr_balance_form" model="ir.ui.view">
+        <field name="name">hr.balance.form</field>
+        <field name="model">hr.balance</field>
+        <field name="arch" type="xml">
+            <form string="Haberes y Descuentos">
+                <sheet>
+                    <group name="main">
+                        <group name="left">
+                            <field name="name" string="Código" readonly="1"/>
+                            <field name="desc"/>
+                            <field name="default_value"/>
+                            <field name="moneda"/>
+                        </group>
+                        <group name="right">
+                            <field name="prop_dias_trab"/>
+                            <!-- <field name="inputs_id"/> -->
+                            <field name="um"/>
+                        </group>
+                    </group>
+                    <field name="obs" placeholder="Observación"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_hr_balance" model="ir.ui.view">
+        <field name="name">view.tree.hr.balance</field>
+        <field name="model">hr.balance</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" string="Código" readonly="1"/>
+                <field name="desc"/>
+                <!-- <field name="inputs_id"/> -->
+                <field name="um"/>
+                <field name="default_value"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <act_window id="hr_balance_action"
+        name="Haberes y Descuentos"
+        res_model="hr.balance"
+        view_mode="tree,form"/>
+
+    <menuitem id="hr_balance_menu"
+        name="Haberes y Descuentos"
+        parent="menu_cl_hr_payroll_configuration"
+        sequence="15"/>
+
+    <menuitem id="hr_balance_menu2"
+        parent="hr_balance_menu"
+        action="hr_balance_action"
+        sequence="1"/>
+</odoo>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    <record id="view_form_bim_part" model="ir.ui.view">
+        <field name="name">view.form.bim.part</field>
+        <field name="model">bim.part</field>
+        <field name="arch" type="xml">
+            <form string="Parte" delete="0" >
+                <header>
+                    <button name="action_validate" string="Validar" type="object" states="draft" class="btn-primary"/>
+                    <button name="action_cancel" string="Cancelar" type="object" states="draft,validated"/>
+                    <button name="create_purchase_order" string="Crear Orden de Compras" type="object" states="validated"/>
+                    <button name="action_draft" string="Borrador" type="object" states="validated,cancel"/>
+                    <!-- <button name="action_invoice" states="validated" string="Generar Factura" class="btn-primary o_sale_confirm" type="object" />     -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
+                    </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_purchase_order" type="object" class="oe_stat_button" icon="fa-check">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="purchase_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Ordenes de Compras</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                       <h1>
+                           <field name="name" readonly="1"/>
+                       </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type" widget="radio"/>
+                            <field name="project_id" options='{"no_create": 1}'/>
+                            <field name="budget_id" options='{"no_create": 1}' domain="[('project_id','=',project_id)]"/>
+                            <field name="concept_id" options='{"no_create": 1}' domain="[('budget_id','=',budget_id)]"/>
+                            <field name="partner_id" options='{"no_create": 1}' attrs="{'invisible':[('type','=','per_lines')],'readonly': [('state','!=','draft')]}"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="space_id" options='{"no_create": 1, "no_open": 1}' domain="[('budget_id','=',budget_id)]"/>
+                            <field name="user_id" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Líneas">
+                            <field name="lines_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="filter_type" invisible="1"/>
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="partner_id" options='{"no_create": 1}' attrs="{'readonly':[('filter_type','=','doc')],'required':[('filter_type','=','line')]}"/>
+                                    <field name="name" options='{"no_create": 1}' required="1" domain="[('resource_type', 'in', ['H','Q']),('type', 'in', ['service'])]"/>
+                                    <field name="resource_type"  force_save="1" readonly="1"/>
+                                    <field name="description"/>
+                                    <field name="product_uom" options='{"no_create": 1}' required="1"/>
+                                    <field name="product_uom_qty" required="1" sum="sum"/>
+                                    <field name="price_unit" required="1"/>
+                                    <field name="price_subtotal" sum="sum"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+
+                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_part" model="ir.ui.view">
+        <field name="name">view.tree.bim.part</field>
+        <field name="model">bim.part</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state=='cancel'" delete="0"  decoration-info="state in ('validated')">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="date"/>
+                <field name="space_id"/>
+                <field name="concept_id"/>
+                <field name="project_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_part" model="ir.actions.act_window">
+        <field name="name">Parte</field>
+        <field name="res_model">bim.part</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_ejec"
+        name="Ejecución"
+        parent="base_bim_2.main_base_menu_bim"
+        sequence="10" />
+
+    <menuitem id="menu_bim_part2"
+        name="Partes"
+        parent="base_bim_2.menu_bim_ejec"
+        action="action_bim_part"
+        sequence="1" />
+
+    </data>
+
+</odoo>

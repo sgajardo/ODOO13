@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_load_employees" model="ir.ui.view">
+            <field name="name">view.load.employees</field>
+            <field name="model">load.employees</field>
+            <field name="arch" type="xml">
+                <form string="Cargar Horas Semanales">
+                    <group>
+                        <field name="line_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="employee_id" required="1"/>
+                                <field name="start_date" required="1"/>
+                                <field name="end_date"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button string='Cargar' name="load_employees" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+        
+        <record id="action_load_employees" model="ir.actions.act_window">
+            <field name="name">Cargar Empleados</field>
+            <field name="res_model">load.employees</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_load_employees"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

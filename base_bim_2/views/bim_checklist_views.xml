@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <!-- Plantillas de Checklist -->
+        <record id="bim_master_checklist_view_form" model="ir.ui.view">
+            <field name="name">bim.master.checklist.view.form</field>
+            <field name="model">bim.master.checklist</field>
+            <field name="arch" type="xml">
+                <form string="Plantilla Checklist">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="code"/>
+
+                            </group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lista Checklist">
+                                <field name="checklist_line_ids">
+                                    <tree editable="bottom">
+                                        <field name="sequence" widget="handle" />
+                                        <field name="item_id"/>
+                                        <field name="type"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="bim_master_checklist_view_tree" model="ir.ui.view">
+            <field name="name">bim.master.checklist.view.tree</field>
+            <field name="model">bim.master.checklist</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="bim_master_checklist_action" model="ir.actions.act_window">
+            <field name="name">BIM Plantilla Checklist</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bim.master.checklist</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Haga click para crear la primera Plantilla de Checklist
+                </p>
+            </field>
+        </record>
+
+        <!-- <menuitem id="master_checklist_categ" name="Checklists" parent="base_bim_2.menu_bim_templates" sequence="101"/> -->
+        <menuitem id="master_checklist_act" name="Platillas de Checklist" parent="menu_bim_data" action="bim_master_checklist_action" sequence="30"/>
+
+        <!-- Checklist -->
+        <record id="bim_checklist_view_form" model="ir.ui.view">
+            <field name="name">bim.checklist.view.form</field>
+            <field name="model">bim.checklist</field>
+            <field name="arch" type="xml">
+                <form string="Plantilla Checklist">
+                    <header>
+                        <button name="action_checklist_send" string="Enviar Checklist" type="object" class="oe_highlight" />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="code" readonly="1"/>
+                                <field name="user_id"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="name"/>
+                                <field name="project_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lista Checklist">
+                                <field name="checklist_line_ids">
+                                    <tree editable="bottom">
+                                        <field name="sequence" invisible="1"/> <!-- Reemplazado widget="handle" POR "invisible" daba error -->
+                                        <field name="item_id"/>
+                                        <field name="type" invisible="1"/>
+                                        <field name="is_ready_c" attrs="{'invisible': [('type', 'in', ('check', 'yesno'))]}"/>
+                                        <field name="is_ready" attrs="{'invisible': [('type', 'not in', ('check', 'yesno'))]}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Imagenes Checklist">
+                                <field name="checklist_image_ids" mode="kanban">
+                                    <kanban>
+                                        <field name="id"/>
+                                        <field name="name"/>
+                                        <field name="image_128"/>
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_kanban_global_click">
+                                                    <div class="o_kanban_image" style="margin:5px;">
+                                                        <img t-if="record.image_128.raw_value" t-att-alt="record.id.raw_value" t-att-src="kanban_image('bim.checklist.images', 'image_128', record.id.raw_value)"/>
+                                                    </div>
+                                                    <div class="oe_kanban_details">
+                                                        <strong><field name="name"/></strong>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                    <form string="Imagenes Checklist">
+                                        <field name="image_1920" widget='image' class="oe_avatar" options='{"preview_image": "image_128"}'/>
+                                        <div class="oe_title">
+                                            <h1>
+                                                <field name="name"/>
+                                            </h1>
+                                        </div>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Firma">
+                                <label for="digital_signature" string="Signature" class="oe_edit_only"/>
+                                <h2>
+                                    <field name="digital_signature" widget="signature"/>
+                                </h2>
+                            </page>
+                        </notebook>
+                        <field name="obs" placeholder="Observaciones..."/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="bim_checklis_view_tree" model="ir.ui.view">
+            <field name="name">bim.checklist.view.tree</field>
+            <field name="model">bim.checklist</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="bim_checklist_action" model="ir.actions.act_window">
+            <field name="name">BIM Checklist</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bim.checklist</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Haga click para crear la primera Checklist
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="checklist_act" name="Checklist" parent="base_bim_2.menu_bim" action="bim_checklist_action" sequence="410"/>
+    </data>
+</odoo>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+        <record id="view_bim_massive_certification_by_line_form" model="ir.ui.view">
+             <field name="name">view.bim.massive.certification.by.line.form</field>
+             <field name="model">bim.massive.certification.by.line</field>
+             <field name="arch" type="xml">
+                <form>
+                   <header>
+                       <button name="action_load_lines" type="object"
+                            string="Cargar" class="oe_highlight"
+                            states="draft"/>
+                       <button name="action_convert_to_draft" type="object"
+                            string="Convertir a Borrador" class="oe_highlight"
+                            states="cancelled"/>
+                       <button name="action_massive_certification" type="object"
+                            string="Certificar" class="oe_highlight"
+                            states="ready"/>
+                       <button name="action_cancel" type="object"
+                            string="Cancelar" class="oe_highlight"
+                            states="ready,draft"/>
+                       <button name="action_fix" type="object"
+                            string="Deshacer" class="oe_highlight"
+                            states="done"/>
+
+                       <field name="state" widget="statusbar" statusbar_visible="draft,ready,done,cancelled"/>
+                    </header>
+                      <sheet>
+                          <div class="oe_title">
+                                <h1>
+                                    <field name="name" readonly="1"/>
+                                </h1>
+                            </div>
+                          <group>
+                              <group>
+                                  <field name="project_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True}"/>
+                                  <field name="budget_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True}"/>
+                                  <field name="type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                               </group>
+                              <group>
+                                  <field name="creation_date"/>
+                                  <field name="certification_date" attrs="{'invisible': [('state', 'in', ['draft','ready'])]}"/>
+                                  <field name="user_id" options="{'no_create': True}"/>
+                                  <field name="company_id"/>
+                               </group>
+                          </group>
+
+                          <notebook>
+                              <page string="Certificación por Etapas" attrs="{'invisible': [('type', '!=', 'current_stage')]}">
+                                  <field name="certification_stage_ids" attrs="{'readonly': [('state', '=', 'done')]}">
+                                      <tree editable="bottom" create="0">
+                                          <field name="parent_id" options="{'no_create': True}" attrs="{'readonly': True}"/>
+                                          <field name="concept_id" options="{'no_create': True}" attrs="{'readonly': True}"/>
+                                          <field name="stage_id" options="{'no_create': True}" attrs="{'readonly': True}"/>
+                                          <field name="budget_qty" attrs="{'readonly': True}"/>
+                                          <field name="percent_acc" attrs="{'readonly': True}"/>
+                                          <field name="quantity_to_cert" attrs="{'readonly': False}"/>
+                                          <field name="certif_percent" attrs="{'readonly': False}"/>
+                                          <field name="amount_budget" attrs="{'readonly': True}" sum="Total"/>
+                                          <field name="amount_certif" attrs="{'readonly': True}" sum="Total"/>
+                                      </tree>
+                                  </field>
+                              </page>
+
+
+                              <page string="Certificación Manual" attrs="{'invisible': [('type', '!=', 'fixed')]}">
+                                  <field name="concept_ids" attrs="{'readonly': [('state', '=', 'done')]}">
+                                      <tree editable="bottom" create="0">
+                                          <field name="parent_id" attrs="{'readonly': True}"/>
+                                          <field name="name" attrs="{'readonly': True}"/>
+                                          <field name="quantity" attrs="{'readonly': True}"/>
+                                          <field name="percent_acc" attrs="{'readonly': True}"/>
+                                          <field name="quantity_to_cert" attrs="{'readonly': False}"/>
+                                          <field name="percent_cert" attrs="{'readonly': False}"/>
+                                          <field name="balance" string="Importe Pres." attrs="{'readonly': True}" sum="Total"/>
+                                          <field name="amount_certif" attrs="{'readonly': True}" sum="Total"/>
+                                      </tree>
+                                  </field>
+                              </page>
+                              <page string="Notas" attrs="{'invisible': [('type', '!=', 'current_stage')]}">
+                                  <field name="note" placeholder="Agrega nota de certificación"/>
+                              </page>
+                              <page string="Notas" attrs="{'invisible': [('type', '!=', 'fixed')]}">
+                                  <field name="note" placeholder="Agrega nota de certificación"/>
+                              </page>
+                          </notebook>
+                       </sheet>
+                    <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+         <record id="view_bim_massive_certification_by_line_tree" model="ir.ui.view">
+            <field name="name">view.bim.massive.certification.by.line.tree</field>
+            <field name="model">bim.massive.certification.by.line</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Certificación Masiva">
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="budget_id"/>
+                    <field name="creation_date"/>
+                    <field name="certification_date"/>
+                    <field name="type"/>
+                    <field name="state"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="total_certif"/>
+                    <field name="percent_certif"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="bim_massive_certification_by_line_action" model="ir.actions.act_window">
+            <field name="name">Certificación Massiva Por Líneas</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bim.massive.certification.by.line</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Cerfifica el primer Presupuesto!
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="bim_massive_certification_by_line_submenu"
+                name="Certificación Massiva Por Líneas"
+                parent="menu_bim"
+                action="bim_massive_certification_by_line_action"
+                sequence="10"/>
+     </data>
+</odoo>

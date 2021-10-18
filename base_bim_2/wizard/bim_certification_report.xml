@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="bim_certification_report_wizard_form" model="ir.ui.view">
+        <field name="name">bim.certification.report.wizard.form</field>
+        <field name="model">bim.certification.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Presupuesto">
+                <group>
+                    <group>
+                        <field name="budget_id" invisible="1"/>
+                        <field name="display_type" required="1" widget="radio"/>
+                    </group>
+                    <group>
+<!--
+                        <field name="total_type" widget="radio"/>
+-->
+                        <field name="text"/>
+<!--
+                        <div class="oe_grey" colspan="2">
+                            <p>
+                                <strong>- Resumido:</strong>
+                                Muestra los Totales por cada tipo de Recurso.
+                            </p>
+                            <p>
+                                <strong>- Detallado:</strong>
+                                Permite mostrar los Conceptos al nivel seleccionado.
+                            </p>
+                        </div>
+-->
+                    </group>
+                </group>
+                <footer>
+                    <button string="Imprimir" name="check_report" type="object" class="btn-primary"/>
+                    <button string="Imprimir Excel" name="check_report_xls" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="bim_certification_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Reporte Certificación</field>
+        <field name="res_model">bim.certification.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="base_bim_2.budget_summary">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="web.external_layout">
+          <div class="page">
+            <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+            </style>
+            <h3 class="text-center">REPORTE DE PRESUPUESTO RESUMIDO</h3>
+            <t t-set="budget" t-value="o.budget_id"/>
+                <table class="table table-sm" style="width:100%;">
+                    <tr>
+                        <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
+                        <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="budget.name"/></th>
+                        <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.project_id"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.code"/></td>
+                        <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                    </tr>
+                </table>
+            <br/>
+
+            <div class="row">
+                <table class="table table-condensed" style="font-size:10px;">
+                    <t t-if="o.total_type == 'asset' and budget.asset_ids">
+                        <t t-foreach="budget.asset_ids" t-as="asset">
+                            <tr t-if="asset.asset_id.show_on_report" class="border-black o_subtotal">
+                                <td class="text-left" colspan="5"><strong><span t-field="asset.asset_id.desc"/></strong></td>
+                                <td class="text-right" colspan="2"><strong><span t-esc="asset.total" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-if="not budget.asset_ids or o.total_type == 'normal'">
+                        <tr class="border-black o_subtotal" style="">
+                            <t t-set="MT" t-value="round(o.get_total('material'),2)"/>
+                            <td class="text-left" colspan="5"><strong>Total Materiales</strong></td>
+                            <td class="text-right" colspan="2"><strong><span t-esc="MT" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                        </tr>
+                        <tr class="border-black o_subtotal">
+                            <t t-set="MO" t-value="round(o.get_total('labor'),2)"/>
+                            <td class="text-left" colspan="5"><strong>Total Mano de Obra</strong></td>
+                            <td class="text-right" colspan="2"><strong><span t-esc="MO" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                        </tr>
+                        <tr class="border-black o_subtotal">
+                            <t t-set="EQ" t-value="round(o.get_total('equip'),2)"/>
+                            <td class="text-left" colspan="5"><strong>Total Equipos</strong></td>
+                            <td class="text-right" colspan="2"><strong><span t-esc="EQ" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                        </tr>
+                        <tr class="border-black o_subtotal">
+                            <t t-set="RES" t-value="MT+MO+EQ"/>
+                            <td class="text-left" colspan="5"><strong>Otros</strong></td>
+                            <td class="text-right" colspan="2"><strong><span t-esc="budget.balance-RES" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                        </tr>
+                        <tr class="border-black o_subtotal">
+                            <td class="text-left" colspan="5"><strong>TOTAL</strong></td>
+                            <td class="text-right" colspan="2"><strong><span t-field="budget.balance"/></strong></td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
+
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

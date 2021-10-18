@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="hr_employee_type_active" model="hr.employee.type">
+        <field name="name">Activo</field>
+        <field name="code" eval="0"/>
+    </record>
+
+    <record id="hr_employee_type_pension_cotiza" model="hr.employee.type">
+        <field name="name">Pensionado y cotiza</field>
+        <field name="code" eval="1"/>
+    </record>
+
+    <record id="hr_employee_type_pension_no_cotiza" model="hr.employee.type">
+        <field name="name">Pensionado y no cotiza</field>
+        <field name="code" eval="2"/>
+    </record>
+
+    <record id="hr_employee_type_activo_sixty_five" model="hr.employee.type">
+        <field name="name">Activo Mayor a 65</field>
+        <field name="code" eval="3"/>
+    </record>
+</odoo>

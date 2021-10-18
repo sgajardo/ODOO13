@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="hr_stats_previsionales_view" model="ir.ui.view">
+		<field name="name">hr.stats.view</field>
+		<field name="model">hr.stats</field>
+		<field name="arch" type="xml">
+			<form string="Indicadores Previsionales">
+				<header>
+					<button name="exe_exportar" string="Exportar" type="object"/>
+
+					<button string="Actualizar"
+						type="object" name="upate_indicators_previred"
+						confirm="¿Estás que quieres actualizar los indicadores?"
+						class="btn-primary or_right"
+						icon='fa-cloud-upload'/>
+
+					<button string="Ver Página de Indicadores Previred" type="object" name="go_to_link" class="btn-secondary"/>
+				</header>
+
+				<sheet>
+					<div class="oe_title">
+						<label for="name" class="oe_edit_only"/>
+						<h1>
+							<field name="name" placeholder="Referencia de Fecha"/>
+						</h1>
+						<h3>
+							<field name="update_date" readonly="1"/>
+						</h3>
+					</div>
+					<notebook>
+						<page string="Previred" name="previred">
+							<group>
+								<group col="4" string="INDICADORES ECONÓMICOS">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>UF</th>
+												<th>UTM</th>
+												<th>UTA</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td class="danger">
+													<field name="uf"/>
+												</td>
+												<td>
+													<field name="utm"/>
+												</td>
+												<td>
+													<field name="uta"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+
+								<group col="4" string="TASA COTIZACIÓN OBLIGATORIO AFP">
+									<table class="table table-bordered" style="margin-left:5px">
+										<thead>
+											<tr class="active">
+												<th>AFP</th>
+												<th>AFP DEP</th>
+												<th>SIS DEP</th>
+												<th>AFP INDEP</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<strong>Capital</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_capital"/>
+												</td>
+												<td>
+													<field name="tasa_sis_capital"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_capital"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Cuprum</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_cuprum"/>
+												</td>
+												<td>
+													<field name="tasa_sis_cuprum"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_cuprum"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Habitad</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_habitat"/>
+												</td>
+												<td>
+													<field name="tasa_sis_habitat"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_habitat"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Planvital</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_planvital"/>
+												</td>
+												<td>
+													<field name="tasa_sis_planvital"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_planvital"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Provida</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_provida"/>
+												</td>
+												<td>
+													<field name="tasa_sis_provida"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_provida"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Modelo</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_modelo"/>
+												</td>
+												<td>
+													<field name="tasa_sis_modelo"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_modelo"/>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Uno</strong>
+												</td>
+												<td>
+													<field name="tasa_afp_uno"/>
+												</td>
+												<td>
+													<field name="tasa_sis_uno"/>
+												</td>
+												<td>
+													<field name="tasa_independiente_uno"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+
+								<group col="4" string="RENTAS TOPES IMPONIBLES">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>DESCRIPCION</th>
+												<th>VALOR</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Para afiliados a una AFP</td>
+												<td class="warning">
+													<field name="tope_imponible_afp"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Para afiliados al IPS</td>
+												<td class="warning">
+													<field name="tope_imponible_ips"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Para Seguro de Cesantía</td>
+												<td class="warning">
+													<field name="tope_imponible_seguro_cesantia"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+
+
+								<group col="4" string="ASIGNACIÓN FAMILIAR">
+									<table class="table table-bordered" style="margin-left:5px">
+										<thead>
+											<tr class="active">
+												<th>Tramo</th>
+												<th>Monto</th>
+												<th>Requisitos</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>A</td>
+												<td>
+													<field name="asignacion_familiar_monto_a"/>
+												</td>
+												<td>
+													<field name="asignacion_familiar_primer"/>
+												</td>
+											</tr>
+											<tr>
+												<td>B</td>
+												<td>
+													<field name="asignacion_familiar_monto_b"/>
+												</td>
+												<td>
+													<field name="asignacion_familiar_segundo"/>
+												</td>
+											</tr>
+											<tr>
+												<td>C</td>
+												<td>
+													<field name="asignacion_familiar_monto_c"/>
+												</td>
+												<td>
+													<field name="asignacion_familiar_tercer"/>
+												</td>
+											</tr>
+											<tr>
+												<td>D</td>
+												<td>-</td>
+												<td>-</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+
+								<group col="4" string="RENTA MÍNIMA IMPONIBLE">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>DESCRIPCION</th>
+												<th>VALOR</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Sueldo Mínimo</td>
+												<td class="warning">
+													<field name="sueldo_minimo"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Sueldo Mínimo Otro</td>
+												<td class="warning">
+													<field name="sueldo_minimo_otro"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+								<group>
+								</group>
+
+								<group col="4" string="DEPÓSITO CONVENIDO">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>DESCRIPCION</th>
+												<th>VALOR</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Valor</td>
+												<td class="warning">
+													<field name="deposito_convenido"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+								<group>
+								</group>
+
+
+								<group col="4" string="AHORRO PREVISIONAL VOLUNTARIO (APV)">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>DESCRIPCION</th>
+												<th>VALOR</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Tope Mensual</td>
+												<td class="warning">
+													<field name="tope_anual_apv"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Tope Anual</td>
+												<td class="warning">
+													<field name="tope_mensual_apv"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+								<group>
+								</group>
+
+								<group col="4" string="SEGURO DE CESANTÍA (AFC)">
+									<table class="table table-bordered">
+										<thead>
+											<tr class="active">
+												<th>DESCRIPCION</th>
+												<th>VALOR</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Contrato Plazo Indefinido Empleador</td>
+												<td class="warning">
+													<field name="contrato_plazo_indefinido_empleador"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Contrato Plazo Indefinido Trabajador</td>
+												<td class="warning">
+													<field name="contrato_plazo_indefinido_trabajador"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Contrato Plazo Fijo</td>
+												<td class="warning">
+													<field name="contrato_plazo_fijo_empleador"/>
+												</td>
+											</tr>
+											<tr>
+												<td>Contrato Plazo Indefinido 11 años o más (**)</td>
+												<td class="warning">
+													<field name="contrato_plazo_indefinido_empleador_otro"/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</group>
+							</group>
+						</page>
+
+						<page string="Instituciones Relacionadas">
+							<group>
+								<group name="quotations" string="Cotizaciones">
+									<field name="ccaf_id" string="Nombre"/>
+									<field name="caja_compensacion" string="Tasa"/>
+									<field name="fonasa"/>
+									<field name="pensiones_ips" string="Fondo de Pensiones"/>
+									<field name="tope_imponible_salud"/>
+								</group>
+								<group name="mutual_insurance" string="Mutual de Seguridad">
+									<field name="mutualidad_id" string="Nombre"/>
+									<field name="mutual_seguridad"/>
+								</group>
+							</group>
+						</page>
+					</notebook>
+					<field name="notas"/>
+				</sheet>
+				<div class="oe_chatter">
+					<field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+					<field name="message_ids" widget="mail_thread"/>
+				</div>
+			</form>
+		</field>
+	</record>
+
+	<record id="view_tree_hr_stats" model="ir.ui.view">
+		<field name="name">view.tree.hr.stats</field>
+		<field name="model">hr.stats</field>
+		<field name="arch" type="xml">
+			<tree decoration-danger="update_date==False">
+				<field name="name"/>
+				<field name="update_date"/>
+				<field name="origen" />
+				<field name="uf" />
+				<field name="utm" />
+				<field name="uta" />
+				<field name="sueldo_minimo" />
+				<field name="sueldo_minimo_otro" />
+				<field name="mutualidad_id" />
+				<field name="mutual_seguridad" />
+				<field name="ccaf_id" />
+				<field name="caja_compensacion" />
+				<field name="notas"/>
+			</tree>
+		</field>
+	</record>
+
+
+	<!-- Menu View -->
+	<menuitem id="menu_cl_hr_payroll_indicators" name="Indicadores Previsionales" parent="hr_payroll.menu_hr_payroll_root" sequence="10"/>
+	<record id="hr_payroll.menu_hr_payroll_report" model="ir.ui.menu">
+		<field name="sequence">11</field>
+	</record>
+
+	<act_window id="hr_stats_previsionales_action"
+		name="Indicadores"
+		res_model="hr.stats"
+		view_mode="tree,form"
+		/>
+	<menuitem id="hr_stats_previsionales_menu"
+		parent="menu_cl_hr_payroll_indicators"
+		action="hr_stats_previsionales_action"
+		sequence="10"
+		/>
+	<act_window id="hr_isapre_action"
+		name="Isapres"
+		res_model="hr.isapre"
+		view_mode="tree,form"
+		/>
+	<menuitem id="hr_isapres_menu"
+		parent="menu_cl_hr_payroll_configuration"
+		action="hr_isapre_action"
+		sequence="11"
+		/>
+	<act_window id="hr_ccaf_action"
+		name="CCAF"
+		res_model="hr.ccaf"
+		view_mode="tree,form"
+		/>
+	<menuitem id="hr_ccaf_menu"
+		parent="menu_cl_hr_payroll_configuration"
+		action="hr_ccaf_action"
+		sequence="12"
+		/>
+	<act_window id="hr_mutual_action"
+		name="Mutualidad"
+		res_model="hr.mutual"
+		view_mode="tree,form"
+		/>
+	<menuitem id="hr_mutual_menu"
+		parent="menu_cl_hr_payroll_configuration"
+		action="hr_mutual_action"
+		sequence="13"
+		/>
+</odoo>

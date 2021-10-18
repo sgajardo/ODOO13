@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_afp_form" model="ir.ui.view">
+        <field name="name">hr.afp.form</field>
+        <field name="model">hr.afp</field>
+        <field name="arch" type="xml">
+            <form string="AFP">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="codigo"/>
+                            <field name="name"/>
+                            <field name="rut"/>
+                        </group>
+                        <group>
+                            <field name="rate"/>
+                            <field name="sis"/>
+                            <field name="independiente"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="hr_afp_action"
+        name="AFP"
+        res_model="hr.afp"
+        view_mode="tree,form"/>
+
+    <menuitem id="hr_afp_menu"
+        parent="menu_cl_hr_payroll_configuration"
+        action="hr_afp_action"
+        sequence="14"/>
+</odoo>

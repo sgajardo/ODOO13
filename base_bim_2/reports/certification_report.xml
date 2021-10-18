@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="base_bim_2.certification_report">
+        <t t-call="web.html_container">
+          <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+              <div class="page">
+                <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+                </style>
+                <h3 class="text-center">REPORTE DE CERTIFICACIÓN GENERAL</h3>
+                <t t-set="budget" t-value="o.budget_id"/>
+                <table class="table table-sm" style="width:100%;">
+                    <tr>
+                        <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
+                        <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="budget.name"/></th>
+                        <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.project_id"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.code"/></td>
+                        <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                    </tr>
+                </table>
+
+                <div class="row">
+                    <table class="table table-sm main_table" style="font-size:10px;width:100%;">
+                        <thead>
+                            <tr>
+                                <th style="width:10%;">CÓDIGO</th>
+                                <th>CONCEPTO</th>
+                                <th class="text-center">UNIDAD</th>
+                                <th class="text-center">CANTIDAD</th>
+                                <th class="text-right">PRECIO</th>
+                                <th class="text-right">IMPORTE</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-set="chapters" t-value="budget.concept_ids.filtered(lambda c: not c.parent_id and c.balance_cert > 0)"/>
+                            <t t-set="total" t-value="0"/>
+                            <t t-foreach="chapters" t-as="chapter" class="active">
+                                <tr style="background-color: #E5E5E5;" class="parent_row">
+                                    <td class="text-left">
+                                        <i t-attf-class="fa fa-{{'th-large text-success' if chapter.type == 'chapter' else 'th-list text-warning' if chapter.type == 'departure' else 'male text-success'}} mr-2 float-left"/><em><span t-field="chapter.code"/></em>
+                                    </td>
+                                    <td class="text-left"><em><strong><span t-field="chapter.name"/></strong></em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-center"><em>-</em></td>
+                                    <td class="text-right">
+                                        <em><span t-field="chapter.balance_cert"/></em>
+                                    </td>
+                                </tr>
+                                <t t-set="total" t-value="total+chapter.balance_cert"/>
+                                <t t-set="cert_childs" t-value="chapter.child_ids.filtered(lambda c: c.to_certify and c.balance_cert > 0)"/>
+                                <t t-foreach="cert_childs" t-as="child">
+                                    <tr class="child_row">
+                                        <td class="text-left">
+                                            <i t-attf-class="fa fa-{{'percent text-success' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="child.code"/>
+                                        </td>
+                                        <td><span t-field="child.name"/></td>
+                                        <td><span t-field="child.uom_id"/></td>
+                                        <td class="text-center"><span t-field="child.quantity_cert" /></td>
+                                        <td class="text-right"><span t-field="child.amount_compute_cert"/></td>
+                                        <td class="text-right"><span t-field="child.balance_cert" /></td>
+                                    </tr>
+                                    <tr t-if="o.text">
+                                        <td colspan="1"></td>
+                                        <td colspan="5" style="text-align:justify;"><span t-field="child.note"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <tr style="background-color: #BFBFBF; font-size: 12px;">
+                                <td colspan="1" style="text-align:center;"><strong>TOTAL</strong></td>
+                                <td colspan="4"></td>
+                                <td colspan="1" style="text-align:right;"><strong><span t-esc="total" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+            </t>
+          </t>
+        </t>
+    </template>
+</odoo>

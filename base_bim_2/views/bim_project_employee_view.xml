@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+        <record id="bim_project_employee_form" model="ir.ui.view">
+            <field name="name">bim.project.employee.form</field>
+            <field name="model">bim.project.employee</field>
+            <field name="arch" type="xml">
+                <form string="Empleado por Obra">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="employee_id" required="1"
+                                    options='{"no_create": 1, "no_open": 1, "no_create_edit":True}'/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id" required="1" options='{"no_create": 1, "no_open": 1, "no_create_edit":True}'/>
+                                <label for="start_date" string="Tiempo en Obra"/>
+                                <div>
+                                    <div>
+                                        <field name="start_date" required="1" class="oe_inline"/>
+<!--                                        <label string="-" class="oe_inline"/>-->
+                                        <field name="end_date" class="oe_inline"/>
+                                    </div>
+                                </div>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="bim_project_employee_filter" model="ir.ui.view">
+            <field name="name">bim.project.employee.filter</field>
+            <field name="model">bim.project.employee</field>
+            <field name="arch" type="xml">
+                <search string="Buscar">
+                    <field name="employee_id" />
+                    <field name="project_id"/>
+                    <group expand="0" string="Agrupar">
+                        <filter name="group_by_employee_id" string="Empleado" context="{'group_by':'employee_id'}"/>
+                        <filter name="group_by_project_id" string="Obra" context="{'group_by':'project_id'}"/>
+                        <separator/>
+                        <filter name="group_date" string="Fecha de Inicio" context="{'group_by':'start_date'}"/>
+                    </group>
+               </search>
+            </field>
+        </record>
+
+        <record id="bim_project_employee_tree" model="ir.ui.view">
+            <field name="name">bim.project.employee.tree</field>
+            <field name="model">bim.project.employee</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="employee_id"/>
+                    <field name="project_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_bim_project_employee" model="ir.actions.act_window">
+            <field name="name">Empleado por Obra</field>
+            <field name="res_model">bim.project.employee</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Presione para crear nuevo Registro</p>
+            </field>
+        </record>
+
+        <menuitem id="menu_bim_project_employee"
+                  parent="menu_bim"
+                  action="action_bim_project_employee"
+                  groups="base_bim_2.group_employee_bim"
+                  sequence="200" />
+
+     </data>
+</odoo>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="base_bim_2.origin_cert_report">
+        <t t-call="web.html_container">
+          <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+              <div class="page">
+                <style  type="text/css">
+                  th, td {
+                    vertical-align: middle !important;
+                  }
+                </style>
+                <h3 class="text-center">REPORTE CERTIFICACIÓN ACTUAL Y A ORIGEN</h3>
+                <t t-set="budget" t-value="o.budget_id"/>
+                <table class="table table-sm" style="width:100%;">
+                    <tr>
+                        <th class="text-center" style="border:1px solid black;width:40%;">OBRA</th>
+                        <th class="text-center text-uppercase" style="border:1px solid black;width:40%;"><span t-field="budget.name"/></th>
+                        <th class="text-center" style="border:1px solid black;width:20%;">FECHA IMPRESIÓN</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.project_id"/></td>
+                        <td class="text-center" style="background-color:#E9ECEF;"><span t-field="budget.code"/></td>
+                        <td class="text-center"><span t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                    </tr>
+                </table>
+
+                <div class="row">
+                    <table class="table table-sm main_table" style="font-size:10px;width:100%;">
+                        <thead>
+                            <tr>
+                                <th colspan="3"></th>
+                                <th class="text-center" colspan="2">ORIGEN</th>
+                                <th class="text-center" colspan="2">ANTERIORES</th>
+                                <th class="text-center" colspan="2">ACTUAL</th>
+                            </tr>
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>CONCEPTO</th>
+                                <th class="text-center">UNIDAD</th>
+                                <th class="text-center">CANT</th>
+                                <th class="text-center">IMPORTE</th>
+                                <th class="text-center">CANT</th>
+                                <th class="text-center">IMPORTE</th>
+                                <th class="text-center">CANT</th>
+                                <th class="text-center">IMPORTE</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <t t-set="total_origin" t-value="0"/>
+                            <t t-set="total_previous" t-value="0"/>
+                            <t t-set="total_current" t-value="0"/>
+                            <t t-set="chapters" t-value="budget.concept_ids.filtered(lambda c: not c.parent_id and c.balance_cert > 0)"/>
+                            <t t-foreach="chapters" t-as="chapter" class="active">
+                                <tr style="background-color: #E5E5E5;" class="parent_row">
+                                    <td class="text-left">
+                                        <i t-attf-class="fa fa-{{'th-large text-success' if chapter.type == 'chapter' else 'th-list text-warning' if chapter.type == 'departure' else 'male text-success'}} mr-2 float-left"/><em><span t-field="chapter.code"/></em>
+                                    </td>
+                                    <td>
+                                        <em><strong><span t-field="chapter.name"/></strong></em>
+                                    </td>
+                                    <td class="text-right"><em></em></td>
+
+                                    <!-- Origen-->
+                                    <t t-set="origin" t-value="o.get_origin_total(chapter)"/>
+                                    <t t-set="total_origin" t-value="total_origin + origin"/>
+                                    <td class="text-center"><em></em></td>
+                                    <td class="text-right">
+                                        <em><strong><span t-esc="round(origin,2)"/></strong></em>
+                                    </td>
+
+                                    <!-- Anterior-->
+                                    <t t-set="previous" t-value="o.get_previous_total(chapter)"/>
+                                    <t t-set="total_previous" t-value="total_previous + previous"/>
+                                    <td class="text-center"><em></em></td>
+                                    <td class="text-right">
+                                        <em><strong><span t-esc="round(previous,2)"/></strong></em>
+                                    </td>
+
+                                    <!-- Actual-->
+                                    <t t-set="current" t-value="o.get_current_total(chapter)"/>
+                                    <t t-set="total_current" t-value="round(total_current + current,2)"/>
+                                    <td class="text-center"><em></em></td>
+                                    <td class="text-right">
+                                        <em><strong><span t-esc="round(current,2)"/></strong></em>
+                                    </td>
+                                </tr>
+                                 <t t-set="cert_childs" t-value="chapter.child_ids.filtered(lambda c: c.to_certify and c.balance_cert > 0)"/>
+                                <t t-foreach="cert_childs" t-as="child">
+                                    <tr class="child_row">
+                                        <td class="text-left">
+                                            <i t-attf-class="fa fa-{{'percent text-success' if child.type == 'aux' else 'th-list text-warning' if child.type == 'departure' else 'male text-success' if child.type == 'labor' else 'gears text-danger' if child.type == 'equip' else 'maxcdn text-warning' if child.type == 'material' else 'edit text-info'}} mr-2 ml-3 float-left"/><span t-field="child.code"/>
+                                        </td>
+                                        <td><span t-field="child.name"/></td>
+                                        <td class="text-center"><span t-field="child.uom_id"/></td>
+                                        <!-- Origen-->
+                                        <t t-set="origin" t-value="o.get_origin_cert(child)"/>
+                                        <td class="text-center"><span t-esc="origin['qty']" /></td>
+                                        <td class="text-right"><span t-esc="origin['amount']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                        <!-- Anterior-->
+                                        <t t-set="previous" t-value="o.get_previous_cert(child)"/>
+                                        <td class="text-center"><span t-esc="previous['qty']" /></td>
+                                        <td class="text-right"><span t-esc="previous['amount']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                        <!-- Actual-->
+                                        <t t-set="current" t-value="o.get_current_cert(child)"/>
+                                        <td class="text-center"><span t-esc="current['qty']" /></td>
+                                        <td class="text-right"><span t-esc="current['amount']" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <tr style="background-color: #BFBFBF; font-size: 12px;">
+                                <td style="text-align:center;"></td>
+                                <td style="text-align:center;"><strong>TOTALES</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td style="text-align:right;"><strong><span t-esc="total_origin" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                                <td></td>
+                                <td style="text-align:right;"><strong><span t-esc="total_previous" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                                <td></td>
+                                <td style="text-align:right;"><strong><span t-esc="total_current" t-options="{'widget': 'monetary', 'display_currency': budget.currency_id}"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+              </div>
+            </t>
+          </t>
+        </t>
+    </template>
+</odoo>

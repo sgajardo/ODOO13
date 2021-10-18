@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_bim_configuration" model="ir.ui.view">
+        <field name="name">bim.res.config.view</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" name="Bim2" data-string="Bim 2.0" string="Bim 2.0"
+                     data-key="base_bim_2" groups="base_bim_2.group_manager_bim">
+
+                    <h2>Configuración General</h2>
+                    <div class="row mt16 o_settings_container" name="bim_setting_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">FACTURACIÓN</span>
+                                <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."
+                                      aria-label="Values set here are company-specific."
+                                      groups="base.group_multi_company" role="img"/>
+                                <div class="text-muted">
+                                    Debe configurar estos valores para realizar la facturación desde los Estados de Pagos
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="journal_id" string="Diario" class="col-lg-3 o_light_label"/>
+                                        <field name="journal_id" widget="selection"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="paidstate_product" string="Producto" class="col-lg-3 o_light_label"/>
+                                        <field name="paidstate_product" widget="selection"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="paidstate_product_mant" string="Producto Mantencion" class="col-lg-3 o_light_label"/>
+                                        <field name="paidstate_product_mant" widget="selection"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="retention_product" string="Producto de Retención" class="col-lg-3 o_light_label"/>
+                                        <field name="retention_product" widget="selection"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <span class="o_form_label"></span>
+                                <field name="validate_stock"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">INVENTARIO</span>
+                                <span class="fa fa-lg fa-truck" title="Values set here are company-specific." aria-label="Values set here are company-specific." groups="base.group_multi_company" role="img"/><br/>
+                                <label for="validate_stock"/>
+                                <div class="text-muted">
+                                    Se validarán automáticamente los movimientos de Stock que se realicen desde la Obra
+                                </div>
+                            </div>
+                             <div class="o_setting_left_pane">
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="stock_location_mobile"/>
+                                <div class="text-muted">
+                                    "Ubicación que se usará por defecto para la entrada de mercancia en el Almacen Movil
+                                </div>
+                                <field name="stock_location_mobile" widget="selection"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Configuración Presupuesto</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">CÁLCULOS</span>
+                                <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."
+                                      aria-label="Values set here are company-specific."
+                                      groups="base.group_multi_company" role="img"/>
+                                <div class="text-muted">
+                                    Indica como desea trabajar el presupuesto, basado en el precio o coste del producto
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="type_work" string="Tipo Precio" class="col-lg-3 o_light_label"/>
+                                        <field name="type_work" widget="selection"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="asset_template_id"/>
+                                <div class="text-muted">
+                                    Plantilla de Haberes y Descuentos que se usará al crear un presupuesto
+                                </div>
+                                <field name="asset_template_id"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="product_category_id"/>
+                                <div class="text-muted">
+                                    Categoría usada al crear los productos de los recursos en las partidas.
+                                </div>
+                                <field name="product_category_id"/>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2>Configuración Mantenimiento</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">RECORDATORIO DE MANTENIMIENTO</span>
+                                <span class="fa fa-lg fa-male" title="Values set here are company-specific."
+                                      aria-label="Values set here are company-specific."
+                                      groups="base.group_multi_company" role="img"/>
+                                <div class="text-muted">
+                                    Configurar las cantidades de días para que se envíe un recordatorio al cliente
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="array_day_ids" string="Días" class="col-lg-3 o_light_label"/>
+                                        <field name="array_day_ids" widget="many2many_tags"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="template_mant_id" class="col-lg-3 o_light_label"/>
+                                        <field name="template_mant_id" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Configuración Retención</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">RETENCIONES</span>
+                                <span class="fa fa-lg fa-male" title="Values set here are company-specific."
+                                      aria-label="Values set here are company-specific."
+                                      groups="base.group_multi_company" role="img"/>
+                                <div class="text-muted">
+                                    Configurar Retenciones
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="retention" string="" class="col-lg-3 o_light_label"/>
+                                        <field name="retention"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>Configuración Recursos Humanos</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">HORAS DE TRABAJO</span>
+                                <span class="fa fa-lg fa-male" title="Values set here are company-specific."
+                                      aria-label="Values set here are company-specific."
+                                      groups="base.group_multi_company" role="img"/>
+                                <div class="text-muted">
+                                    Configurar el número de horas de una Jornada Laboral y el factor de cálculo para las horas extras
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label for="working_hours" string="Jornada Laboral" class="col-lg-3 o_light_label"/>
+                                        <field name="working_hours"/>
+                                    </div>
+                                    <div class="row mt16">
+                                        <label for="extra_hour_factor" string="Factor Hora Extra" class="col-lg-3 o_light_label"/>
+                                        <field name="extra_hour_factor"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="action_bim_configuration" model="ir.actions.act_window">
+        <field name="name">Configuración BIM</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'base_bim_2'}</field>
+    </record>
+
+
+    <menuitem id="menu_bim_general_settings"
+              name="Ajustes"
+              parent="menu_bim_config"
+              sequence="10"
+              action="action_bim_configuration"
+              groups="base.group_system"/>
+</odoo>

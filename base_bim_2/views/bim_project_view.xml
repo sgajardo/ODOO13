@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_form_bim_project" model="ir.ui.view">
+        <field name="name">view.form.bim.project</field>
+        <field name="model">bim.project</field>
+        <field name="arch" type="xml">
+            <form string="Obra/Proyecto">
+                <header>
+                    <button name="%(base_bim_2.bim_clone_budget_wizard_action)d" icon="fa-plus"
+                            string="Plantilla" type="action" groups="base_bim_2.group_user_bim"/>
+                    <button name="action_create_maintenance" attrs="{'invisible': ['|',('maintenance_contract', '=', False),('maintenance','=',True)]}"
+                            string="GENERAR MANTENIMIENTOS" class="oe_highlight" type="object" groups="base_bim_2.group_bim_maintenance"/>
+                    <button name="create_warehouse" attrs="{'invisible': ['|',('warehouse_id', '!=', False)]}"
+                            string="Bodega" type="object" confirm="¿Está seguro de crear una bodega para esta obra?"/>
+                    <button name="%(bim_project_stock_location_action)d" type="action"
+                            string="Mov. de salida" attrs="{'invisible': ['|',('stock_location_id', '=', False),('state','in',['7','9'])]}"/>
+                    <button name="%(base_bim_2.action_load_employees)d" attrs="{'invisible': [('state','in',['7','9'])]}"
+                            string="Cargar Empleados" type="action" groups="base_bim_2.group_employee_bim"/>
+                    <button name="%(base_bim_2.action_load_week_hours)d" attrs="{'invisible': [('state','in',['7','9'])]}"
+                            string="Cargar Horas" type="action" groups="base_bim_2.group_employee_bim"/>
+                    <button name="%(base_bim_2.action_load_template_checklist)d" string="Checklist" type="action"/>
+                    <button name="action_estudio" attrs="{'invisible': [('state', '!=', '1')]}"
+                            string="Estudio" icon='fa-angle-right' class="oe_highlight" type="object"/>
+                    <button name="action_licitacion" attrs="{'invisible': [('state', '!=', '2')]}" icon='fa-angle-right'
+                            string="Licitación" class="oe_highlight" type="object"/>
+                    <button name="action_revision" attrs="{'invisible': [('state', '!=', '3')]}" icon='fa-angle-right'
+                            string="Revisión" class="oe_highlight" type="object"/>
+                    <button name="action_adjudicar" attrs="{'invisible': [('state', '!=', '4')]}" icon='fa-angle-right'
+                            string="Adjudicado" class="oe_highlight" type="object"/>
+                    <button name="action_perdido" confirm="¿Está seguro de pasar a perdido esta Obra?" icon='fa-angle-right'
+                            attrs="{'invisible': [('state', '!=', '4')]}" string="Perdido" type="object"/>
+                    <button name="action_estudio" confirm="¿Está seguro de reabrir esta Obra?" icon='fa-angle-right'
+                            attrs="{'invisible': [('state', '!=', '7')]}" string="Reabrir Obra" type="object"/>
+                    <button name="action_proceso" attrs="{'invisible': [('state', '!=', '5')]}" icon='fa-angle-right'
+                            string="Ejecución" class="oe_highlight" type="object"/>
+                    <button name="action_calidad" attrs="{'invisible': [('state', '!=', '6')]}" icon='fa-angle-right'
+                            string="Calidad" class="oe_highlight" type="object"/>
+                    <button name="action_entregar" attrs="{'invisible': [('state', '!=', '8')]}" icon='fa-angle-right'
+                            string="Entregado" class="oe_highlight" type="object"/>
+                    <button name="action_nuevo" attrs="{'invisible': [('state', 'not in', ['2','3','4','5','7','9'])]}" icon='fa-angle-right'
+                            string="Nuevo" class="oe_highlight" type="object"/>
+                    <button name="%(base_bim_2.bim_stock_report_wizard_action)d" string="Salidas" type="action"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_budgets" type="object" class="oe_stat_button" icon="fa-money" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="budget_count" widget="statinfo" nolabel="1" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text">Presupuesto</span>
+                            </div>
+                        </button>
+                        <button name="action_view_employees" type="object" class="oe_stat_button" icon="fa-users" groups="base_bim_2.group_employee_bim">
+                            <field name="employee_count" widget="statinfo" string="Empleados"/>
+                        </button>
+                        <button name="action_view_timesheets" type="object" class="oe_stat_button" icon="fa-calendar-o" groups="base_bim_2.group_employee_bim">
+                            <field name="timesheet_count" widget="statinfo" string="Hojas de Tiempo"/>
+                        </button>
+                         <button name="action_view_attendance" type="object" class="oe_stat_button" icon="fa-calendar" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="executed_attendance" widget="statinfo" nolabel="1"/> H/ <field name="attendance_cost" widget="monetary" nolabel="1"/></span>
+                                <span class="o_stat_text">Asistencia</span>
+                            </div>
+                        </button>
+                        <button name="action_view_requisitions" type="object" class="oe_stat_button" icon="fa-shopping-basket">
+                            <field name="requisition_count" widget="statinfo" string="Solicitud de Materiales"/>
+                        </button>
+                        <button name="action_view_out_invoices" type="object" class="oe_stat_button" icon="fa-file-text" groups="account.group_account_invoice" attrs="{'invisible': [('out_invoice_count', '=', 0)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="out_invoiced_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text"><field name="out_invoice_count" nolabel="1"/> Facturas Ventas</span>
+                            </div>
+                        </button>
+                        <button name="action_view_in_invoices" type="object" class="oe_stat_button" icon="fa-file-text" groups="account.group_account_invoice" attrs="{'invisible': [('in_invoice_count', '=', 0)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="in_invoiced_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text"><field name="in_invoice_count" nolabel="1"/> Facturas Comprass</span>
+                            </div>
+                        </button>
+                        <button name="action_view_documents" type="object" class="oe_stat_button" icon="fa-file-pdf-o">
+                            <field name="count_docs" widget="statinfo" string="Documentos"/>
+                        </button>
+                        <button name="action_view_objects" type="object" class="oe_stat_button" icon="fa-home">
+                            <field name="count_objects" widget="statinfo" string="Objetos Obra"/>
+                        </button>
+                        <button name="action_view_paidstate" type="object" class="oe_stat_button" icon="fa-clone">
+                            <field name="paidstatus_count" widget="statinfo" string="Estados de Pago"/>
+                        </button>
+                        <button name="action_view_maintenance" groups="base_bim_2.group_bim_maintenance" type="object" class="oe_stat_button" icon="fa-wrench" attrs="{'invisible': [('maintenance_contract', '!=', True)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="maintenance_done_count" widget="statinfo" nolabel="1"/> / <field name="maintenance_count" widget="statinfo" nolabel="1"/>
+                                </span>
+                                <span class="o_stat_text">Mantenimientos</span>
+                            </div>
+                        </button>
+                        <button type="object" class="oe_stat_button" icon="fa-sticky-note" name="action_view_quants" groups="stock.group_stock_user"  attrs="{'invisible': [('stock_location_id', '=', False)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="inventory_valuation" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text">Valor Inv.</span>
+                            </div>
+                        </button>
+                        <button type="object" class="oe_stat_button" icon="fa-share" name="action_view_outgoings" groups="stock.group_stock_user" attrs="{'invisible': [('stock_location_id', '=', False)]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="outgoing_val" widget="monetary" options="{'currency_field': 'currency_id'}"/></span>
+                                <span class="o_stat_text">Costos de Venta</span>
+                            </div>
+                        </button>
+                        <button name="action_view_tasks" type="object" class="oe_stat_button" icon="fa-sticky-note">
+                            <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="task_done_count" widget="statinfo" nolabel="1"/> / <field name="count_tasks" widget="statinfo" nolabel="1"/>
+                            </span>
+                            <span class="o_stat_text">Tareas</span>
+                            </div>
+                        </button>
+                        <button name="action_view_tickets" type="object" class="oe_stat_button" icon="fa-bug">
+                            <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="ticket_done_count" widget="statinfo" nolabel="1"/> / <field name="count_tickets" widget="statinfo" nolabel="1"/>
+                            </span>
+                            <span class="o_stat_text">Tickets</span>
+                            </div>
+                        </button>
+
+                        <button name="action_view_checklist" type="object" class="oe_stat_button" icon="fa-check" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="checklist_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Checklists</span>
+                            </div>
+                        </button>
+                        <button name="action_view_workorder" type="object" class="oe_stat_button" icon="fa-pencil-square-o" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="workorder_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Ordenes de Trabajo</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <field name="id" invisible="1"/>
+                    <field name="analytic_created" invisible="1"/>
+                    <field name="in_invoice_count" invisible="1"/>
+                    <field name="out_invoice_count" invisible="1"/>
+                    <field name="image_1920" widget='image' class="oe_avatar" options='{"preview_image": "image_128"}'/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Datos Principales">
+                            <field name="nombre" required="1"/>
+                            <field name="customer_id"  required="1"/>
+                            <field name="department_id" options='{"no_create": 1}' required="1"/>
+                            <field name="street_id"  options='{"no_create": 1}'/>
+                            <field name="tag_ids" placeholder="Etiquetas" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+
+                        </group>
+                        <group string="Datos Secundarios">
+                            <field name="retention"/>
+                            <field name="currency_id" invisible="0"/>
+                            <field name="balance"/>
+                            <field name="surface"/>
+                            <field name="balace_surface"/>
+                            <field name="hh_planificadas"/>
+                            <field name="project_state" attrs="{'invisible': [('state', 'in', ['1','2','3','4'])]}"/>
+                            <field name="maintenance_contract" groups="base_bim_2.group_bim_maintenance"/>
+                            <field name="priority"  widget="priority"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Datos Licitación">
+                            <field name="expedient"/>
+                            <field name="adjudication_date"/>
+                            <field name="amount_tender"/>
+                            <field name="amount_award"/>
+                        </group>
+
+                        <group string="Fechas">
+                            <field name="date_contract"/>
+
+                            <field name="date_ini" required="1"/>
+                            <field name="date_ini_real"/>
+
+                            <field name="date_end"/>
+                            <field name="date_end_real"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <!--
+                        <page string="Indicadores comparativos">
+                            <button name="compute_indicators" string="Calcular Indicadores" class="oe_highlight" type="object"/>
+                            <field name="indicator_ids" nolabel="1">
+                                <tree editable="bottom" create="false" delete="false" decoration-danger="projected&lt;0.0">
+                                    <field name="type"/>
+
+                                    <field name="budget"/>
+                                    <field name="real"/>
+                                    <field name="projected"/>
+
+                                    <field name="percent"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        -->
+
+                        <page string="Notas">
+                            <field name="obs" widget="html"/>
+                        </page>
+
+                        <page string="Configuración">
+                            <group>
+                                <group>
+                                    <field name="warehouse_id" invisible="0"/>
+                                    <field name="stock_location_id" domain="[('usage','=','internal')]"
+                                           options='{"no_create": 1, "no_open": 1}' attrs="{'readonly': [('state', 'not in', '1')]}"/>
+                                </group>
+                                <group>
+                                    <field name="user_id" options='{"no_create": 1}' required="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Contabilidad">
+                            <group>
+                                <group>
+                                    <field name="paidstate_product" options='{"no_create": 1}'/>
+                                    <field name="retetion_product" options='{"no_create": 1}'/>
+                                </group>
+                                <group>
+                                     <field name="analytic_id"  options='{"no_create": 1}' force_save="1"/>
+                                </group>
+                             </group>
+                        </page>
+
+                        <page string="Mantenimiento" groups="base_bim_2.group_bim_maintenance" attrs="{'invisible': [('maintenance_contract', '=', False)]}">
+                            <group>
+                                <group>
+                                    <field name="maintenance_period"/>
+                                    <field name="maintenance_duration"/>
+                                    <field name="maintenance_amount" options="{'currency_field': 'maintenance_currency_id'}"/>
+                                </group>
+                                <group>
+                                    <field name="maintenance_start_date"/>
+                                    <field name="maintenance_end_date"/>
+                                    <field name="maintenance_currency_id"
+                                        options='{"no_create": 1, "no_open": 1, "no_quick_create": 1, "no_create_edit": 1}'/>
+                                </group>
+                                <field name="maintenance_ids" invisible="1"/>
+                                <field name="maintenance" invisible="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Precios Acordados">
+                            <field name="price_agreed_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id" required="1"/>
+                                    <field name="price_agreed" required="1"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Ventas">
+                            <button name="update_sale_project_cost" type="object" string="Actualizar Ventas" class="btn-primary mt-2"/>
+                            <field name="sale_project_cost_ids" readonly="1">
+                                <tree>
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Costos de Obra">
+                            <button name="update_project_cost" type="object" string="Actualizar Costos Obra" class="btn-primary mt-2"/>
+                            <field name="project_cost_ids" readonly="1">
+                                <tree>
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group>
+                        <field name="notes" nolabel="1" type="html" placeholder="Observaciones..."/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_project" model="ir.ui.view">
+        <field name="name">view.tree.bim.project</field>
+        <field name="model">bim.project</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="nombre"/>
+                <field name="tag_ids"/>
+                <field name="department_id"/>
+                <field name="customer_id"/>
+                <field name="street_id"/>
+                <field name="user_id"/>
+                <field name="date_ini"/>
+                <field name="date_end"/>
+                <field name="project_state"/>
+                <field name="surface"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="balance"/>
+                <field name="sale_total_project_cost"/>
+                <field name="total_project_cost"/>
+                <field name="project_profit"/>
+                <field name="project_margin"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_kanban_bim_project" model="ir.ui.view">
+        <field name="name">Obra/Proyecto</field>
+        <field name="model">bim.project</field>
+        <field name="arch" type="xml">
+            <kanban archivable="false">
+                <field name="id"/>
+                <field name="image_128"/>
+                <field name="customer_id"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_global_click">
+                            <div class="o_dropdown_kanban dropdown">
+
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                           </div>
+
+                            <div class="o_kanban_image" style="margin:5px;">
+                                <!--  Antiguo (Funciona pero no muestra imagen por defecto) <img t-att-alt="record.id.raw_value" t-att-src="kanban_image('bim.project', 'image_128', record.id.raw_value)"/>-->
+                                <img t-att-src="kanban_image('bim.project', 'image_128', record.id.raw_value)" t-att-alt="record.id.raw_value" class="o_image_64_contain"/>
+                            </div>
+
+                            <div class="oe_kanban_details">
+                                <strong><field name="nombre"/></strong>
+                                <ul>
+                                    <li><strong>Código:</strong> <field name="name"></field></li>
+                                    <li><strong>Cliente:</strong> <field name="customer_id"></field></li>
+                                    <li><strong>Supervisor:</strong> <field name="user_id"></field></li>
+                                    <li><strong>Importe:</strong> <field name="balance"></field></li>
+                                    <li><strong>Estado:</strong> <field name="state"></field></li>
+
+                                </ul>
+                                <div name="tags"/>
+                            </div>
+                            <div class="row">
+                                <div class="col-2">
+
+                                </div>
+                                <div class="col-8">
+                                    <div class="o_kanban_tags_section">
+                                        <span class="oe_kanban_list_many2many">
+                                            <field name="tag_ids"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="priority" widget="priority" groups="base.group_user"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <img t-att-src="kanban_image('res.users', 'image_128', record.user_id.raw_value)" t-att-title="record.user_id.value" t-att-alt="record.user_id.value" class="oe_kanban_avatar"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_search_bim_project" model="ir.ui.view">
+        <field name="name">view.search.bim.project</field>
+        <field name="model">bim.project</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="nombre"/>
+                <field name="department_id" />
+                <field name="user_id" />
+                <field name="customer_id" />
+                <field name="tag_ids" />
+                <field name="date_ini" />
+                <group expand="0" string="Group By">
+                    <filter name="group_customer" string="Cliente" context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_department" string="Departamento" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_user" string="Supervisor" context="{'group_by': 'user_id'}"/>
+                    <filter string="Fecha" name="by_date" domain="[]" context="{'group_by': 'date_ini'}" help="Journal Entries by Date"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="bim_project_view_pivot" model="ir.ui.view">
+            <field name="name">bim.project.view.pivot</field>
+            <field name="model">bim.project</field>
+            <field name="arch" type="xml">
+                <pivot string="Análisis de Obras">
+                    <field name="date_ini" interval="month" type="row"/>
+                    <field name="state" type="col"/>
+                    <field name="balance" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+    <record id="view_bim_project_opportunities_filter" model="ir.ui.view">
+            <field name="name">bim.project.search.opportunity</field>
+            <field name="model">bim.project</field>
+            <field name="priority">15</field>
+            <field name="arch" type="xml">
+                <search string="Búsqueda Obra">
+
+                    <filter string="Mis Obras" name="assigned_to_me"
+                        domain="[('user_id', '=', uid)]"
+                        help="Mis Obras"/>
+
+                    <separator/>
+                    <filter string="Nuevas" name="1" domain="[('state', '=', '1')]"/>
+                    <filter string="Adjudicadas" name="5" domain="[('state', '=', '5')]"/>
+                    <filter string="Ejecución" name="6" domain="[('state', '=', '6')]"/>
+                    <filter string="Terminado" name="9" domain="[('state', '=', '9')]"/>
+                    <!--
+                    <separator/>
+                    <filter string="Archivadas" name="inactive" domain="[('active', '=', False)]"/>
+                    -->
+                </search>
+            </field>
+        </record>
+
+    <record id="action_bim_proect" model="ir.actions.act_window">
+        <field name="name">Obras</field>
+        <field name="res_model">bim.project</field>
+        <field name="view_mode">kanban,tree,graph,pivot,form,activity</field>
+        <field name="context">{}</field>
+        <field name="search_view_id" ref="base_bim_2.view_search_bim_project"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo proyecto u obra
+            </p>
+        </field>
+    </record>
+
+    <record id="bim_project_view_graph" model="ir.ui.view">
+            <field name="name">bim.project.view.graph</field>
+            <field name="model">bim.project</field>
+            <field name="arch" type="xml">
+                <graph string="Obras/Proyectos">
+                    <field name="state" type="col"/>
+                    <field name="user_id" type="row"/>
+                </graph>
+            </field>
+        </record>
+
+
+    <menuitem id="menu_bim_projects"
+              name="Obras / Proyectos"
+              parent="menu_bim"
+              action="action_bim_proect"
+              sequence="1"/>
+
+
+    <record id="view_bim_tag_tree" model="ir.ui.view">
+        <field name="name">view.bim.tag.tree</field>
+        <field name="model">bim.tag</field>
+        <field name="arch" type="xml">
+            <tree editable="top">
+                <field name="name"/>
+                <field name="color"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_tag_view" model="ir.actions.act_window">
+        <field name="name">Etiquetas Proyectos</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">bim.tag</field>
+        <field name="view_mode">tree</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Haga clic para crear la primera etiqueta
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_tag_action" name="Etiquetas Proyectos" parent="base_bim_2.menu_tags_categ" action="action_bim_tag_view" sequence="1"/>
+
+</odoo>
