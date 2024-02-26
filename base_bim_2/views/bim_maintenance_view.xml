@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_calendar_bim_manteinance" model="ir.ui.view">
+            <field name="name">bim.maintenance</field>
+            <field name="model">bim.maintenance</field>
+            <field name="arch" type="xml">
+                <calendar date_start="date_planned" string="Mantenimiento">
+                    <field name="name"/>
+                </calendar>
+            </field>
+        </record>
+
+
+        <record id="bim_manteinance_form_view" model="ir.ui.view">
+            <field name="name">bim.manteinance.form.view</field>
+            <field name="model">bim.maintenance</field>
+            <field name="arch" type="xml">
+                <form string="Mantenimientos">
+                    <header>
+                        <button name="action_programmed" attrs="{'invisible': [('state', '!=', 'draft')]}"
+                                string="Pasar a Programado" class="oe_highlight" type="object"/>
+                        <button name="action_executed" attrs="{'invisible': [('state', '!=', 'planned')]}"
+                                string="Pasar a Ejecutado" class="oe_highlight" type="object"/>
+                        <button name="generate_paidstate" string="Generar EP" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'done')]}"/>
+                        <button name="generate_bim_req" string="Generar Sol. Materiales" type="object"
+                                class="oe_highlight" attrs="{'invisible': [('state', 'not in', ('draft', 'planned'))]}"/>
+                        <button name="action_cancel" string="Cancelar" type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_req" type="object" class="oe_stat_button"
+                                    icon="fa-pencil-square-o" attrs="{'invisible': [('req_count', '=', 0)]}">
+                                <field name="req_count" widget="statinfo" string="Sol. Materiales"/>
+                            </button>
+                            <button name="action_view_invoices" type="object" class="oe_stat_button" icon="fa-file-text" attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                                <div class="o_form_field o_stat_info">
+                                    <field name="invoice_count" widget="statinfo" string="Facturas"/>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="date_planned"/>
+                                <field name="maintenance_duration"/>
+                                <field name="user_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="department_id" readonly="1"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="reminder" invisible="1"/>
+                                <field name="days_reminder" invisible="1"/>
+
+                            </group>
+                            <group>
+                                <field name="partner_id" options='{"no_create": 1, "no_open": 1}'/>
+                                <field name="date_done"/>
+                                <field name="invoice_amount"
+                                    options="{'currency_field': 'maintenance_currency_id', 'no_create': 1, 'no_open': 1, 'no_quick_create': 1, 'no_create_edit': 1}"/>
+                                <field name="maintenance_currency_id"
+                                    options="{'no_create': 1, 'no_open': 1, 'no_quick_create': 1, 'no_create_edit': 1}"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Insumos de Mantenimiento">
+                                <field name="line_ids" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="name"/>
+                                        <field name="uom_id"/>
+                                        <field name="quantity"/>
+                                        <field name="price_unit"/>
+                                        <field name="price_subtotal"/>
+                                    </tree>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                                    <field name="amount_total" class="oe_subtotal_footer_separator" widget='monetary'
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                        <field name="note" nolabel="1" class="oe_inline"/>
+                    </sheet>
+                     <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="bim_maintenance_tree_view" model="ir.ui.view">
+            <field name="name">bim.maintenance.tree.view</field>
+            <field name="model">bim.maintenance</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="partner_id"/>
+                    <field name="date_planned"/>
+                    <field name="date_done"/>
+                    <field name="reminder"/>
+                    <field name="user_id"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="invoice_amount"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="bim_maintenance_search_view" model="ir.ui.view">
+            <field name="name">bim.maintenance.search.view</field>
+            <field name="model">bim.maintenance</field>
+            <field name="arch" type="xml">
+                <search string="Buscar">
+                    <field name="name"/>
+                    <field name="date_planned"/>
+                    <field name="date_done"/>
+                    <field name="project_id"/>
+                    <field name="partner_id"/>
+                    <field name="state"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_project" string="Obra" context="{'group_by': 'project_id'}"/>
+                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_date_planned" string="Fecha Planificada" context="{'group_by': 'date_planned'}"/>
+                        <filter name="group_date_done" string="Fecha Ejecución" context="{'group_by': 'date_done'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_bim_maintenance" model="ir.actions.act_window">
+            <field name="name">Mantenimientos</field>
+            <field name="res_model">bim.maintenance</field>
+            <field name="context">{}</field>
+            <field name="view_mode">tree,form,calendar</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Presione para crear nuevo Registro
+                </p>
+            </field>
+        </record>
+
+
+        <menuitem id="menu_bim_maintenance"
+                  name="Mantenimientos"
+                  parent="menu_bim_main_maintenance"
+                  action="action_bim_maintenance"
+                  groups="base_bim_2.group_bim_maintenance"
+                  sequence="10"/>
+    </data>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ticket_proc_01" model="ticket.category">
+            <field name="name">Servidor</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_02" model="ticket.category">
+            <field name="name">Web</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_03" model="ticket.category">
+            <field name="name">Permisos</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_03" model="ticket.category">
+            <field name="name">Caja</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_05" model="ticket.category">
+            <field name="name">Contabilidad</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_06" model="ticket.category">
+            <field name="name">Ventas</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_07" model="ticket.category">
+            <field name="name">Compras</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_08" model="ticket.category">
+            <field name="name">Inventario</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+        <record id="ticket_proc_09" model="ticket.category">
+            <field name="name">Varios</field>
+            <field name="email">soporte@ynext.cl</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="product_invoice_estadopago_maintenance" model="product.product">
+            <field name="name">Estado Pago (Mantenimiento)</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">0</field>
+            <field name="list_price">0</field>
+            <field name="type">service</field>
+            <field name="sale_line_warn">no-message</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="description">Producto para Facturar Estado Pago por Mantenimiento</field>
+            <field name="default_code">EPAGOMANT</field>
+        </record>
+
+        <record id="default_product" model="product.product">
+            <field name="name">Materiales varios</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="type">product</field>
+            <field name="resource_type">M</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Lo comenté porque me daba problemas al actualizar -->
+        <!-- <record id="default_product_maintenance" model="res.config.settings">
+            <field name="paidstate_product_mant" ref="product_invoice_estadopago_maintenance"/>
+        </record> -->
+    </data>
+</odoo>

@@ -1,0 +1,48 @@
+.bimHierarchyMeasuresPlaceholder {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+
+    .card {
+        border: none;
+
+        .card-header {
+            background-color: $o-brand-primary;
+            color: #fff;
+            border-radius: 0;
+            padding: 0;
+            margin: 0;
+
+            >button {
+                padding: 9px 15px;
+                font-weight: bold;
+
+                &.o_bim_measures_visible:hover {
+                    color: #ccc;
+                    background-color: darken($o-brand-primary, 15%);
+                }
+
+                &:last-child {
+                    flex: 1;
+                }
+            }
+        }
+    }
+}
+
+.border-bold-top {
+    border-top: 0.2rem solid #ccc;
+}
+
+.oh_title {
+    border: 1px solid transparent;
+}
+
+.oh_title.oh_highlight {
+    border: 1px dashed;
+    opacity: 0.5;
+    padding: 0 0.5rem;
+    margin-left: -0.5rem;
+    border-radius: 0.5rem;
+}

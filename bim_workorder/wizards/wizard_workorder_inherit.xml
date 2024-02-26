@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="workorder_resource_requisition_wizard_view_form" model="ir.ui.view">
+        <field name="name">workorder.resource.requisition.wizard.form</field>
+        <field name="model">resource.requisition.wzd</field>
+        <field name="inherit_id" ref="base_bim_2.resource_requisition_wizard_view_form"/>
+        <field name="arch" type="xml">
+            <form>
+                <group name="bim_req" position="after">
+                    <group>
+                        <field name="filter_categ"/>
+                        <field name="category_id" options="{'no_create': True, 'no_open': True }"
+                               attrs="{'invisible': [('filter_categ', '=', False)],'required': [('filter_categ', '=', True)]}"/>
+                    </group>
+                    <group>
+                        <field name="workorder_ids" domain="[('project_id', '=', project_id)]" attrs="{'invisible':[('budget_ids','=',[])]}" widget="many2many_checkboxes"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

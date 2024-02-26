@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem id="main_base_menu_bim"
+                  name="BIM"
+                  web_icon="base_bim_2,static/description/icon.png"
+                  groups="base_bim_2.group_user_bim"
+                  sequence="100"/>
+
+        <menuitem id="menu_bim" name="BIM" parent="main_base_menu_bim" sequence="4"/>
+        <menuitem id="menu_bim_assistance" name="Asistencia Empleados" parent="menu_bim" sequence="77"
+                  action="hr_attendance.hr_attendance_action"
+        />
+        <menuitem id="menu_bim_maintainer" name="Mantenedor" parent="main_base_menu_bim" sequence="90"/>
+        <menuitem id="menu_bim_templates" name="Plantillas" parent="main_base_menu_bim" sequence="99"/>
+
+
+        <menuitem id="menu_hyd" name="Haberes y Descuentos" parent="main_base_menu_bim" sequence="16"/>
+        <menuitem id="menu_bim_task" name="Tareas" parent="main_base_menu_bim" sequence="20" />
+
+        <menuitem id="menu_bim_config" name="Configuración"
+                  groups="base_bim_2.group_manager_bim"
+                  parent="main_base_menu_bim" sequence="200"/>
+
+        <menuitem id="menu_tags_categ" name="Etiquetas" parent="menu_bim_config" sequence="100"/>
+
+        <menuitem id="menu_bim_main_maintenance" groups="base_bim_2.group_bim_maintenance" name="Mantenimiento" parent="main_base_menu_bim" sequence="50" />
+
+        <menuitem id="menu_bim_stock" name="Inventario" parent="main_base_menu_bim" sequence="40" />
+
+
+        <record id="product_normal_action_bim" model="ir.actions.act_window">
+            <field name="name">Productos</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="search_view_id" ref="product.product_template_search_view"/>
+            <field name="view_id" eval="False"/> <!-- Force empty -->
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product
+              </p><p>
+                You must define a product for everything you sell or purchase,
+                whether it's a storable product, a consumable or a service.
+              </p>
+            </field>
+        </record>
+
+        <record id="product_product_action_bim" model="ir.actions.act_window">
+            <field name="name">Variantes de Productos</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,kanban,form,activity</field>
+            <field name="search_view_id" ref="product.product_search_form_view"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product variant
+              </p><p>
+                You must define a product for everything you sell or purchase,
+                whether it's a storable product, a consumable or a service.
+              </p>
+            </field>
+        </record>
+
+         <menuitem id="product_normal_menu_bim"
+            name="Productos"
+            parent="menu_bim_stock"
+            action="product_normal_action_bim"
+            sequence="3" />
+
+        <menuitem id="product_product_menu_bim"
+            name="Variantes de Productos"
+            parent="menu_bim_stock"
+            action="product_product_action_bim"
+            sequence="4" />
+
+        <menuitem id="menu_bim_imports" name="Integraciones" parent="main_base_menu_bim" sequence="150" />
+
+        <menuitem id="menu_bim_data"
+        name="Datos"
+        parent="base_bim_2.main_base_menu_bim"
+        sequence="20" />
+
+        <record id="action_contacts_bim" model="ir.actions.act_window">
+        <field name="name">Contactos</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,tree,form,activity</field>
+        <field name="search_view_id" ref="base.view_res_partner_filter"/>
+        <field name="context">{'default_is_company': True}</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a contact in your address book
+          </p><p>
+            Odoo helps you to easily track all activities related to a customer.
+          </p>
+        </field>
+    </record>
+
+        <menuitem id="contacts_bim"
+            name="Contactos"
+            parent="menu_bim_data"
+            action="action_contacts_bim"
+            sequence="0" />
+    </data>
+</odoo>

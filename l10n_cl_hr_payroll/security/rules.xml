@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <record model="ir.rule" id="user_payroll_base_rule">
+    <field name="name">Nómina del usuario, Empleado</field>
+    <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
+    <field name="groups" eval="[(4,ref('base.group_user'))]"/>
+    <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    <field eval="1" name="perm_read"/>
+    <field eval="0" name="perm_write"/>
+    <field eval="0" name="perm_unlink"/>
+    <field eval="0" name="perm_create"/>
+  </record>
+
+  <record model="ir.rule" id="user_employee_base_rule">
+    <field name="name">Perfil del empleado, Empleado</field>
+    <field name="model_id" ref="hr.model_hr_employee"/>
+    <field name="groups" eval="[(4,ref('base.group_user'))]"/>
+    <field name="domain_force">[('user_id', '=', user.id)]</field>
+    <field eval="1" name="perm_read"/>
+    <field eval="0" name="perm_write"/>
+    <field eval="0" name="perm_unlink"/>
+    <field eval="0" name="perm_create"/>
+  </record>
+  
+  <record model="ir.rule" id="user_payroll_officer_rule">
+    <field name="name">Nómina del usuario, Oficial</field>
+    <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
+    <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+    <field name="domain_force">[('employee_id.private_role', '=', False)]</field>
+    <field eval="1" name="perm_read"/>
+    <field eval="1" name="perm_write"/>
+    <field eval="1" name="perm_unlink"/>
+    <field eval="1" name="perm_create"/>
+  </record>
+
+  <record model="ir.rule" id="user_employee_officer_rule">
+    <field name="name">Perfil de empleado, Oficial</field>
+    <field name="model_id" ref="hr.model_hr_employee"/>
+    <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+    <field name="domain_force">[('private_role', '=', False)]</field>
+    <field eval="1" name="perm_read"/>
+    <field eval="1" name="perm_write"/>
+    <field eval="1" name="perm_unlink"/>
+    <field eval="1" name="perm_create"/>
+  </record>
+
+  <record model="ir.rule" id="user_payroll_manager_rule">
+    <field name="name">Nómina del usuario, Manager</field>
+    <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
+    <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+    <field eval="1" name="perm_read"/>
+    <field eval="1" name="perm_write"/>
+    <field eval="1" name="perm_unlink"/>
+    <field eval="1" name="perm_create"/>
+  </record>
+
+  <record model="ir.rule" id="user_employee__manager_rule">
+    <field name="name">Perfil de empleado, Manager</field>
+    <field name="model_id" ref="hr.model_hr_employee"/>
+    <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+    <field eval="1" name="perm_read"/>
+    <field eval="1" name="perm_write"/>
+    <field eval="1" name="perm_unlink"/>
+    <field eval="1" name="perm_create"/>
+  </record>
+
+</odoo>

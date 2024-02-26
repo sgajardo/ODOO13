@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <odoo>
+    <data>
+    <record id="view_form_ticket_bim" model="ir.ui.view">
+         <field name="name">view.form.ticket.bim</field>
+         <field name="model">ticket.bim</field>
+         <field name="arch" type="xml">
+            <form string="Listado de Ticket" delete="0">
+              <header>
+
+
+                  <button name="exe_autorizar" string="Autorizar" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state','!=','borrador')]}" />
+
+                  <button name="exe_work" string="Trabajando" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state','!=','aprobado')]}" />
+
+                  <button name="exe_resuelto" string="Resuelto" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state','!=','trabajando')]}" />
+
+                  <button name="exe_abrir" string="Abrir" type="object"
+                        attrs="{'invisible': [('state','!=','resuelto'),('state','!=','calificado')]}"
+                         confirm="¿Estás seguro de que deseas Abrir el Ticket? Te recomendamos crear otro ticket y relacionarlo."/>
+
+                  <button name="exe_close" string="Pasar a Calificado" class="oe_highlight" type="object"
+                        attrs="{'invisible': [('state','!=','resuelto')]}" />
+
+                  <field name="state" widget="statusbar"/>
+              </header>
+
+                <div class="alert alert-success" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('state','!=','resuelto')]}">
+                    Por favor califique este <bold><a class="alert-link" href="#glosa" role="button">Ticket</a></bold> en el campo calificación y pulse <bold>Pasar a Calificado</bold>,
+                  </div>
+
+              <sheet>
+
+
+                  <div class="oe_title">
+                           <h1>
+                               <field name="name" readonly="1"/>
+                           </h1>
+                        </div>
+                  <group>
+                      <group>
+                          <field name="title" required="1"/>
+                          <field name="user_error_id" required="1" options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="prioridad" required="1" />
+                          <field name="category_id" required="1"  options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="numero_veces" readonly="1"/>
+                          <field name="company_id" readonly="1"/>
+                          <field name="clasificacion"/>
+                       </group>
+                      <group>
+                          <field name="project_id" required="1"/>
+                          <field name="comprobante_01_name" invisible="1"/>
+                          <field name="comprobante_01" filename="comprobante_01_name"/>
+                          <field name="ticket_id"  options='{"no_create": 1, "no_open": 1}'/>
+                          <field name="entry_date" readonly="1"/>
+                          <field name="end_date" readonly="1"/>
+                          <field name="end_will_end"/>
+                          <field name="user_id" readonly="1"/>
+                          <field name="user_work_id" attrs="{'invisible': [('state', '!=', 'trabajando')],
+                                                                            'required': [('state','==','trabajando')]}"/>
+                          <field name="calificacion" widget="priority" attrs="{'invisible': [('state', '!=', 'resuelto'),('state', '!=', 'calificado')]}"/>
+                          <field name="obs_calificacion" attrs="{'invisible': [('state', '!=', 'resuelto'),('state', '!=', 'calificado')]}"/>
+                       </group>
+                  </group>
+                  <field name="obs" required="1"/>
+                  <field name="obs_solucion" attrs="{'required': [('state','==','trabajando')]}"/>
+               </sheet>
+                <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_ticket_bim" model="ir.ui.view">
+         <field name="name">view.tree.ticket.bim</field>
+         <field name="model">ticket.bim</field>
+         <field name="arch" type="xml">
+            <tree  delete="0"   decoration-muted="state == 'resuelto'" decoration-danger="state == 'borrador'" decoration-primary="state=='aprobado'" decoration-success="state=='trabajando'">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="prioridad"/>
+                <field name="user_id"/>
+                <field name="user_error_id"/>
+                <field name="user_work_id"/>
+                <field name="entry_date"/>
+                <field name="end_will_end"/>
+                <field name="end_date"/>
+                <field name="category_id"/>
+                <field name="numero_veces"/>
+                <field name="ticket_id" />
+                <field name="calificacion" widget="priority"/>
+                <field name="clasificacion"/>
+                <field name="project_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_ticket_bim" model="ir.actions.act_window">
+        <field name="name">Ticket</field>
+        <field name="res_model">ticket.bim</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_tree_ticket_bim"/>
+    </record>
+
+    <!-- Menú Secundario: Hereda del menú principal -->
+    <menuitem id="menu_ticket_bim" name="Ticket" parent="main_base_menu_bim" sequence="100"/>
+
+
+    <menuitem id="menu_ticket_bim_son"
+        name="Ticket"
+        parent="menu_ticket_bim"
+        sequence="30"
+        action="action_ticket_bim" />
+    </data>
+</odoo>

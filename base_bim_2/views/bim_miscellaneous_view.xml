@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<!--
+    CAPITULOS
+-->
+
+<!--
+    <record id="view_form_bim_chapter" model="ir.ui.view">
+        <field name="name">view.form.bim.chapter</field>
+        <field name="model">bim.chapter</field>
+        <field name="arch" type="xml">
+            <form string="Capitulos">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="code"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_chapter" model="ir.ui.view">
+        <field name="name">view.tree.bim.chapter</field>
+        <field name="model">bim.chapter</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_chapter" model="ir.actions.act_window">
+        <field name="name">Capitulos</field>
+        <field name="res_model">bim.chapter</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_chapter"
+        name="Capitulos"
+        parent="base_bim_2.menu_bim_config"
+        action="action_bim_chapter"
+        sequence="30" />
+-->
+
+
+<!--
+    PARTIDAS
+-->
+
+<!--
+    <record id="view_form_bim_departure" model="ir.ui.view">
+        <field name="name">view.form.bim.departure</field>
+        <field name="model">bim.departure</field>
+        <field name="arch" type="xml">
+            <form string="Partidas">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="code"/>
+                            <field name="chapter_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_departure" model="ir.ui.view">
+        <field name="name">view.tree.bim.departure</field>
+        <field name="model">bim.departure</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="chapter_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_departure" model="ir.actions.act_window">
+        <field name="name">Partidas</field>
+        <field name="res_model">bim.departure</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_departure"
+        name="Partidas"
+        parent="base_bim_2.menu_bim_config"
+        action="action_bim_departure"
+        sequence="40" />
+-->
+
+
+<!--
+    FORMULAS
+-->
+
+    <record id="view_form_bim_formula" model="ir.ui.view">
+        <field name="name">view.form.bim.formula</field>
+        <field name="model">bim.formula</field>
+        <field name="arch" type="xml">
+            <form string="Fórmulas">
+                <sheet>
+                    <div>
+                        <h1>
+                            <field name="formula" placeholder="Formula eg. (x+y)/z"  class="oe_inline" required="True"/> =
+                            <field name="name" placeholder="Descripción" class="oe_inline"/>
+                        </h1>
+                    </div>
+                    <group>
+                     <group string="Variables">
+                         <div class="oe_grey" colspan="4">
+                            <p><strong>- X :</strong> Base1 / Radio</p>
+                            <p><strong>- Y :</strong> Base2 / Ancho</p>
+                            <p><strong>- Z :</strong> Altura</p>
+                         </div>
+                     </group>
+                     <group string="Operadores">
+                         <div class="oe_grey" colspan="4">
+                            <p><strong>- X² :</strong> X**2 ó pow(x,2)</p>
+                            <p><strong>- π :</strong> pi ó 3.14</p>
+                         </div>
+                     </group>
+                </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_tree_bim_formula" model="ir.ui.view">
+        <field name="name">view.tree.bim.formula</field>
+        <field name="model">bim.formula</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="formula"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_formula" model="ir.actions.act_window">
+        <field name="name">Fórmulas</field>
+        <field name="res_model">bim.formula</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_formula"
+        name="Fórmulas Partidas"
+        parent="menu_bim_data"
+        action="action_bim_formula"
+        sequence="50" />
+
+</odoo>

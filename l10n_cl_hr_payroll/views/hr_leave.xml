@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_holidays_status_form" model="ir.ui.view">
+        <field name="name">Holidays Status Form Inherit</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+        <field name="arch" type="xml">
+            <group name="validation" position="inside">
+                <field name="affects_payslip"/>
+                <field name="extended"/>
+            </group>
+            <group name="description" position="inside">
+                <field name="move_type_id"/>
+            </group>
+        </field>
+    </record>
+
+    <record id="hr_holidays_status_list" model="ir.ui.view">
+        <field name="name">Holidays Status List Inherit</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.view_holiday_status_normal_tree"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="affects_payslip"/>
+                <field name="extended"/>
+                 <field name="move_type_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_leave_allocation_form_inherit" model="ir.ui.view">
+        <field name="name">Holidays Leave Allocation Form Inherit</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_allocation_view_form"/>
+        <field name="arch" type="xml">
+            <field name="department_id" position="attributes">
+                <attribute name="attrs">
+                {'readonly':['|','|',('holiday_type','=','category'),('state','=', 'validate'),('employee_id', '!=', False)],'invisible':[('holiday_type','=','category')]}
+                </attribute>
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+            <field name="employee_id" position="attributes">
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+            <field name="holiday_status_id" position="attributes">
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_leave_form_inherit" model="ir.ui.view">
+        <field name="name">Holidays Leave Form Inherit</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+        <field name="arch" type="xml">
+            <field name="state" position="after">
+                <field name="holiday_type" invisible="1"/>
+            </field>
+            <field name="department_id" position="attributes">
+                <attribute name="attrs">
+                {'readonly':['|','|',('holiday_type','=','category'),('state','=', 'validate'),('employee_id', '!=', False)],'invisible':[('holiday_type','=','category')]}
+                </attribute>
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+            <field name="employee_id" position="attributes">
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+            <field name="holiday_status_id" position="attributes">
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_holidays.hr_holidays_menu_manager_all" model="ir.ui.menu">
+        <field name="sequence">1</field>
+        <field name="parent_id" ref="hr_holidays.menu_hr_holidays_root"/>
+    </record>
+    <!-- Registros a borrar, no los metemos dentro de un "noupdate=1 ya que las actualizaciones pueden volver a crearlos" -->
+    <delete search="[('parent_id', 'child_of', ref('hr_holidays.menu_hr_holidays_my_leaves', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('parent_id', 'child_of', ref('hr_holidays.menu_hr_holidays_dashboard', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('parent_id', 'child_of', ref('hr_holidays.menu_hr_holidays_report', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('parent_id', 'child_of', ref('hr_holidays.hr_holidays_menu_manager_approve', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('parent_id', 'child_of', ref('hr_holidays.hr_holidays_menu_manager_payroll', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.menu_hr_holidays_my_leaves', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.menu_hr_holidays_dashboard', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.menu_hr_holidays_report', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.hr_holidays_menu_manager_approve', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.hr_holidays_menu_manager_payroll', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_holidays.menu_hr_holidays_approvals', raise_if_not_found=False))]" model="ir.ui.menu"/>
+</odoo>

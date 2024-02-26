@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+
+    <record id="view_form_bim_budget" model="ir.ui.view">
+        <field name="name">view.form.bim.budget</field>
+        <field name="model">bim.budget</field>
+        <field name="arch" type="xml">
+            <form string="Listado de presupuestos">
+                <header>
+                    <button name="%(base_bim_2.bim_budget_report_wizard_action)d" attrs="{'invisible': [('concept_ids','=',[])]}"
+                            string="Presupuesto" type="action" class="oe_highlight" groups="base_bim_2.group_user_bim"/>
+
+                    <button name="%(base_bim_2.bim_certification_report_wizard_action)d" attrs="{'invisible': [('type','!=','certification')]}"
+                            string="Certificación" type="action" class="btn-primary" groups="base_bim_2.group_user_bim"/>
+
+                    <button name="%(base_bim_2.bim_resource_report_wizard_action)d"
+                            attrs="{'invisible': [('concept_ids','=',[])]}"
+                            type="action" string="Recursos" icon="fa-list-ul"/>
+
+                    <button name="%(base_bim_2.action_price_massive_wzd)d" attrs="{'invisible': [('concept_ids','=',[])]}"
+                            type="action" string="Actualizar Precios" class="oe_highlight"/>
+
+                    <button name="%(base_bim_2.bim_budget_stage_wizard_action)d" class="oe_highlight"
+                            string="Generar Etapas"  type="action"
+                            attrs="{'invisible': [('stage_ids', '!=', [])]}"
+                    />
+                    <button name="%(base_bim_2.action_bim_ajust_budget)d" string="Modificar" class="oe_highlight" type="action"/>
+
+                    <button name="print_budget_notes" string="Notas" type="object"/>
+                    <button name="action_budget_send" type="object" string="Enviar email" groups="base_bim_2.group_user_bim"/>
+
+                    <!--............................................................................................-->
+
+                    <button name="action_presupuesto" attrs="{'invisible': [('state', '!=', 'draft')]}"
+                            string="Presupuesto" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_approved" attrs="{'invisible': [('state', '!=', 'done')]}"
+                            string="Aprobar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_reject" attrs="{'invisible': [('state', '!=', 'done')]}"
+                            string="Rechazar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_building" attrs="{'invisible': [('state', '!=', 'approved')]}"
+                            string="Construcción" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_quality" attrs="{'invisible': [('state', '!=', 'building')]}"
+                            string="Calidad" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_delivery" attrs="{'invisible': [('state', '!=', 'quality')]}"
+                            string="Entregar" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_draft" attrs="{'invisible': [('state', '!=', 'cancel')]}"
+                            string="Borrador" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="action_cancel"
+                            string="Cancelar" attrs="{'invisible': [('state', '=', 'cancel')]}" icon='fa-angle-right' class="oe_highlight" type="object"/>
+
+                    <button name="import_gantt" type="object" string="Importar Gantt" class="btn-secondary"/>
+                    <button name="export_gantt" type="object" string="Exportar Gantt" class="btn-secondary"/>
+
+                    <!--............................................................................................-->
+
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="update_amount"
+                            class="oe_stat_button"
+                            icon="fa-gear" type="object"
+                            string="Actualizar Importe">
+                        </button>
+                        <button name="action_view_concepts" type="object" class="oe_stat_button" icon="fa-sitemap" groups="base_bim_2.group_user_bim" >
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="concept_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Concepto</span>
+                            </div>
+                        </button>
+                        <button name="action_view_stages" type="object" class="oe_stat_button" icon="fa-list" groups="base_bim_2.group_user_bim">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="stage_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Etapas</span>
+                            </div>
+                        </button>
+                        <button name="action_view_spaces" type="object" class="oe_stat_button" icon="fa-tasks" groups="base_bim_2.group_user_bim"><!-- attrs="{'invisible': [('group_count', '=', 0)]}"-->
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="space_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Espacios</span>
+                            </div>
+                        </button>
+
+                        <button name="action_view_certifications" type="object" class="oe_stat_button" icon="fa-pencil" groups="base_bim_2.group_user_bim"><!-- attrs="{'invisible': [('group_count', '=', 0)]}"-->
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="certification_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Cert. Masivas</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div>
+                        <h1>
+                        <field name="code" placeholder="Código"  readonly="1" class="oe_inline" required="True"/> -
+                        <field name="name" placeholder="Descripción" class="oe_inline"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                      <group>
+                            <field name="project_id"/>
+                            <field name="user_id"/>
+                            <field name="currency_id" required="1"/>
+                            <field name="concept_ids" invisible="1"/>
+                            <field name="type" required="1"/>
+                            <field name="gantt_type"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="list_price_do" invisible="1"/>
+                            <field name="pricelist_id"
+                                   attrs="{'required': [('list_price_do','!=',False)]}"
+                                   options="{'no_open':True,'no_create': True}"/>
+                            <field name="do_compute" widget="boolean_toggle"/>
+
+                      </group>
+                       <group>
+<!--                        <field name="balance" widget="monetary"/>-->
+                           <field name="balace_surface"/>
+                            <field name="surface"/>
+                            <newline/>
+                            <label for=""/>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <label for="date_start" class="font-weight-bold" string="Estimada"/>
+                                </div>
+                                <div class="col text-center">
+                                    <label for="date_from" class="font-weight-bold" string="Programada"/>
+                                </div>
+                            </div>
+                            <label for="date_start"/>
+                            <div class="row position-relative">
+                                <div class="col text-center">
+                                    <field name="date_start" required="1"/>
+                                </div>
+                                <div class="col text-center">
+                                    <field name="date_from"/>
+                                </div>
+                                <!-- <field name="use_programmed" widget="boolean_toggle" class="position-absolute mx-auto" style="left: 0; right: 0; top: 0.5rem; width: 20px;"/> -->
+                                <button name="set_estimated_dates" type="object" class="btn-link position-absolute mx-auto text-primary oe_read_only" icon="fa-arrow-left" style="left: 0; right: 0; top: 0.5rem;"/>
+                            </div>
+                            <label for="date_end"/>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <field name="date_end" required="1"/>
+                                </div>
+                                <div class="col text-center">
+                                    <field name="date_to"/>
+                                </div>
+                            </div>
+                            <field name="stage_ids" invisible="1"/>
+                            <field name="template_id" options='{"no_create": 1}'/>
+                            <field name="order_mode" widget="radio" invisible="1"/>
+                      </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Haberes y Descuentos">
+                            <group>
+                               <field name="asset_ids" nolabel="1" >
+                                    <tree editable="bottom" context="{'default_presupuesto_id': budget_id}" colors="Red:total==0;">
+                                        <field name="budget_id" invisible="1"/>
+                                        <field name="sequence" string="#" invisible="1"/>
+                                        <field name="asset_id" options='{"no_create": 1, "no_open": 1}' required="1"/>
+                                        <field name="value" required="1" />
+                                        <field name="affect_ids" domain="[('budget_id', '=', budget_id), ('id', '!=', id)]" options="{'no_create_edit':True}" widget="many2many_tags"/>
+                                        <field name="to_invoice" invisible="1"/>
+                                        <field name="total" />
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Indicadores comparativos">
+                            <button name="compute_indicators" string="Calcular Indicadores" class="oe_highlight" type="object"/>
+                            <field name="indicator_ids" nolabel="1">
+                                <tree editable="bottom" create="false" delete="false" decoration-danger="amount_projected&lt;0.0">
+                                    <field name="type"/>
+                                    <field name="amount_budget" sum="B"/>
+                                    <field name="amount_executed" sum="E"/>
+                                    <field name="amount_projected" sum="P"/>
+                                    <field name="amount_certified" sum="C"/>
+                                    <field name="amount_proj_cert" sum="J"/>
+                                    <field name="percent" widget="percentage"/>
+                                    <field name="budget_id" invisible="1"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notas">
+                            <field name="obs" widget="html"/>
+                        </page>
+                        <page string="Incidencias">
+                            <button name="incident_review" string="Buscar Incidencias" class="oe_highlight" type="object"/>
+                            <group>
+                                <field name="incidents"/>
+                            </group>
+                        </page>
+<!--                        <page name="rectify" string="Rectificar productos" groups="base_bim_2.group_rectify_products">
+                            <button name="rectify_products" type="object" string="Rectificar productos" class="btn-primary mt-2"/>
+                            <field name="product_rectify_ids" readonly="1">
+                                <tree>
+                                    <field name="budget_id" invisible="1"/>
+                                    <field name="filename" invisible="1"/>
+                                    <field name="date"/>
+                                    <field name="user_id" options="{'no_open': 1}"/>
+                                    <field name="csv_file" widget="binary" filename="filename"/>
+                                </tree>
+                            </field>
+                        </page>-->
+
+                        <page name="rectify_detailed" string="Rectificar Productos" groups="base_bim_2.group_rectify_products">
+                            <div class="row">
+                                <div class="col-3">
+                                    <button name="load_product_budget_details" type="object" string="Cargar Productos" class="btn-primary mt-2"/>
+                                </div>
+                                <div class="col-3" attr="{'invisible': [('detailed_retification_ids','=',[])]}">
+                                    <button name="rectify_products_from_details" type="object" string="Rectificar Productos" class="btn-primary mt-2"/>
+                                </div>
+                            </div>
+
+                            <field name="detailed_retification_ids">
+                                <tree editable="bottom" create="0" decoration-danger="bim_product_code!=odoo_product_code"><!---->
+                                    <field name="budget_id" invisible="1"/>
+                                    <field name="type"/>
+                                    <field name="odoo_product_code" invisible="1"/>
+                                    <field name="bim_product_code"/>
+                                    <field name="bim_product_name"/>
+                                    <field name="odoo_product_id" options="{'no_create': True}"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page name="bim_budget_tools" string="Herramientas" >
+                            <group>
+                                <button name="concept_quantiy_to_cero" type="object" string="Cantidad Partidas a Cero" class="btn-primary mt-2" groups="base_bim_2.group_manager_bim"
+                                confirm="¿Estás seguro que quieres llevar a cero las cantidades en las Partidas? Se eliminarán las Mediciones Asociadas."/>
+                            </group>
+                        </page>
+                    </notebook>
+
+                    <!-- Totals -->
+                    <group class="oe_right">
+                        <group class="oe_subtotal_footer">
+                            <field name="amount_total_labor"/>
+                            <field name="amount_total_equip"/>
+                            <field name="amount_total_material"/>
+                            <field name="amount_total_other"/>
+
+                            <field name="amount_certified_labor" invisible="1"/>
+                            <field name="amount_certified_equip" invisible="1"/>
+                            <field name="amount_certified_material" invisible="1"/>
+                            <field name="amount_certified_other" invisible="1"/>
+
+                            <field name="amount_executed_equip" invisible="1"/>
+                            <field name="amount_executed_labor" invisible="1"/>
+                            <field name="amount_executed_material" invisible="1"/>
+                            <field name="amount_executed_other" invisible="1"/>
+
+                            <field name="certified" class="oe_subtotal_footer_separator"/>
+                            <field name="balance" class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+
+                    <field name="note" placeholder="Notas y observaciones..."></field>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="view_tree_bim_budget" model="ir.ui.view">
+         <field name="name">view.tree.bim.budget</field>
+         <field name="model">bim.budget</field>
+         <field name="arch" type="xml">
+            <tree decoration-danger="balance ==0">
+                <field name="code"/>
+                <button name="action_view_concepts" string="Vista Folder" type="object" icon="fa-sitemap text-primary"/>
+                <!-- <button name="action_view_gantt" string="Vista Gantt" type="object" icon="fa-tasks text-primary"/> -->
+                <field name="name"/>
+                <field name="type"/>
+                <field name="currency_id"/>
+                <field name="user_id" invisible="1"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="project_id"/>
+                <field name="surface"/>
+                <field name="balance"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_budget" model="ir.actions.act_window">
+            <field name="name">Presupuestos</field>
+            <field name="res_model">bim.budget</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro</p>
+           </field>
+    </record>
+
+    <menuitem id="menu_bim_budget"
+        name="Presupuestos"
+        parent="base_bim_2.menu_bim"
+        action="action_bim_budget"
+        sequence="1" />
+
+<!--
+    ETAPAS
+-->
+
+    <record id="view_form_bim_budget_stage" model="ir.ui.view">
+        <field name="name">view.form.bim.budget.stage</field>
+        <field name="model">bim.budget.stage</field>
+        <field name="arch" type="xml">
+            <form string="Etapas">
+                <header>
+                    <button name="action_start" type="object" string="Iniciar" states="draft"/>
+                    <button name="action_approve" type="object" string="Aprobar" states="process"/>
+                    <button name="action_cancel" type="object" string="Cancelar" states="approved,process"/>
+                    <button name="action_draft" type="object" string="Pendiente" states="approved,cancel"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="budget_id" invisible="1"/>
+                            <field name="date_start" invisible="1"/>
+                            <field name="date_stop" string="Fecha"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_budget_stage" model="ir.ui.view">
+        <field name="name">view.tree.bim.budget.stage</field>
+        <field name="model">bim.budget.stage</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="budget_id"/>
+                <field name="date_start" invisible="1"/>
+                <field name="date_stop" string="Fecha"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_budget_stage" model="ir.actions.act_window">
+        <field name="name">Etapas</field>
+        <field name="res_model">bim.budget.stage</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_budget_stage"
+        name="Etapas"
+        parent="base_bim_2.menu_bim"
+        action="action_bim_budget_stage"
+        sequence="10" />
+
+<!--
+    ESPACIOS
+-->
+
+    <record id="view_form_bim_budget_space" model="ir.ui.view">
+        <field name="name">view.form.bim.budget.space</field>
+        <field name="model">bim.budget.space</field>
+        <field name="arch" type="xml">
+            <form string="Espacio">
+                <header>
+                    <button name="%(base_bim_2.act_space_requisition_wizard)d"
+                            string="Crear Solicitud de Materiales" type="action" class="oe_highlight" groups="base_bim_2.group_user_bim"/>
+
+                    <!-- attrs="{'invisible': [('concept_ids','=',[])]}" -->
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_purchase_requisition" type="object" class="oe_stat_button" icon="fa-check">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_value"><field name="purchase_req_count" widget="statinfo" nolabel="1"/></span>
+                                <span class="o_stat_text">Solicitudes de Materiales</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name" required="1"/>
+                        </group>
+                        <group>
+                            <field name="project_id" invisible="1"/>
+                            <field name="budget_id" options="{'no_create': True}"  required="1"/>
+                            <field name="object_id" options="{'no_create': True}" domain="[('project_id', '=',project_id)]"/>
+                        </group>
+                    </group>
+                <field name="note" placeholder="Notas y observaciones..."></field>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_bim_budget_group" model="ir.ui.view">
+        <field name="name">view.tree.bim.budget.space</field>
+        <field name="model">bim.budget.space</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="budget_id"/>
+                <field name="object_id"/>
+                <field name="project_id"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="action_bim_budget_space" model="ir.actions.act_window">
+        <field name="name">Espacios</field>
+        <field name="res_model">bim.budget.space</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bim_budget_space"
+        name="Espacios"
+        parent="base_bim_2.menu_bim"
+        action="action_bim_budget_space"
+        sequence="15" />
+
+</odoo>

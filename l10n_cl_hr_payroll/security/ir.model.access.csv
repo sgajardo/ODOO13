@@ -1,0 +1,63 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_manager_hr_isapres,hr_isapre manager access,model_hr_isapre,hr.group_hr_manager,1,1,1,1
+access_manager_hr_afp,hr_afp manager access,model_hr_afp,hr.group_hr_manager,1,1,1,1
+access_manager_hr_stats,hr_stats manager access,model_hr_stats,hr.group_hr_manager,1,1,1,1
+access_manager_hr_isapre,hr_isapre manager access,model_hr_isapre,hr.group_hr_manager,1,1,1,1
+access_manager_hr_employee_type,hr_employee_type manager access,model_hr_employee_type,hr.group_hr_manager,1,1,1,1
+access_manager_hr_mutual,hr_mutual manager access,model_hr_mutual,hr.group_hr_manager,1,1,1,1
+access_manager_hr_hd,hr_hd manager access,model_hr_hd,hr.group_hr_manager,1,0,0,0
+access_manager_hr_he,hr_he manager access,model_hr_he,hr.group_hr_manager,1,0,0,0
+access_manager_l_cargas,l_cargas manager access,model_l_cargas,hr.group_hr_manager,1,1,1,1
+access_manager_hr_balance,hr_balance manager access,model_hr_balance,hr.group_hr_manager,1,1,1,1
+access_manager_hr_ccaf,hr_ccaf manager access,model_hr_ccaf,hr.group_hr_manager,1,1,1,1
+access_manager_hr_move,hr_move manager access,model_hr_move,hr.group_hr_manager,1,1,1,1
+access_manager_hr_borrow,hr_borrow manager access,model_hr_borrow,hr.group_hr_manager,1,1,1,1
+access_manager_hr_borrow_line,hr_borrow_line manager access,model_hr_borrow_line,hr.group_hr_manager,1,1,1,1
+access_manager_hr_centroscostos,hr_centroscostos manager access,model_hr_centroscostos,hr.group_hr_manager,1,1,1,1
+access_manager_hr_payroll_historic,hr_payroll_historic manager access,model_hr_payroll_historic,hr.group_hr_manager,1,1,1,1
+access_manager_hr_payroll_historic_lines,hr_payroll_historic_lines manager access,model_hr_payroll_historic_lines,hr.group_hr_manager,1,1,1,1
+access_manager_hr_holidays_chile,hr_holidays_chile manager access,model_hr_holidays_chile,hr.group_hr_manager,1,1,1,1
+access_manager_holidays_settings,access_manager_holidays_settings,model_holidays_settings,hr.group_hr_manager,1,1,1,1
+access_manager_hr_move_type,access_manager_hr_move_type,model_hr_move_type,hr.group_hr_manager,1,1,1,1
+access_manager_hr_contract_type,access_manager_hr_contract_type,model_hr_contract_type,hr.group_hr_manager,1,1,1,1
+,,,,,,,
+access_hr_isapres,hr_isapre user access,model_hr_isapre,hr.group_hr_user,1,1,1,1
+access_user_hr_afp,hr_afp user access,model_hr_afp,hr.group_hr_user,1,1,1,1
+access_user_hr_stats,hr_stats user access,model_hr_stats,hr.group_hr_user,1,1,1,1
+access_user_hr_isapre,hr_isapre user access,model_hr_isapre,hr.group_hr_user,1,1,1,1
+access_user_hr_employee_type,hr_employee_type user access,model_hr_employee_type,hr.group_hr_user,1,1,1,1
+access_user_hr_mutual,hr_mutual user access,model_hr_mutual,hr.group_hr_user,1,1,1,1
+access_user_hr_hd,hr_hd user access,model_hr_hd,hr.group_hr_user,1,1,1,1
+access_user_hr_he,hr_he user access,model_hr_he,hr.group_hr_user,1,1,1,1
+access_user_l_cargas,l_cargas user access,model_l_cargas,hr.group_hr_user,1,1,1,1
+access_user_hr_balance,hr_balance user access,model_hr_balance,hr.group_hr_user,1,1,1,1
+access_user_hr_ccaf,hr_ccaf user access,model_hr_ccaf,hr.group_hr_user,1,1,1,1
+access_user_hr_move,hr_move user access,model_hr_move,hr.group_hr_user,1,1,1,1
+access_user_hr_borrow,hr_borrow user access,model_hr_borrow,hr.group_hr_user,1,1,1,1
+access_user_hr_borrow_line,hr_borrow_line user access,model_hr_borrow_line,hr.group_hr_user,1,1,1,1
+access_user_hr_centroscostos,hr_centroscostos user access,model_hr_centroscostos,hr.group_hr_user,1,1,1,1
+access_user_hr_payroll_historic,hr_payroll_historic user access,model_hr_payroll_historic,hr.group_hr_user,1,1,1,1
+access_user_hr_payroll_historic_lines,hr_payroll_historic_lines user access,model_hr_payroll_historic_lines,hr.group_hr_user,1,1,1,1
+access_user_hr_holidays_chile,hr_holidays_chile user access,model_hr_holidays_chile,hr.group_hr_user,1,1,1,1
+access_user_hr_move_type,access_user_hr_move_type,model_hr_move_type,hr.group_hr_user,1,1,1,1
+access_user_hr_contract_type,access_user_hr_contract_type,model_hr_contract_type,hr.group_hr_user,1,0,0,0
+,,,,,,,
+access_user_list_105_corre,access_user_list_105_corre,model_list_105_corre,hr.group_hr_user,1,1,1,1
+access_user_list_afp,access_user_list_afp,model_list_afp,hr.group_hr_user,1,1,1,1
+access_user_list_isapre,access_user_list_isapre,model_list_isapre,hr.group_hr_user,1,1,1,1
+access_user_list_fonasa,access_user_list_fonasa,model_list_fonasa,hr.group_hr_user,1,1,1,1
+,,,,,,,
+access_user_pago_previred,access_user_pago_previred,model_pago_previred,hr.group_hr_user,1,1,1,1
+access_user_hr_bonus_sheet,access_user_hr_bonus_sheet,model_hr_bonus_sheet,hr.group_hr_user,1,1,1,1
+access_user_hr_bonus_line,access_user_hr_bonus_line,model_hr_bonus_line,hr.group_hr_user,1,1,1,1
+,,,,,,,
+access_bonus_hr_bonus_sheet,access_bonus_hr_bonus_sheet,model_hr_bonus_sheet,l10n_cl_hr_payroll.group_bonus,1,1,1,1
+access_bonus_hr_bonus_line,access_bonus_hr_bonus_line,model_hr_bonus_line,l10n_cl_hr_payroll.group_bonus,1,1,1,1
+access_bonus_hr_balance,access_bonus_hr_balance,model_hr_balance,l10n_cl_hr_payroll.group_bonus,1,0,0,0
+access_bonus_hr_hd,access_bonus_hr_hd,model_hr_hd,l10n_cl_hr_payroll.group_bonus,1,0,0,0
+access_bonus_hr_employee,access_bonus_hr_employee,hr.model_hr_employee,l10n_cl_hr_payroll.group_bonus,1,0,0,0
+,,,,,,,
+,,,,,,,
+access_user_hr_payslip_run_pres_emp,access_hr_payslip_run_pres_emp,model_hr_payslip_run_pres_emp,hr.group_hr_user,1,1,1,1
+access_user_hr_payslip_run_ccaf,access_hr_payslip_run_ccaf,model_hr_payslip_run_ccaf,hr.group_hr_user,1,1,1,1
+access_hr_move_run,access_hr_move_run,model_hr_move_run,,1,1,1,1

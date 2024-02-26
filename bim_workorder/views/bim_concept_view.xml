@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_bim_concepts_workorder_form_inherit" model="ir.ui.view">
+      <field name='name'>bim.concepts.workorder.form.inherited</field>
+      <field name='model'>bim.concepts</field>
+      <field name="inherit_id" ref="base_bim_2.view_form_bim_concepts"/>
+      <field name='type'>form</field>
+      <field name='arch' type='xml'>
+
+            <xpath expr="//page[@name='execute']/group" position="inside">
+                <group name="excecute_ot_vals" string="Ordenes de Trabajo">
+                    <field name="quantity_ot"/>
+                    <field name="amount_execute_labor_ot"/>
+                    <field name="amount_execute_material_ot"/>
+                </group>
+            </xpath>
+            <field name="qty_execute" position="after">
+                <field name="qty_execute_ot"/>
+                <field name="qty_execute_total"/>
+            </field>
+
+       </field>
+    </record>
+
+    <record id="view_bim_concepts_workorder_hierarchy_inherit" model="ir.ui.view">
+      <field name='name'>bim.concepts.workorder.hierarchy.inherited</field>
+      <field name='model'>bim.concepts</field>
+      <field name="inherit_id" ref="base_bim_2.bim_concepts_view_hierarchy"/>
+      <field name='arch' type='xml'>
+            <field name="qty_execute" position="replace">
+                <field name="qty_execute_total" sum="qty_exe_tot" string="Cant Ejec" invisible="context.get('budget_type') != 'execution' and context.get('type') != 'departure'"/>
+            </field>
+            <xpath expr="//field[@name='measuring_ids']/tree/field[@name='amount_subtotal']" position="after">
+                <field name="qty_real" sum="qr"/>
+                <field name="qty_certif" sum="qc"/>
+            </xpath>
+       </field>
+    </record>
+
+<!--
+    <record id="view_bim_concepts_workorder_folder_inherit" model="ir.ui.view">
+      <field name='name'>bim.concepts.workorder.folder.inherited</field>
+      <field name='model'>bim.concepts</field>
+      <field name="inherit_id" ref="base_bim_2.bim_concepts_view_folder"/>
+      <field name='arch' type='xml'>
+            <field name="qty_execute" position="replace">
+                <field name="qty_execute_total" sum="qty_exe_tot" string="Cant Ejec" invisible="context.get('budget_type') != 'execution' and context.get('type') != 'departure'"/>
+            </field>
+       </field>
+    </record>
+
+    <record id="view_bim_concepts_workorder_tree_inherit" model="ir.ui.view">
+      <field name='name'>bim.concepts.workorder.tree.inherited</field>
+      <field name='model'>bim.concepts</field>
+      <field name="inherit_id" ref="base_bim_2.view_tree_bim_concepts"/>
+      <field name='arch' type='xml'>
+            <field name="qty_execute" position="replace">
+                <field name="qty_execute_total" sum="qty_exe_tot" string="Cant Ejec" invisible="context.get('budget_type') != 'execution' and context.get('type') != 'departure'"/>
+            </field>
+       </field>
+    </record>
+-->
+
+</odoo>

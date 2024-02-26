@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record forcecreate="True" id="frm_circle" model="bim.formula">
+            <field name="name">Area Circunferencia</field>
+            <field name="formula">3.14*x**2</field>
+        </record>
+        <record forcecreate="True" id="frm_trapeze" model="bim.formula">
+            <field name="name">Area Trapecio</field>
+            <field name="formula">((x+y)/2)*z</field>
+        </record>
+        <record forcecreate="True" id="frm_triangle" model="bim.formula">
+            <field name="name">Area Triangulo</field>
+            <field name="formula">x*z/2</field>
+        </record>
+        <record forcecreate="True" id="frm_cylinder" model="bim.formula">
+            <field name="name">Volumen Cilindro</field>
+            <field name="formula">(3.14*x**2)*z</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ubicamos el menú de nóminas de primero -->
+    <record id="hr_payroll.menu_hr_payroll_payslips" model="ir.ui.menu">
+        <field name="sequence">1</field>
+    </record>
+    <!-- Ubicamos el menú de entradas de trabajo luego de nóminas -->
+    <record id="hr_payroll.menu_hr_payroll_work_entries_root" model="ir.ui.menu">
+        <field name="sequence">5</field>
+    </record>
+    <!-- Borramos menús que sobran -->
+    <delete search="[('id', '=', ref('hr_payroll.menu_hr_payroll_employee_payslips_to_pay', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_payroll.menu_hr_payroll_employees_configuration', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_payroll.menu_hr_payroll_contracts_configuration', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <delete search="[('id', '=', ref('hr_payroll.menu_hr_payroll_employees_root', raise_if_not_found=False))]" model="ir.ui.menu"/>
+    <!-- Evitamos que por defecto estén agrupados -->
+    <record id="hr_payroll.action_view_hr_payslip_month_form" model="ir.actions.act_window">
+        <field name="context">{}</field>
+    </record>
+
+    <record id="view_hr_payslip_inherit_form4" model="ir.ui.view">
+        <field name="name">hr.payslip.inherit.form4</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page name="notas" string="Notas">
+                    <field name="notas"/>
+                </page>
+                <page name="history" string="Histórico">
+                    <group>
+                        <group>
+                            <button name="exe_historic" string="Cargar Histórico" class="btn-primary" type="object"
+                                confirm="¿Estás seguro que quieres Guardar el Dato Histórico?"/>
+                        </group>
+                        <group string="Datos">
+                            <field name="afp_id"/>
+                            <field name="isapre_id"/>
+                            <field name="isapre_cotizacion_uf"/>
+                        </group>
+                    </group>
+
+                </page>
+            </notebook>
+            <button name="action_payslip_draft" position="attributes">
+                <attribute name="states">cancel,done</attribute>
+            </button>
+
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+
+            <button name="refund_sheet" position="replace"/>
+
+            <field name="paid" position="after">
+                <field name="stats_id"/>
+            </field>
+
+            <xpath expr="//header" position="inside">
+                <button name="%(hr_payroll.action_report_payslip)d"
+                    type="action" string="Imprimir"
+                    class="btn-primary"
+                    icon="fa-print"/>
+            </xpath>
+            <xpath expr="//field[@name='worked_days_line_ids']/tree/field[@name='number_of_hours']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='worked_days_line_ids']/tree/field[@name='amount'][last()]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="hr_payslip_inherit">
+        <field name="name">hr.payslip.inherit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree"/>
+        <field name="arch" type="xml">
+            <field name="number" position="before">
+                <field name="payslip_run_id"/>
+            </field>
+
+            <field name="state" position="after">
+                <field name="contract_id"/>
+                <field name="stats_id"/>
+                <field name="notas"/>
+            </field>
+
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-info">state == 'draft'</attribute>
+                <attribute name="create">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

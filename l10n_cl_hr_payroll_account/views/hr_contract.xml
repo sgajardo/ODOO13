@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="hr_contract_form_view">
+        <field name="name">hr.contract.inherited</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml">
+            <group name="duration_group" position="after">
+                <group name="accounting" string="Contabilidad">
+                    <field name="account_analytic_account_id" groups="analytic.group_analytic_accounting"/>
+                    <field name="account_analytic_tag_id" groups="analytic.group_analytic_tags"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_run_form_inherit5" model="ir.ui.view">
+        <field name="name">hr.payslip.run.form.inherit5</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="calcular_masivo" type="object" string="Calculo Masivo"
+                    confirm="¿Estás seguro que quieres recalcular todas las nóminas?"
+                    class="btn-danger"/>
+                <button name="crear_pago_previred" type="object" string="Pago Previred"
+                        style="background-color:#449d44;border-color:#449d44;"
+                        confirm="¿Estás seguro que quieres crear el Pago Previred?"
+                        attrs="{'invisible': [('state','!=','accounted')]}"
+                        class="btn-primary"/>
+            </header>
+
+            <div name="button_box">
+                <button name="action_view_work_entries" type="object" class="oe_stat_button" icon="fa-calendar">
+                    <field name="work_entries_count" widget="statinfo"/>
+                </button>
+                <button name="view_employees_action" type="object" class="oe_stat_button" icon="fa-users">
+                    <field name="employees_count" widget="statinfo"/>
+                </button>
+                <button name="view_payslips_action" type="object" class="oe_stat_button" icon="fa-money">
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="amount_total"/>
+                        </span>
+                        <span class="o_stat_text">A pagar</span>
+                    </div>
+                </button>
+            </div>
+            <!-- <field name="state" position="attributes">
+                <attribute name="statusbar_visible">draft,validate</attribute>
+            </field>
+            <button name="draft_payslip_run" position="attributes">
+                <attribute name="states">close,validate</attribute>
+            </button> -->
+            <field name="credit_note" position="before">
+                <field name="stats_id"/>
+                <field name="account_analytic_account_id"
+                    attrs="{'invisible': [('account_analytic_account_id', '=', False)]}"
+                    groups="analytic.group_analytic_accounting"/>
+            </field>
+            <sheet>
+                <notebook>
+                    <page name="mov_personal" string="Movimientos de Personal">
+                        <field name="mov_emp_ids">
+                            <tree editable="bottom">
+                                <field name="employee_id" options='{"no_create": 1, "no_open": 1}' required="1"/>
+                                <field name="date_start" required="1"/>
+                                <field name="date_end" required="1"/>
+                                <field name="tipo" required="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_corecciones" string="Correcciones 105">
+                        <field name="corre_ids">
+                            <tree editable="bottom">
+                                <field name="employee_id" options='{"no_create": 1, "no_open": 1}' required="1"/>
+                                <field name="colum105" required="1"/>
+                                <field name="notas"/>
+                                <field name="valor" required="1" sum="Suma"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_afp" string="Pago AFP">
+                        <field name="afp_ids">
+                            <tree editable="bottom">
+                                <field name="nombre" readonly="1"/>
+                                <field name="cantidad" sum="Suma"/>
+                                <field name="monto" readonly="1" sum="Suma"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_isapre" string="Pago Isapre">
+                        <field name="isapre_ids">
+                            <tree editable="bottom">
+                                <field name="nombre" readonly="1"/>
+                                <field name="cantidad" sum="Suma"/>
+                                <field name="monto" readonly="1" sum="Suma"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_fonasa" string="Pago Fonasa">
+                        <field name="fonasa_ids">
+                            <tree editable="bottom">
+                                <field name="nombre" readonly="1"/>
+                                <field name="cantidad" sum="Suma"/>
+                                <field name="monto" readonly="1" sum="Suma"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_ccaf" string="Préstamos CCAF">
+                        <field name="ccaf_ids" readonly="1">
+                            <tree>
+                                <field name="payslip_run_id" invisible="1"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="employee_id"/>
+                                <field name="amount" sum="Total"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="listado_prestamos_empresa" string="Préstamos Empresa">
+                        <field name="pres_emp_ids" readonly="1">
+                            <tree>
+                                <field name="payslip_run_id" invisible="1"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="employee_id"/>
+                                <field name="amount" sum="Total"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page name="valores" string="Valores">
+                        <group>
+                            <group string="Mutual">
+                                <field name="mutual" readonly="1"/>
+                            </group>
+                            <group string="CCAF">
+                                <field name="ccaf_valor" readonly="1"/>
+                                <field name="ccaf_credito" readonly="1"/>
+                                <field name="ccaf" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="salario_liquido" readonly="1"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page name="tools" string="Tools">
+                        <group>
+                            <group>
+                                <button name="exe_historic_all" string="Cargar Histórico" class="btn-primary" type="object"
+                                confirm="¿Estás seguro que quieres Guardar el Dato Histórico?"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+            <sheet position="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </sheet>
+        </field>
+    </record>
+
+    <record id="hr_payslip_run_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.run.inherit.view.tree</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_tree"/>
+        <field name="arch" type="xml">
+            <field name="state" position="before">
+                <field name="currency_id" invisible="1"/>
+                <field name="stats_id"/>
+                <field name="employees_count"/>
+                <field name="amount_total"/>
+            </field>
+        </field>
+    </record>
+</odoo>

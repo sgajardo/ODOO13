@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <data>
+
+    <record id="view_form_bim_purchase_requisition" model="ir.ui.view">
+        <field name="name">view.form.bim.purchase.requisition</field>
+        <field name="model">bim.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud Materiales" delete="0">
+                <header>
+                    <button name="action_approve" states="nuevo" confirm="¿Estás seguro de aprobar la solicitud?"
+                            type="object" string="Aprobar" class="oe_highlight"/>
+                    <button name="action_done" states="aprobado" confirm="¿Estás seguro que deseas finalizar la solicitud?"
+                            type="object" string="Finalizar"/>
+                    <button name="action_cancel" states="aprobado" confirm="¿Estás seguro que deseas cancelar?"
+                            type="object" string="Cancelar"/>
+                    <button name="action_draft" states="cancelado" confirm="¿Estás seguro que deseas pasar a Nuevo?"
+                            type="object" string="Volver a Nuevo"/>
+                    <button name="%(base_bim_2.action_create_purchase_wizard)d" states="aprobado"
+                            type="action" string="Comprar"/>
+                    <button name="create_picking" states="aprobado" string="Crear Transferencia"
+                            type="object" class="oe_highlight" />
+                    <button name="%(base_bim_2.act_resource_requisition_wizard)d" string="Cargar Recursos" type="action"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pickings" class="oe_stat_button" icon="fa-cubes" type="object"
+                                attrs="{'invisible': [('picking_count', '=', 0)]}">
+                            <field name="picking_count" widget="statinfo" string="Transferencias"/>
+                        </button>
+                        <button name="action_view_purchases" class="oe_stat_button" icon="fa-shopping-basket"
+                                type="object" attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                            <field name="purchase_count" widget="statinfo" string="Compras"/>
+                        </button>
+                        <button name="action_view_agreement" class="oe_stat_button" icon="fa-copy"
+                                type="object" attrs="{'invisible': [('agree_count', '=', 0)]}">
+                            <field name="agree_count" widget="statinfo" string="Acuerdos de Compra"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id" required="1" options='{"no_create": 1, "no_open": 1}' attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                            <field name="project_id" required="context.get('purchase') == False" invisible="context.get('purchase') == True" options='{"no_create": 1, "no_open": 1}' attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                            <field name="analytic_id" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                            <field name="company_id" groups="base.group_multi_company" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                        </group>
+                        <group>
+                            <field name="date_begin" required="1" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                            <field name="date_prevista" required="1" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}"/>
+                            <field name="warehouse_id" invisible="1" force_save="1" options='{"no_create": 1, "no_open": 1}'/>
+                            <field name="amount_total"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="listado_materiales" string="Listado Materiales">
+                            <field name="product_ids" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}">
+                                <tree editable="bottom">
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="product_id" options="{'no_create_edit': True}" required="1" domain="[('type','!=','service')]"/>
+                                    <field name="um_id" attrs="{'readonly': [('solo_lectura','=', True)]}" options="{'no_create_edit': True}"/>
+                                    <field name="partner_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags"/>
+                                    <field name="analytic_id"/>
+                                    <field name="analytic_tag_ids" options='{"no_create": 1, "no_open": 1}' widget="many2many_tags"/>
+                                    <field name="quant" attrs="{'readonly': [('solo_lectura','=', True)]}" required="1" sum="qty"/>
+                                    <field name="cost"/>
+                                    <field name="subtotal" sum="subt"/>
+                                    <field name="despachado"/>
+                                    <field name="qty_done" invisible="1"/>
+                                    <field name="qty_to_process"/>
+                                    <field name="qty_purchase" invisible="1"/>
+                                    <field name="sent_to_production" invisible="1"/>
+                                    <field name="obs"/>
+                                    <field name="done"/>
+                                    <field name="solo_lectura" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <field name="obs" attrs="{'readonly': [('state','not in', ['nuevo', 'aprobado'])]}" placeholder="Notas.."/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_tree_bim_purchase_requisition" model="ir.ui.view">
+        <field name="name">view.tree.bim.purchase.requisition</field>
+        <field name="model">bim.purchase.requisition</field>
+        <field name="arch" type="xml">
+            <tree delete="0">
+                <field name="name"/>
+                <field name="project_id" />
+                <field name="date_begin"/>
+                <field name="date_prevista"/>
+                <field name="user_id"/>
+                <field name="amount_total"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_bim_purchase_requisition" model="ir.actions.act_window">
+        <field name="name">Solicitud de Materiales</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">bim.purchase.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_tree_bim_purchase_requisition"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Presione para crear nuevo Registro
+            </p>
+        </field>
+    </record>
+
+        <menuitem id="menu_bim_purchase_requisition"
+                  name="Solicitud de Materiales"
+                  parent="base_bim_2.menu_bim_stock"
+                  action="action_bim_purchase_requisition"
+                  sequence="100"/>
+
+        <menuitem id="menu_purchase_requisition_view"
+                  name="Solicitud de Materiales"
+                  parent="purchase.menu_procurement_management"
+                  action="action_bim_purchase_requisition"
+                  sequence="50"
+                  groups="base_bim_2.group_requisition_purchase"/>
+
+        <record id="view_tree_product_list" model="ir.ui.view">
+            <field name="name">view.tree.bim.product.list</field>
+            <field name="model">product.list</field>
+            <field name="arch" type="xml">
+                <tree delete="0" create="0" edit="0" decoration-muted="done == True">
+                    <field name="product_id"/>
+                    <field name="um_id"/>
+                    <field name="quant"/>
+                    <field name="project_id"/>
+                    <field name="requisition_id"/>
+                    <field name="done"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_product_list_search" model="ir.ui.view">
+            <field name="name">view.product.list.search</field>
+            <field name="model">product.list</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Productos">
+                    <field name="project_id"/>
+                    <field name="requisition_id"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_project" string="Obra" context="{'group_by': 'project_id'}"/>
+                        <filter name="group_requisition" string="Solicitud de Materiales" context="{'group_by': 'requisition_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <menuitem id="menu_analytic_tags_action"
+                  name="Etiquetas Analíticas"
+                  parent="base_bim_2.menu_tags_categ"
+                  action="analytic.account_analytic_tag_action"
+                  sequence="2"/>
+
+    </data>
+</odoo>

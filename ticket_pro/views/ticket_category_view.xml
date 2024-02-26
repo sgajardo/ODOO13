@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <odoo>
+    <data>
+    <record id="view_form_ticket_category" model="ir.ui.view">
+         <field name="name">view.form.ticket.category</field>
+         <field name="model">ticket.category</field>
+         <field name="arch" type="xml">
+            <form string="Listado de Categoria">
+              <header>
+              </header>
+              <sheet>
+                  <group>
+                      <group>
+                          <field name="name" required="1"/>
+                          <field name="email" required="1"/>
+                       </group>
+                  </group>
+               </sheet>
+                <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tree_ticket_category" model="ir.ui.view">
+         <field name="name">view.tree.ticket.category</field>
+         <field name="model">ticket.category</field>
+         <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="email"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_ticket_category" model="ir.actions.act_window">
+        <field name="name">Categorias</field>
+        <field name="res_model">ticket.category</field>
+        <field name="view_id" ref="view_tree_ticket_category"/>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Presione para crear nuevo Registro</p>
+       </field>
+    </record>
+
+
+    <menuitem id="menu_ticket_category"
+        name="Categorias"
+        parent="menu_ticket_2"
+        sequence="40"
+        groups="ticket_pro.tiket_pro_manager_group"
+        action="action_ticket_category" />
+     </data>
+</odoo>

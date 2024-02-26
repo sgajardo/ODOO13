@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="l10n_cl_hr_salary_rule_view" model="ir.ui.view">
+			<field name="name">l10n.cl.hr.salary.rule.view</field>
+			<field name="model">hr.salary.rule</field>
+			<field name="inherit_id" ref="hr_payroll.hr_salary_rule_form"/>
+			<field name="arch" type="xml">
+				<field name="code" position="before">
+					<field name="date_start"/>
+					<field name="date_end" />
+					<field name="chile_type" />
+				</field>
+			</field>
+		</record>
+
+		<record id="l10n_cl_hr_salary_rule_list_view" model="ir.ui.view">
+			<field name="name">l10n.cl.hr.salary.rule.list.view</field>
+			<field name="model">hr.salary.rule</field>
+			<field name="inherit_id" ref="hr_payroll.hr_salary_rule_list"/>
+			<field name="arch" type="xml">
+				<field name="struct_id" position="after">
+					<field name="note"/>
+					<field name="chile_type"/>
+				</field>
+			</field>
+		</record>
+	</data>
+</odoo>

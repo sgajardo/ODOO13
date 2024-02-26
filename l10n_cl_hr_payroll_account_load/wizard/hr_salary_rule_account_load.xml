@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_salary_rule_account_load_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr.salary.rule.account.load.wizard.view.form</field>
+        <field name="model">hr.salary.rule.account.load.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Carga de cuentas para centralización">
+                <group>
+                    <group>
+                        <field name="name" invisible="1"/>
+                        <field name="xls_file" filename="name"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Cerrar" class="btn-secondary" special="cancel" />
+                    <button name="load_accounts" string="Cargar" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="hr_salary_rule_account_load_wizard_action"
+        name="Cargar cuentas en reglas salariales"
+        res_model="hr.salary.rule.account.load.wizard"
+        view_mode="form"
+        target="new"/>
+    <menuitem id="hr_salary_rule_account_load_wizard_menu"
+        name="Cargar cuentas en reglas salariales"
+        parent="hr_payroll.menu_hr_salary_configuration"
+        action="hr_salary_rule_account_load_wizard_action"
+        sequence="39"/>
+</odoo>

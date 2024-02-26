@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Reporte Presupuesto -->
+<!--        <report-->
+<!--            id="bim_budget_email_full"-->
+<!--            model="bim.budget"-->
+<!--            string="Partidas al Correo"-->
+<!--            name="base_bim_2.bim_budget_email_full"-->
+<!--            file="base_bim_2.bim_budget_email_full"-->
+<!--            report_type="qweb-pdf"-->
+
+<!--        />-->
+        <report
+            id="bim_budget_full"
+            model="bim.budget.report.wizard"
+            string="Reporte Presupuesto completo"
+            name="base_bim_2.budget_report_full"
+            file="base_bim_2.budget_report_full"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_budget"
+            model="bim.budget.report.wizard"
+            string="Reporte Presupuesto"
+            name="base_bim_2.budget_report"
+            file="base_bim_2.budget_report"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_budget_summary"
+            model="bim.budget.report.wizard"
+            string="Presupuesto Resumido"
+            name="base_bim_2.budget_summary"
+            file="base_bim_2.budget_summary"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_budget_resource"
+            model="bim.resource.report.wizard"
+            string="Reporte Recursos"
+            name="base_bim_2.budget_resource"
+            file="base_bim_2.budget_resource"
+            report_type="qweb-pdf"
+        />
+
+        <report
+            id="bim_checklist_act"
+            model="bim.checklist"
+            string="Reporte Checklist"
+            name="base_bim_2.report_checklist"
+            file="base_bim_2.report_checklist"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_budget_certification"
+            model="bim.certification.report.wizard"
+            string="Reporte Certificación"
+            name="base_bim_2.certification_report"
+            file="base_bim_2.certification_report"
+            menu="False"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_origin_certification"
+            model="bim.certification.report.wizard"
+            string="Reporte Certificación"
+            name="base_bim_2.origin_cert_report"
+            file="base_bim_2.origin_cert_report"
+            menu="False"
+            report_type="qweb-pdf"
+        />
+        <report
+            id="bim_budget_compare"
+            model="bim.certification.report.wizard"
+            string="Reporte Comparativo"
+            name="base_bim_2.compare_cert_report"
+            file="base_bim_2.compare_cert_report"
+            menu="False"
+            report_type="qweb-pdf"
+        />
+
+        <report
+            id="bim_budget_real_execute"
+            model="bim.budget.report.wizard"
+            string="Reporte Ejecución Real"
+            name="base_bim_2.real_execute_report"
+            file="base_bim_2.real_execute_report"
+            menu="False"
+            report_type="qweb-pdf"
+        />
+
+<!--
+        <report
+            id="presupuesto_report_desc"
+            model="bim.presupuesto"
+            string="Memoria Descriptiva"
+            name="base_bim_2.presupuesto_report_template_m"
+            file="base_bim_2.presupuesto_report_template_m"
+            report_type="qweb-pdf"
+            />
+-->
+
+        <report
+            id="notes_report_budget"
+            model="bim.budget"
+            string="Notas Presupuesto"
+            name="base_bim_2.report_budget_notes_template"
+            file="base_bim_2.report_budget_notes_template"
+            report_type="qweb-pdf"
+        />
+        
+        <report
+            id="notes_report_document"
+            model="bim.documentation"
+            string="Notas Documentos"
+            name="base_bim_2.report_document_notes_template"
+            file="base_bim_2.report_document_notes_template"
+            report_type="qweb-pdf"
+        />
+
+        <report 
+            id="action_report_workorder"
+            string="Reporte"
+            model="bim.work.order" 
+            report_type="qweb-pdf"
+            file="base_bim_2.report_workorder" 
+            name="base_bim_2.report_workorder"
+            print_report_name="(object.state in ('draft', 'sent') and 'Presupuesto - %s' % (object.name)) or 'Orden - %s' % (object.name)"
+        />
+
+        <report 
+            id="action_report_maintenance"
+            string="Report Mantenimiento"
+            model="bim.maintenance" 
+            report_type="qweb-pdf"
+            file="base_bim_2.report_maintenance" 
+            name="base_bim_2.report_maintenance"
+        />
+
+    </data>
+</odoo>
